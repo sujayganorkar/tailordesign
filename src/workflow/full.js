@@ -45,7 +45,7 @@ export async function runFull(targetPath, options = {}) {
   if (stat.isFile()) {
     files = [targetPath];
   } else {
-    files = await glob('**/*.{jsx,tsx,js,ts,css,scss,less,html,htm,dart}', {
+    files = await glob('**/*.{jsx,tsx,js,ts,css,scss,less,html,htm,dart,vue,svelte}', {
       cwd: targetPath, ignore, absolute: true,
     });
   }

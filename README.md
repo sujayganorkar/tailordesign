@@ -1,7 +1,6 @@
 # uiq — eslint for AI-generated UI
 
-> **One command. 18 rules. Zero taste debates.**
-> 
+> **One command. Objective rules. Zero taste debates.**
 > Your AI agent builds the UI. `uiq` makes sure it doesn't ship broken.
 
 ```bash
@@ -46,7 +45,7 @@ These aren't taste problems. They're **objective, measurable failures** that age
 
 ## The solution
 
-`uiq` is a deterministic quality gate. It runs in 2 seconds, needs no browser, and checks 18 rules across 5 categories. Your agent runs it after writing code, fixes the issues, and re-runs until it passes.
+`uiq` is a deterministic quality gate. It runs in 2 seconds, needs no browser, and checks 21 rules across 5 categories. Your agent runs it after writing code, fixes the issues, and re-runs until it passes.
 
 **No taste debates. No rendering. No cost. Just rules.**
 
@@ -62,12 +61,12 @@ npx uiq ./src
 
 **As an agent skill** (Claude Code / Codex / Cursor):
 ```bash
-git clone https://github.com/your-org/uiq ~/.claude/skills/uiq
+git clone https://github.com/sujayganorkar/tailordesign.git ~/.claude/skills/uiq
 ```
 
 ---
 
-## Quick start (3 steps)
+## Quick start
 
 ```bash
 # 1. Scan your UI
@@ -79,15 +78,13 @@ uiq ./src
 uiq ./src --ci --min-score 80
 ```
 
-That's it. Your UI now passes the quality gate.
-
 ---
 
 ## Commands
 
 | Command | What it does |
 |---|---|
-| `uiq ./src` | Quality gate — checks 18 rules |
+| `uiq ./src` | Quality gate — checks 21 rules |
 | `uiq ./src --decide` | Decision analysis — what interaction each component warrants |
 | `uiq ./src --full` | Full loop — decisions + quality + compliance |
 | `uiq ./src --state` | Save state + detect regressions |
@@ -109,7 +106,7 @@ That's it. Your UI now passes the quality gate.
 
 ---
 
-## What it checks
+## What it checks (21 rules)
 
 ### Motion (5 rules)
 | Rule | What it catches |
@@ -118,39 +115,32 @@ That's it. Your UI now passes the quality gate.
 | `motion/duration-range` | Durations outside 100-500ms |
 | `motion/known-easing` | Unknown easing curves |
 | `motion/reduced-motion` | No `prefers-reduced-motion` handling |
-| `motion/stagger-interval` | Stagger intervals outside 30-50ms |
+| `motion/stagger-interval` | Multiple animations without stagger pattern |
 
 ### Interaction (7 rules)
 | Rule | What it catches |
 |---|---|
 | `interaction/hover-state` | Interactive elements without hover styling |
 | `interaction/focus-visible` | No focus-visible for keyboard nav |
-| `interaction/disabled-state` | Disableable elements without disabled styling |
+| `interaction/disabled-state` | No disabled state handling |
 | `interaction/loading-state` | Data views without loading UI |
 | `interaction/empty-state` | Data views without empty state |
 | `interaction/error-state` | Data views without error state |
 | `interaction/active-route` | Navigation without active route indication |
 
-### Accessibility (5 rules)
+### Accessibility (4 rules)
 | Rule | What it catches |
 |---|---|
-| `a11y/focus-management` | Modals/drawers without focus trapping |
 | `a11y/keyboard-nav` | onClick on divs/spans (not keyboard accessible) |
+| `a11y/focus-management` | Modals/drawers without focus trapping |
 | `a11y/aria-dynamic` | Dynamic content without ARIA attributes |
-| `a11y/contrast` | Text below WCAG 4.5:1 contrast |
-| `a11y/touch-targets` | Touch targets below 44×44px |
+| `a11y/touch-targets` | No explicit touch target sizing (44×44px) |
 
-### Performance (2 rules)
-| Rule | What it catches |
-|---|---|
-| `perf/compositor-only` | Animations on main thread |
-| `perf/no-layout-thrash` | Interleaved DOM reads/writes |
-
-### Consistency (4 rules)
+### Consistency (5 rules)
 | Rule | What it catches |
 |---|---|
 | `consistency/motion-tokens` | No motion design tokens defined |
-| `consistency/single-language` | Inconsistent easing/duration across page |
+| `consistency/single-language` | More than 3 different easing curves |
 | `consistency/no-generic-cta` | Generic blue CTA buttons |
 | `consistency/no-card-grid-hero` | Card grids in hero section |
 
@@ -173,7 +163,7 @@ That's it. Your UI now passes the quality gate.
 │    ✗ Loading state must disable the button
 ```
 
-It covers: buttons, cards, modals, drawers, accordions, forms, inputs, lists, data views, images, links, nav, tabs, tooltips, loading states. For both web (JSX/TSX/CSS) and Flutter (Dart).
+Covers 16 component types for both web (JSX/TSX/CSS/HTML) and Flutter (Dart).
 
 ---
 
@@ -198,7 +188,7 @@ DECIDE → IMPLEMENT → CHECK → COMPLY → ESCALATE/REVIEW → LEARN → DECI
 ```
 After writing or modifying UI code:
 1. Run: uiq ./src
-2. Fix all errors, then warnings
+2. Fix errors first, then warnings
 3. Re-run until score ≥ 80
 4. Run: uiq ./src --full
 5. Verify compliance ≥ 90%
@@ -208,6 +198,7 @@ For new components:
 1. Run: uiq ./src --decide
 2. Implement all required states and recommended motion
 3. Follow anti-patterns list
+4. Run: uiq ./src
 ```
 
 ---
@@ -234,7 +225,7 @@ jobs:
 
 ```bash
 # Add feedback
-uiq review --add --file Hero.jsx --component Hero --category too-slow --note "Entrance takes 600ms, should be 300ms"
+uiq review --add --file Hero.jsx --component Hero --category too-slow --note "Entrance takes 600ms"
 
 # View feedback
 uiq review
@@ -259,50 +250,35 @@ uiq escalate                    # View pending
 uiq escalate resolve esc-123 --option 2  # Resolve with option 2
 ```
 
-Escalation triggers: reduced-motion decisions, hover state design, CTA color choice, focus management, layout animation refactoring.
-
 ---
 
 ## Supported frameworks
 
 | Framework | Files | Parser |
 |---|---|---|
-| React / Next.js | `.jsx`, `.tsx`, `.js`, `.ts` | JSX parser |
-| Vue / Svelte | `.vue`, `.svelte` | JSX parser (HTML-like) |
-| HTML | `.html`, `.htm` | JSX parser |
-| CSS / Tailwind | `.css`, `.scss`, `.less` | CSS parser |
-| Flutter | `.dart` | Dart parser |
+| React / Next.js | `.jsx`, `.tsx`, `.js`, `.ts` | JSX |
+| Vue / Svelte | `.vue`, `.svelte` | JSX (HTML-like) |
+| HTML | `.html`, `.htm` | JSX |
+| CSS / Tailwind | `.css`, `.scss`, `.less` | CSS |
+| Flutter | `.dart` | Dart |
 
 ---
 
-## Architecture (for contributors)
+## Architecture
 
 ```
 src/
-├── config.js              — Rule definitions (18 rules)
+├── config.js              — Rule definitions (21 rules)
 ├── index.js               — Quality gate runner
 ├── reporter.js            — Output formatting
-├── parsers/
-│   ├── jsx.js             — JSX/TSX parser
-│   ├── css.js             — CSS parser
-│   └── dart.js            — Dart/Flutter parser
-├── rules/
-│   └── index.js           — Rule implementations
-├── decisions/
-│   ├── classifier.js      — Component type detection
-│   ├── requirements.js    — Component → interaction mapping
-│   ├── engine.js          — Decision analysis + report
-│   └── index.js           — Decision entry point
-├── workflow/
-│   └── full.js            — Unified workflow
-├── spec/
-│   └── motion-spec.js     — Machine-readable motion spec
-├── state/
-│   └── persistence.js     — State + regression detection
-├── feedback/
-│   └── review.js          — Human feedback capture
-└── escalation/
-    └── cards.js           — Escalation protocol
+├── parsers/               — JSX, CSS, Dart parsers
+├── rules/                 — Rule implementations
+├── decisions/             — Component classifier + requirements + engine
+├── workflow/              — Full workflow (decisions + quality + compliance)
+├── spec/                  — Machine-readable motion spec
+├── state/                 — State persistence + regression detection
+├── feedback/              — Human feedback capture
+└── escalation/            — Escalation protocol
 ```
 
 ---
@@ -310,16 +286,16 @@ src/
 ## FAQ
 
 **Q: Does this replace human design review?**
-No. It automates the objective layer (motion mechanics, states, accessibility, performance). The experiential layer (does it feel right?) still needs human judgment. The tool makes human review faster by catching mechanical issues first.
+No. It automates the objective layer (motion mechanics, states, accessibility). The experiential layer (does it feel right?) still needs human judgment. The tool makes human review faster by catching mechanical issues first.
 
 **Q: Can the agent game the score?**
-The agent could add `hover:` to every element to silence the linter. That's why the decision engine exists — it specifies *which* components need *which* states. The compliance check verifies decisions match implementation. Gaming the score means implementing unnecessary states, which the decision engine flags.
+The agent could add `hover:` to every element to silence the linter. That's why the decision engine exists — it specifies *which* components need *which* states. The compliance check verifies decisions match implementation.
 
 **Q: Does this work without a browser?**
 Yes. All checks are static (AST/regex on source code). No rendering, no Playwright, no screenshots. Runs in < 2 seconds.
 
 **Q: What about taste/beauty?**
-Out of scope. The tool checks mechanical correctness, not aesthetics. For taste, use visual references + human review. The tool ensures the mechanical foundation is solid so the human can focus on taste.
+Out of scope. The tool checks mechanical correctness, not aesthetics. For taste, use visual references + human review.
 
 **Q: Is this only for AI-generated UI?**
 No. It works on any UI code. But it's designed for the agentic workflow where an agent writes code and needs automated verification.
@@ -329,8 +305,6 @@ No. It works on any UI code. But it's designed for the agentic workflow where an
 ## License
 
 MIT
-
----
 
 ## Contributing
 

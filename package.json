@@ -1,10 +1,9 @@
 {
-  "name": "ai-ui-quality-gate",
+  "name": "uiq",
   "version": "0.1.0",
-  "description": "eslint for AI-generated UI. Deterministic quality gate for motion, interaction states, accessibility, performance, and consistency.",
+  "description": "Quality gate for AI-generated UI. 21 objective rules across motion, interaction states, accessibility, performance, and consistency. Plus interaction decision engine.",
   "bin": {
-    "uiq": "./bin/cli.js",
-    "ui-quality": "./bin/cli.js"
+    "uiq": "./bin/cli.js"
   },
   "main": "src/index.js",
   "type": "module",
@@ -20,10 +19,20 @@
     "motion",
     "animation",
     "ai",
-    "design"
+    "design",
+    "eslint",
+    "frontend"
   ],
-  "author": "",
+  "author": "Sujay Ganorkar",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sujayganorkar/tailordesign.git"
+  },
+  "homepage": "https://github.com/sujayganorkar/tailordesign#readme",
+  "bugs": {
+    "url": "https://github.com/sujayganorkar/tailordesign/issues"
+  },
   "engines": {
     "node": ">=18"
   },

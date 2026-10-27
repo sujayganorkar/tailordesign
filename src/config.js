@@ -154,7 +154,7 @@ export const RULES = [
     description: 'All animations must respect prefers-reduced-motion. Check for @media (prefers-reduced-motion: reduce) or useReducedMotion hook.',
     source: SOURCES['motion/reduced-motion'] },
   { id: 'motion/stagger-interval', category: CATEGORIES.MOTION, severity: SEVERITY.INFO,
-    description: 'Staggered animations should use 30-50ms intervals between items.',
+    description: 'Staggered animations should use 20-40ms intervals between items (Material Design choreography spec).',
     source: SOURCES['motion/stagger-interval'] },
 
   // Interaction

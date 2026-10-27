@@ -45,7 +45,7 @@ These aren't taste problems. They're **objective, measurable failures** that age
 
 ## The solution
 
-`uiq` is a deterministic quality gate. It runs in 2 seconds, needs no browser, and checks 20 rules across 5 categories. Your agent runs it after writing code, fixes the issues, and re-runs until it passes.
+`uiq` is a deterministic quality gate. It runs in seconds, needs no browser, and checks 20 rules across 5 categories. Your agent runs it after writing code, fixes the issues, and re-runs until it passes.
 
 **No taste debates. No rendering. No cost. Just rules.**
 

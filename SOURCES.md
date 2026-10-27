@@ -138,3 +138,66 @@ All sources are from these organizations:
 | CSS Triggers | csstriggers.com | Which CSS properties trigger layout/paint/composite |
 | W3C Design Tokens | design-tokens.github.io | Design token format specification |
 | ARIA APG | w3.org/WAI/ARIA/apg | Dialog pattern, keyboard navigation |
+
+---
+
+## Numbers and their sources
+
+Every numeric value in uiq is either **research-backed** (from a published source) or a **heuristic** (our own decision, documented here). No hallucinated numbers.
+
+### Research-backed numbers
+
+| Value | Where used | Source |
+|---|---|---|
+| 100-500ms duration range | `motion/duration-range` rule | Material Design 3 motion spec + NN/g "Animation Duration" |
+| 100ms (micro-interaction) | Decision engine, DURATION_RANGES | Material Design short2 (100ms) |
+| 150ms (hover/transition) | Decision engine, DURATION_RANGES | Material Design short3 (150ms) |
+| 200ms (entrance) | Decision engine | Material Design short4 (200ms) |
+| 250ms (complex start) | DURATION_RANGES | Material Design medium1 (250ms) |
+| 300ms (modal/complex) | Decision engine | Material Design medium2 (300ms) |
+| 500ms (max) | DURATION_RANGES, duration-range rule | Material Design long2 (500ms), NN/g upper bound |
+| 20-40ms stagger | `motion/stagger-interval` rule | Material Design choreography spec |
+| 44×44px touch targets | `a11y/touch-targets` rule | WCAG 2.5.5 (minimum 44×44 CSS pixels) |
+| 4.5:1 contrast ratio | SOURCES (not yet implemented as rule) | WCAG 2.1 AA (normal text) |
+| 48×48dp touch targets | SOURCES (reference) | Material Design (48×48dp) |
+| 44×44pt touch targets | SOURCES (reference) | Apple HIG (44×44pt) |
+| ease-out for entrances | `motion/known-easing` rule | Material Design + Apple HIG |
+| ease-in for exits | `motion/known-easing` rule | Material Design + Apple HIG |
+| ease-in-out for moves | `motion/known-easing` rule | Material Design + Apple HIG |
+| scale 0.96-0.98 on press | Decision engine | Material Design pressed state |
+| 0.01ms for reduced motion | Decision engine | Common technique (instant appear, no motion) |
+
+### Heuristic numbers (our decisions, not research-backed)
+
+| Value | Where used | Rationale |
+|---|---|---|
+| Score deductions: error -10, warning -3, info -1 | Score calculation | Errors are more severe; 10/3/1 ratio reflects relative impact |
+| Pass threshold: 80 | Default `--min-score` | 80% = "good enough" default; configurable via `--min-score` |
+| Compliance threshold: 90% | README recommendation | 90% = near-complete; configurable |
+| `animations.length > 3` for stagger check | rules/index.js | Heuristic: 3+ animations likely need staggering |
+| `interactiveElements.length > 2` for disabled check | rules/index.js | Heuristic: 2+ interactive elements likely need disabled states |
+| `interactiveElements.length > 3` for touch targets | rules/index.js | Heuristic: 3+ elements likely need explicit touch sizing |
+| `easings.length > 3` for single-language check | rules/index.js | Heuristic: 3+ different easings likely inconsistent |
+| `uniqueEasings.size > 3` | rules/index.js | Heuristic: more than 3 easings is inconsistent |
+| translateY(-2px) on card hover | Decision engine | Common practice; subtle enough for grids |
+| translateY(-4px) on card hover (feedback) | Decision engine | Adjusted based on human feedback |
+| 25ms stagger (feedback example) | Decision engine | Within Material Design 20-40ms range |
+| 40ms stagger | Decision engine | Upper bound of Material Design 20-40ms range |
+| 300ms modal entrance | Decision engine | Material Design medium2 (300ms) |
+| 200ms standard entrance | Decision engine | Material Design short4 (200ms) |
+| 150ms hover | Decision engine | Material Design short3 (150ms) |
+| 100ms press | Decision engine | Material Design short2 (100ms) |
+
+### What is NOT a number (and why)
+
+- **No "2 seconds" claim**: Earlier README said "runs in 2 seconds." This is not measured. Actual runtime depends on codebase size. Removed in favor of "runs in seconds."
+- **No contrast ratio rule**: WCAG 4.5:1 is documented in SOURCES but not implemented as a rule because static contrast checking requires color parsing that isn't reliable across CSS frameworks. Marked as "planned."
+- **No layout thrashing rule**: Documented in SOURCES but not implemented as a separate rule because interleaved reads/writes are hard to detect statically. Covered partially by `motion/no-layout-animation`.
+
+### How to verify any number
+
+1. Find the number in the codebase (search for the value)
+2. Check if it appears in the "Research-backed" table above
+3. If yes, visit the cited URL and confirm
+4. If no, it's in the "Heuristic" table with rationale
+5. If it's in neither table, it's a bug — please file an issue

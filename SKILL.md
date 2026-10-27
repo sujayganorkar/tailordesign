@@ -41,7 +41,7 @@ uiq ./src --full             # decisions + quality + compliance
 - `motion/no-layout-animation` — Never animate width/height/top/margin. Use transform/opacity.
 - `motion/duration-range` — Durations must be 100-500ms.
 - `motion/reduced-motion` — All animations must respect prefers-reduced-motion.
-- `motion/stagger-interval` — Stagger: 30-50ms between items.
+- `motion/stagger-interval` — Stagger: 20-40ms between items.
 
 ### Interaction
 - `interaction/hover-state` — Every interactive element needs hover styling.

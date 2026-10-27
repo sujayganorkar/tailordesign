@@ -37,7 +37,7 @@ export function runRules(parsed, allFiles) {
     if (parsed.animations && parsed.animations.length > 3) {
       const hasStagger = /stagger|animation-delay|delay.*\d/i.test(parsed._content || '');
       if (!hasStagger) {
-        issues.push({ rule: 'motion/stagger-interval', severity: 'info', message: 'Multiple animations but no stagger pattern. Consider 30-50ms stagger for rhythm.', file: parsed.filePath });
+        issues.push({ rule: 'motion/stagger-interval', severity: 'info', message: 'Multiple animations but no stagger pattern. Consider 20-40ms stagger for rhythm.', file: parsed.filePath });
       }
     }
 

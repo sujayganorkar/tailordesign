@@ -1,0 +1,36 @@
+// Example configuration file: .uiqrc.json
+// Place in project root to customize the quality gate
+
+{
+  "minScore": 80,
+  "rules": {
+    "motion/no-layout-animation": "error",
+    "motion/duration-range": "warning",
+    "motion/reduced-motion": "error",
+    "interaction/hover-state": "error",
+    "interaction/focus-visible": "error",
+    "a11y/keyboard-nav": "error",
+    "consistency/no-generic-cta": "off"
+  },
+  "ignore": [
+    "node_modules/**",
+    "dist/**",
+    "*.test.*",
+    "*.spec.*"
+  ],
+  "framework": "react-tailwind",
+  "motionTokens": {
+    "durations": {
+      "micro": 100,
+      "fast": 150,
+      "normal": 250,
+      "slow": 350,
+      "complex": 500
+    },
+    "easings": {
+      "out": "cubic-bezier(0, 0, 0.2, 1)",
+      "in": "cubic-bezier(0.4, 0, 1, 1)",
+      "inOut": "cubic-bezier(0.4, 0, 0.2, 1)"
+    }
+  }
+}

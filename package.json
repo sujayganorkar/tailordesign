@@ -1,0 +1,35 @@
+{
+  "name": "ai-ui-quality-gate",
+  "version": "0.1.0",
+  "description": "eslint for AI-generated UI. Deterministic quality gate for motion, interaction states, accessibility, performance, and consistency.",
+  "bin": {
+    "uiq": "./bin/cli.js",
+    "ui-quality": "./bin/cli.js"
+  },
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/",
+    "lint": "node bin/cli.js ."
+  },
+  "keywords": [
+    "ui",
+    "quality",
+    "linter",
+    "accessibility",
+    "motion",
+    "animation",
+    "ai",
+    "design"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "glob": "^11.0.0"
+  }
+}

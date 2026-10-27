@@ -246,4 +246,25 @@ async function loadConfig(targetPath) {
   return null;
 }
 
+// Scaffold command
+program
+  .command('scaffold')
+  .description('Scaffold a new project with UI quality gates, design tokens, and component templates')
+  .argument('[path]', 'Project directory', '.')
+  .action(async (path) => {
+    try {
+      const { scaffold } = await import('../src/scaffold/index.js');
+      const dir = path || '.';
+      const results = scaffold(dir);
+      console.log('Scaffolded project:');
+      for (const r of results) console.log(`  ✓ ${r}`);
+      console.log(`\nNext steps:`);
+      console.log(`  1. Import tokens.css in your main CSS file`);
+      console.log(`  2. Use the component templates in src/components/`);
+      console.log(`  3. Run: uiq ./src`);
+    } catch (err) {
+      console.error(`Error: ${err.message}`);
+      process.exit(1);
+    }
+  });
 program.parse();

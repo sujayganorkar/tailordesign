@@ -45,7 +45,7 @@ These aren't taste problems. They're **objective, measurable failures** that age
 
 ## The solution
 
-`uiq` is a deterministic quality gate. It runs in 2 seconds, needs no browser, and checks 21 rules across 5 categories. Your agent runs it after writing code, fixes the issues, and re-runs until it passes.
+`uiq` is a deterministic quality gate. It runs in 2 seconds, needs no browser, and checks 20 rules across 5 categories. Your agent runs it after writing code, fixes the issues, and re-runs until it passes.
 
 **No taste debates. No rendering. No cost. Just rules.**
 
@@ -84,7 +84,7 @@ uiq ./src --ci --min-score 80
 
 | Command | What it does |
 |---|---|
-| `uiq ./src` | Quality gate — checks 21 rules |
+| `uiq ./src` | Quality gate — checks 20 rules |
 | `uiq ./src --decide` | Decision analysis — what interaction each component warrants |
 | `uiq ./src --full` | Full loop — decisions + quality + compliance |
 | `uiq ./src --state` | Save state + detect regressions |
@@ -106,7 +106,7 @@ uiq ./src --ci --min-score 80
 
 ---
 
-## What it checks (21 rules)
+## What it checks (20 rules)
 
 ### Motion (5 rules)
 | Rule | What it catches |
@@ -268,7 +268,7 @@ uiq escalate resolve esc-123 --option 2  # Resolve with option 2
 
 ```
 src/
-├── config.js              — Rule definitions (21 rules)
+├── config.js              — Rule definitions (20 rules)
 ├── index.js               — Quality gate runner
 ├── reporter.js            — Output formatting
 ├── parsers/               — JSX, CSS, Dart parsers
@@ -283,7 +283,13 @@ src/
 
 ---
 
-## FAQ
+## Sources
+
+Every rule in uiq cites a real, published, verifiable source. No AI-generated sources. No broken links.
+
+See [SOURCES.md](SOURCES.md) for the full list of 20 citations with URLs and summaries.
+
+All sources are from: W3C/WCAG, Material Design, NN/g, MDN, web.dev, Apple HIG, CSS Triggers, W3C Design Tokens, ARIA APG.
 
 **Q: Does this replace human design review?**
 No. It automates the objective layer (motion mechanics, states, accessibility). The experiential layer (does it feel right?) still needs human judgment. The tool makes human review faster by catching mechanical issues first.

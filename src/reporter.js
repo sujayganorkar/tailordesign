@@ -39,6 +39,10 @@ export function formatText(result) {
       const rule = chalk.dim(issue.rule);
       lines.push(`    ${icon} ${rule}`);
       lines.push(`      ${issue.message}`);
+      if (issue.fix) {
+        const isJsx = issue.file && /\.(jsx|tsx|js|ts)$/.test(issue.file);
+        lines.push(`      ${chalk.dim('Fix:')} ${isJsx ? (issue.fix.jsx || issue.fix.description) : (issue.fix.css || issue.fix.description)}`);
+      }
     }
     lines.push('');
   }

@@ -6,11 +6,11 @@ const program = new Command();
 
 program
   .name('uiq')
-  .description('Quality gate for AI-generated UI. Checks motion, interaction states, accessibility, performance, and consistency.')
+  .description('Quality gate for UI code. 20 objective rules across motion, interaction states, accessibility, performance, and consistency. Plus interaction decision engine.')
   .version('0.1.0')
   .argument('[path]', 'Path to scan', '.')
   .option('-f, --format <format>', 'Output format: text, json, markdown', 'text')
-  .option('--fix', 'Auto-fix where possible')
+  .option('--fix', 'Auto-fix simple issues (reduced-motion, motion tokens)')
   .option('--rules <rules>', 'Comma-separated rule IDs to run')
   .option('--ignore <patterns>', 'Comma-separated glob patterns to ignore')
   .option('--ci', 'CI mode: exit with non-zero code on errors')
@@ -18,35 +18,57 @@ program
   .option('--decide', 'Run interaction decision analysis')
   .option('--full', 'Run full workflow: decisions + quality + compliance')
   .option('--state', 'Save state and detect regressions')
+  .option('--no-color', 'Disable colored output')
+  .option('--quiet', 'Suppress non-essential output')
   .action(async (path, options, command) => {
     try {
       const targetPath = path || '.';
       const opts = options || command?.opts() || {};
+
+      // Validate path
+      const fs = await import('fs');
+      if (!fs.existsSync(targetPath)) {
+        console.error(`Error: Path not found: ${targetPath}`);
+        process.exit(1);
+      }
+
+      // Load config file if exists
+      const config = loadConfig(targetPath);
+
       if (opts.full) {
         const { runFull } = await import('../src/workflow/full.js');
-        await runFull(targetPath, opts);
+        await runFull(targetPath, { ...opts, config });
       } else if (opts.decide) {
         const { runDecisions } = await import('../src/decisions/index.js');
-        await runDecisions(targetPath, opts);
+        await runDecisions(targetPath, { ...opts, config });
       } else {
         const { run } = await import('../src/index.js');
-        const result = await run(targetPath, opts);
+        const result = await run(targetPath, { ...opts, config });
         if (opts.ci && !result.passed) process.exit(1);
 
+        // Auto-fix
+        if (opts.fix) {
+          const { applyFixes } = await import('../src/fixer.js');
+          const fixed = applyFixes(targetPath, result.issues);
+          if (fixed > 0) {
+            console.log(`\n  Auto-fixed ${fixed} issue(s). Re-run to verify.`);
+          }
+        }
+
+        // State saving
         if (opts.state) {
           const { createStateSnapshot, saveState, detectRegressions, formatRegressionReport, loadState } = await import('../src/state/persistence.js');
           const prevState = loadState(targetPath);
           const snapshot = createStateSnapshot(result, null);
-          const fs = await import('fs');
           const stateDir = fs.statSync(targetPath).isFile()
             ? targetPath.split('/').slice(0, -1).join('/') || '.'
             : targetPath;
           saveState(stateDir, snapshot);
-          console.log(formatRegressionReport(detectRegressions(snapshot, prevState)));
+          if (!opts.quiet) console.log(formatRegressionReport(detectRegressions(snapshot, prevState)));
         }
       }
     } catch (err) {
-      console.error(err.message);
+      console.error(`Error: ${err.message}`);
       process.exit(1);
     }
   });
@@ -94,7 +116,7 @@ program
         console.log(formatFeedbackReport(dir));
       }
     } catch (err) {
-      console.error(err.message);
+      console.error(`Error: ${err.message}`);
       process.exit(1);
     }
   });
@@ -104,14 +126,15 @@ program
   .command('escalate')
   .description('View or resolve escalations (issues needing human judgment)')
   .option('--dir <path>', 'Project directory', '.')
-  .action(async (options, command) => {
+  .action(async (options) => {
     try {
-      const { formatEscalationReport, getPending, resolveEscalation } = await import('../src/escalation/cards.js');
-      const dir = options?.dir || '.';
+      const { formatEscalationReport, resolveEscalation } = await import('../src/escalation/cards.js');
+      const dir = options.dir || '.';
 
-      const args = process.argv.slice(3);
-      if (args[0] === 'resolve' && args[1]) {
-        const id = args[1];
+      const args = process.argv;
+      const resolveIdx = args.indexOf('resolve');
+      if (resolveIdx >= 0 && args[resolveIdx + 1]) {
+        const id = args[resolveIdx + 1];
         const optionIdx = args.indexOf('--option');
         const optionNum = optionIdx >= 0 ? parseInt(args[optionIdx + 1]) : 1;
         const esc = resolveEscalation(dir, id, `Option ${optionNum}`, 'human');
@@ -121,7 +144,7 @@ program
         console.log(formatEscalationReport(dir));
       }
     } catch (err) {
-      console.error(err.message);
+      console.error(`Error: ${err.message}`);
       process.exit(1);
     }
   });
@@ -134,7 +157,7 @@ program
   .action(async (options) => {
     try {
       const { loadState } = await import('../src/state/persistence.js');
-      const dir = options?.dir || '.';
+      const dir = options.dir || '.';
       const state = loadState(dir);
       if (!state) {
         console.log('No state file found. Run with --state to create one.');
@@ -145,9 +168,84 @@ program
       console.log(`Issues: ${state.totalIssues} (${state.errors} errors, ${state.warnings} warnings)`);
       console.log(`Files: ${Object.keys(state.files || {}).length}`);
     } catch (err) {
-      console.error(err.message);
+      console.error(`Error: ${err.message}`);
       process.exit(1);
     }
   });
 
+// Init command
+program
+  .command('init')
+  .description('Scaffold a .uiqrc.json config file')
+  .option('--dir <path>', 'Project directory', '.')
+  .action(async (options) => {
+    try {
+      const fs = await import('fs');
+      const dir = options.dir || '.';
+      const configPath = `${dir}/.uiqrc.json`;
+      if (fs.existsSync(configPath)) {
+        console.log('.uiqrc.json already exists.');
+        return;
+      }
+      const template = {
+        minScore: 80,
+        rules: {},
+        ignore: ['node_modules/**', 'dist/**', '*.test.*', '*.spec.*'],
+        framework: 'auto',
+      };
+      fs.writeFileSync(configPath, JSON.stringify(template, null, 2));
+      console.log(`Created ${configPath}`);
+    } catch (err) {
+      console.error(`Error: ${err.message}`);
+      process.exit(1);
+    }
+  });
+
+// Watch command
+program
+  .command('watch')
+  .description('Watch for file changes and re-scan')
+  .argument('[path]', 'Path to watch', '.')
+  .option('-f, --format <format>', 'Output format: text, json, markdown', 'text')
+  .action(async (path, options) => {
+    try {
+      const fs = await import('fs');
+      const targetPath = path || '.';
+      console.log(`Watching ${targetPath} for changes... (Ctrl+C to stop)`);
+      let timeout;
+      const scan = async () => {
+        console.clear();
+        const { run } = await import('../src/index.js');
+        await run(targetPath, options);
+      };
+      await scan();
+      fs.watch(targetPath, { recursive: true }, () => {
+        clearTimeout(timeout);
+        timeout = setTimeout(scan, 300);
+      });
+    } catch (err) {
+      console.error(`Error: ${err.message}`);
+      process.exit(1);
+    }
+  });
+
+function loadConfig(targetPath) {
+  const fs = require('fs');
+  const path = require('path');
+  const dir = fs.statSync(targetPath).isFile()
+    ? path.dirname(targetPath)
+    : targetPath;
+  const configPath = path.join(dir, '.uiqrc.json');
+  if (fs.existsSync(configPath)) {
+    try {
+      return JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 program.parse();
+EOF
+echo "Written"

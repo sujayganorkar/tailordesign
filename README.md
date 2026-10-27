@@ -1,7 +1,12 @@
 # uiq — eslint for UI
 
 > **One command. Objective rules. Zero taste debates.**
-> Your AI agent builds the UI. `uiq` makes sure it doesn't ship broken.
+> Your code builds the UI. `uiq` makes sure it doesn't ship broken.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](package.json)
+[![Rules](https://img.shields.io/badge/rules-20-orange.svg)](src/config.js)
+[![Sources](https://img.shields.io/badge/sources-20%20verified-green.svg)](SOURCES.md)
 
 ```bash
 npx uiq ./src
@@ -91,6 +96,8 @@ uiq ./src --ci --min-score 80
 | `uiq review` | View human feedback |
 | `uiq escalate` | View pending escalations |
 | `uiq state` | View scan history |
+| `uiq init` | Scaffold a .uiqrc.json config |
+| `uiq watch ./src` | Watch for changes and re-scan |
 
 ### Flags
 
@@ -103,6 +110,11 @@ uiq ./src --ci --min-score 80
 | `--decide` | Run decision analysis |
 | `--full` | Full workflow |
 | `--state` | Save state for regression detection |
+| `--fix` | Auto-fix simple issues (reduced-motion, motion tokens) |
+| `--rules <ids>` | Run only specific rules (comma-separated) |
+| `--ignore <patterns>` | Ignore glob patterns (comma-separated) |
+| `--no-color` | Disable colored output |
+| `--quiet` | Suppress non-essential output |
 
 ---
 
@@ -282,6 +294,17 @@ src/
 ```
 
 ---
+
+## Documentation
+
+| Document | Description |
+|---|---|
+| [README.md](README.md) | This file — overview and usage |
+| [SOURCES.md](SOURCES.md) | All 20 rules with verified source citations |
+| [SKILL.md](SKILL.md) | Agent skill (Claude Code / Codex / Cursor) |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
+| [SECURITY.md](SECURITY.md) | Security policy |
+| [LICENSE](LICENSE) | MIT license |
 
 ## Sources
 

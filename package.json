@@ -33,6 +33,14 @@
   "bugs": {
     "url": "https://github.com/sujayganorkar/tailordesign/issues"
   },
+  "files": [
+    "bin/",
+    "src/",
+    "SKILL.md",
+    "README.md",
+    "SOURCES.md",
+    "LICENSE"
+  ],
   "engines": {
     "node": ">=18"
   },

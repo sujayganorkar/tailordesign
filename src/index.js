@@ -52,6 +52,14 @@ export async function run(targetPath, options = {}) {
   const allParsed = [];
   const allIssues = [];
 
+  if (relevantFiles.length === 0) {
+    console.log('No UI files found in the specified path.');
+    return { filesScanned: 0, totalIssues: 0, errors: 0, warnings: 0, infos: 0, score: 100, passed: true, issues: [] };
+  }
+
+  // Filter rules if specified
+  const ruleFilter = options.rules ? options.rules.split(',').map(r => r.trim()) : null;
+
   for (const file of relevantFiles) {
     let content;
     try {
@@ -88,7 +96,10 @@ export async function run(targetPath, options = {}) {
 
     allParsed.push(parsed);
     const issues = runRules(parsed, allParsed);
-    allIssues.push(...issues);
+    const filteredIssues = ruleFilter
+      ? issues.filter(i => ruleFilter.includes(i.rule))
+      : issues;
+    allIssues.push(...filteredIssues);
   }
 
   // Calculate score

@@ -4,6 +4,7 @@ export function runRules(parsed, allFiles) {
   const issues = [];
 
   // --- MOTION RULES (JSX/HTML only — CSS has its own block below) ---
+  // Sources: web.dev (layout thrashing), MDN (prefers-reduced-motion), Material Design (duration, easing, stagger)
   if (parsed.type !== 'css') {
     if (parsed.layoutAnimations && parsed.layoutAnimations.length > 0) {
       issues.push({ rule: 'motion/no-layout-animation', severity: 'error', message: `Found ${parsed.layoutAnimations.length} animation(s) on layout properties: ${parsed.layoutAnimations.slice(0, 3).join(', ')}. Use transform/opacity instead.`, file: parsed.filePath });

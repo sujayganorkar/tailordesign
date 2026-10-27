@@ -1,4 +1,4 @@
-# uiq — eslint for AI-generated UI
+# uiq — eslint for UI
 
 > **One command. Objective rules. Zero taste debates.**
 > Your AI agent builds the UI. `uiq` makes sure it doesn't ship broken.

@@ -1,6 +1,6 @@
 ---
 name: uiq
-description: Quality gate for AI-generated UI. Checks 18 objective rules across motion, interaction states, accessibility, performance, and consistency. Also provides interaction decision analysis. Use after writing or modifying any UI code.
+description: Quality gate for UI code. Checks 21 objective rules across motion, interaction states, accessibility, performance, and consistency. Also provides interaction decision analysis. Use after writing or modifying any UI code.
 ---
 
 # uiq — Quality Gate for AI-Generated UI

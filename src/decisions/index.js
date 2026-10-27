@@ -40,6 +40,14 @@ export async function runDecisions(targetPath, options = {}) {
     return true;
   });
 
+  // Load custom component mappings from config
+  try {
+    const { loadCustomMappings } = await import('./classifier.js');
+    if (options.config?.componentMappings) {
+      loadCustomMappings(options.config);
+    }
+  } catch (e) { /* non-critical */ }
+
   const allDecisions = [];
 
   for (const file of relevantFiles) {

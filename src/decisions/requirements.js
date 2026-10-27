@@ -99,6 +99,12 @@ const REQUIREMENTS = {
     motion: ['Sliding indicator (200ms, ease-out)', 'Content crossfade (150ms)'],
     antiPatterns: ['Don\'t animate tab content with heavy transitions'],
   },
+  'unknown-interactive': {
+    consequence: 'unknown',
+    states: ['hover', 'focus-visible', 'active'],
+    motion: ['Determine appropriate motion based on component purpose'],
+    antiPatterns: ['Classify this component properly — it has onClick but is not a recognized interactive element', 'Consider using <button> instead of <div onClick>'],
+  },
   'tooltip': {
     consequence: 'instant-reversible',
     states: ['visible', 'hidden'],

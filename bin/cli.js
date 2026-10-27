@@ -33,7 +33,7 @@ program
       }
 
       // Load config file if exists
-      const config = loadConfig(targetPath);
+      const config = await loadConfig(targetPath);
 
       if (opts.full) {
         const { runFull } = await import('../src/workflow/full.js');
@@ -229,9 +229,9 @@ program
     }
   });
 
-function loadConfig(targetPath) {
-  const fs = require('fs');
-  const path = require('path');
+async function loadConfig(targetPath) {
+  const fs = await import('fs');
+  const path = await import('path');
   const dir = fs.statSync(targetPath).isFile()
     ? path.dirname(targetPath)
     : targetPath;
@@ -247,5 +247,3 @@ function loadConfig(targetPath) {
 }
 
 program.parse();
-EOF
-echo "Written"

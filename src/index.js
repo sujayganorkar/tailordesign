@@ -26,7 +26,9 @@ const FILE_EXTENSIONS = {
 };
 
 export async function run(targetPath, options = {}) {
-  const ignore = [...IGNORE_PATTERNS, ...(options.ignore ? options.ignore.split(',') : [])];
+  // Load config file
+  const config = options.config || null;
+  const ignore = [...IGNORE_PATTERNS, ...(options.ignore ? options.ignore.split(',') : []), ...(config?.ignore || [])];
 
   // Collect files
   let files;
@@ -41,7 +43,7 @@ export async function run(targetPath, options = {}) {
     });
   }
 
-  // Filter to relevant files (skip test files, config files)
+  // Filter to relevant files
   const relevantFiles = files.filter(f => {
     const name = f.split('/').pop();
     if (name.includes('.test.') || name.includes('.spec.') || name.includes('.config.')) return false;
@@ -57,8 +59,8 @@ export async function run(targetPath, options = {}) {
     return { filesScanned: 0, totalIssues: 0, errors: 0, warnings: 0, infos: 0, score: 100, passed: true, issues: [] };
   }
 
-  // Filter rules if specified
-  const ruleFilter = options.rules ? options.rules.split(',').map(r => r.trim()) : null;
+  // Filter rules if specified (from CLI or config)
+  const ruleFilter = options.rules ? options.rules.split(',').map(r => r.trim()) : (config?.rules ? Object.keys(config.rules) : null);
 
   for (const file of relevantFiles) {
     let content;

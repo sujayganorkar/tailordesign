@@ -168,6 +168,14 @@ export async function runFull(targetPath, options = {}) {
   } catch (e) {
     // Escalation is non-critical
   }
+  // Generate motion spec
+  try {
+    const { generateMotionSpec, writeMotionSpec } = await import('../spec/motion-spec.js');
+    const spec = generateMotionSpec(result.decisions);
+    const stateDir = stat.isFile() ? (targetPath.includes('/') ? targetPath.split('/').slice(0, -1).join('/') : '.') : targetPath;
+    writeMotionSpec(spec, stateDir);
+  } catch (e) { /* non-critical */ }
+
   // Format output
   const format = options?.format || 'text';
   if (format === 'json') {

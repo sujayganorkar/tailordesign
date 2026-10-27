@@ -79,5 +79,14 @@ export async function runDecisions(targetPath, options = {}) {
     console.log(formatDecisionReport(allDecisions));
   }
 
+  // Generate motion spec file
+  try {
+    const { generateMotionSpec, writeMotionSpec } = await import('../spec/motion-spec.js');
+    const spec = generateMotionSpec(allDecisions);
+    const stateDir = stat.isFile() ? (targetPath.includes('/') ? targetPath.split('/').slice(0, -1).join('/') : '.') : targetPath;
+    writeMotionSpec(spec, stateDir);
+    if (format === 'text') console.log(`\n  Motion spec written to ${stateDir}/motion-spec.json`);
+  } catch (e) { /* non-critical */ }
+
   return allDecisions;
 }

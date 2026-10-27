@@ -109,6 +109,11 @@ export const SOURCES = {
     also: 'https://www.w3.org/WAI/WCAG21/Understanding/status-messages.html',
     summary: 'Dynamic content changes must be announced to screen readers via aria-live or role="status"/"alert".',
   },
+  'a11y/contrast': {
+    title: 'WCAG 2.1 Success Criterion 1.4.3: Contrast (Minimum)',
+    url: 'https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html',
+    summary: 'WCAG AA requires 4.5:1 contrast ratio for normal text, 3:1 for large text.',
+  },
   'a11y/touch-targets': {
     title: 'WCAG 2.1 Success Criterion 2.5.5: Target Size',
     url: 'https://www.w3.org/WAI/WCAG21/Understanding/target-size.html',
@@ -135,6 +140,16 @@ export const SOURCES = {
     title: 'Homepage design (NN/g)',
     url: 'https://www.nngroup.com/articles/homepage-design-principles/',
     summary: 'NN/g: hero sections should have one dominant visual and clear CTA. Card grids in hero reduce impact.',
+  },
+  'perf/layout-thrash': {
+    title: 'Avoid large, complex layouts (web.dev)',
+    url: 'https://web.dev/avoid-large-complex-layouts-and-layout-thrashing/',
+    summary: 'Interleaving DOM reads and writes causes forced synchronous layout. Batch reads before writes.',
+  },
+  'perf/compositor-only': {
+    title: 'Stick to compositor-only properties (web.dev)',
+    url: 'https://web.dev/stick-to-compositor-only-properties-and-manage-layer-count/',
+    summary: 'Only transform and opacity can be animated on the compositor thread without layout or paint.',
   },
 };
 
@@ -190,11 +205,20 @@ export const RULES = [
   { id: 'a11y/aria-dynamic', category: CATEGORIES.ACCESSIBILITY, severity: SEVERITY.WARNING,
     description: 'Dynamic content changes must use aria-live or appropriate ARIA attributes.',
     source: SOURCES['a11y/aria-dynamic'] },
+  { id: 'a11y/contrast', category: CATEGORIES.ACCESSIBILITY, severity: SEVERITY.WARNING,
+    description: 'Text must meet WCAG 4.5:1 contrast ratio (AA). Basic Tailwind color class checking.',
+    source: SOURCES['a11y/contrast'] },
   { id: 'a11y/touch-targets', category: CATEGORIES.ACCESSIBILITY, severity: SEVERITY.INFO,
     description: 'Interactive elements must have minimum 44x44px touch targets.',
     source: SOURCES['a11y/touch-targets'] },
 
-  // Consistency
+  // Performance
+  { id: 'perf/layout-thrash', category: CATEGORIES.PERFORMANCE, severity: SEVERITY.INFO,
+    description: 'Avoid interleaving DOM reads and writes (layout thrashing).',
+    source: { title: 'Avoid large, complex layouts (web.dev)', url: 'https://web.dev/avoid-large-complex-layouts-and-layout-thrashing/', summary: 'Interleaving DOM reads and writes causes forced synchronous layout. Batch reads before writes.' } },
+  { id: 'perf/compositor-only', category: CATEGORIES.PERFORMANCE, severity: SEVERITY.INFO,
+    description: 'Animations should run on the compositor thread (use transform/opacity).',
+    source: { title: 'Compositor-only properties (web.dev)', url: 'https://web.dev/stick-to-compositor-only-properties-and-manage-layer-count/', summary: 'Only transform and opacity can be animated on the compositor thread without layout/paint.' } },
   { id: 'consistency/motion-tokens', category: CATEGORIES.CONSISTENCY, severity: SEVERITY.WARNING,
     description: 'Motion values (durations, easings) should be defined as CSS custom properties / design tokens.',
     source: SOURCES['consistency/motion-tokens'] },

@@ -49,7 +49,7 @@ program
         // Auto-fix
         if (opts.fix) {
           const { applyFixes } = await import('../src/fixer.js');
-          const fixed = applyFixes(targetPath, result.issues);
+          const fixed = await applyFixes(targetPath, result.issues);
           if (fixed > 0) {
             console.log(`\n  Auto-fixed ${fixed} issue(s). Re-run to verify.`);
           }

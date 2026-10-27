@@ -1,5 +1,7 @@
 // src/rules/index.js — Rule implementations
 
+import { checkContrast } from '../parsers/color.js';
+
 export function runRules(parsed, allFiles) {
   const issues = [];
 
@@ -86,6 +88,14 @@ export function runRules(parsed, allFiles) {
       }
     }
 
+    // a11y/contrast — check for potential contrast issues
+    try {
+      const contrastIssues = checkContrast(parsed._content || '');
+      if (contrastIssues.length > 0) {
+        issues.push({ rule: 'a11y/contrast', severity: 'warning', message: `Potential contrast issues (${contrastIssues.length}): ${contrastIssues.slice(0, 2).map(c => 'ratio ' + c.ratio).join(', ')}. WCAG AA requires 4.5:1.`, file: parsed.filePath });
+      }
+    } catch (e) { /* color parser not available */ }
+
     if (parsed.hasNav && !parsed.hasActiveRoute) {
       issues.push({ rule: 'interaction/active-route', severity: 'info', message: 'Navigation but no active route indication.', file: parsed.filePath });
     }
@@ -96,6 +106,13 @@ export function runRules(parsed, allFiles) {
 
     if (parsed.cardGridHero) {
       issues.push({ rule: 'consistency/no-card-grid-hero', severity: 'info', message: 'Card grid in hero. Use full-bleed imagery.', file: parsed.filePath });
+    }
+
+    // perf/layout-thrash — check for interleaved DOM reads and writes
+    const hasLayoutRead = /offsetWidth|offsetHeight|getBoundingClientRect|clientWidth|clientHeight|scrollTop|scrollLeft/i.test(parsed._content || '');
+    const hasLayoutWrite = /\.style\.\w+\s*=|classList\.(add|remove|toggle)|\.innerHTML\s*=/i.test(parsed._content || '');
+    if (hasLayoutRead && hasLayoutWrite) {
+      issues.push({ rule: 'perf/layout-thrash', severity: 'info', message: 'Potential layout thrashing: DOM reads and writes in same file. Batch reads before writes.', file: parsed.filePath });
     }
 
     if (parsed.animations && parsed.animations.length > 0 && !parsed.motionTokens) {
@@ -117,6 +134,7 @@ export function runRules(parsed, allFiles) {
     }
     if (parsed.layoutAnimations && parsed.layoutAnimations.length > 0) {
       issues.push({ rule: 'motion/no-layout-animation', severity: 'error', message: `CSS animates layout properties: ${parsed.layoutAnimations.slice(0, 3).join(', ')}.`, file: parsed.filePath });
+      issues.push({ rule: 'perf/compositor-only', severity: 'info', message: 'CSS animations on layout properties run on main thread. Use transform/opacity for compositor-only.', file: parsed.filePath });
     }
     if (parsed.durations && parsed.durations.length > 0) {
       const outOfRange = parsed.durations.filter(d => d < 50 || d > 500);
@@ -134,8 +152,6 @@ export function runRules(parsed, allFiles) {
       issues.push({ rule: 'consistency/motion-tokens', severity: 'warning', message: 'CSS animations but no motion tokens.', file: parsed.filePath });
     }
   }
-
-  // --- DART/FLUTTER RULES ---
   if (parsed.type === 'dart') {
     if (parsed.layoutAnimations && parsed.layoutAnimations.length > 0) {
       issues.push({ rule: 'motion/no-layout-animation', severity: 'error', message: `Flutter animates layout properties: ${parsed.layoutAnimations.slice(0, 3).join(', ')}.`, file: parsed.filePath });

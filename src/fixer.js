@@ -2,27 +2,28 @@
 
 import { readFileSync, writeFileSync } from 'fs';
 
-export function applyFixes(targetPath, issues) {
+export async function applyFixes(targetPath, issues) {
+  const fs = await import('fs');
   let fixed = 0;
-  const fs = require('fs');
-  const stat = fs.statSync(targetPath);
 
-  if (stat.isFile()) {
-    fixed += fixFile(targetPath);
+  if (fs.statSync(targetPath).isFile()) {
+    fixed += await fixFile(targetPath, fs);
   } else {
     const files = new Set(issues.map(i => i.file));
     for (const file of files) {
-      fixed += fixFile(file);
+      try {
+        fixed += await fixFile(file, fs);
+      } catch (e) { /* skip */ }
     }
   }
 
   return fixed;
 }
 
-function fixFile(filePath) {
+async function fixFile(filePath, fs) {
   let content;
   try {
-    content = readFileSync(filePath, 'utf-8');
+    content = fs.readFileSync(filePath, 'utf-8');
   } catch {
     return 0;
   }
@@ -31,15 +32,12 @@ function fixFile(filePath) {
   const ext = filePath.split('.').pop().toLowerCase();
 
   if (['css', 'scss', 'less'].includes(ext)) {
-    // Fix: Add prefers-reduced-motion if missing
     if (/animation|transition/i.test(content) && !/prefers-reduced-motion/i.test(content)) {
       content += '\n\n@media (prefers-reduced-motion: reduce) {\n  *, *::before, *::after {\n    animation-duration: 0.01ms !important;\n    animation-iteration-count: 1 !important;\n    transition-duration: 0.01ms !important;\n  }\n}\n';
       fixed++;
     }
 
-    // Fix: Add motion tokens to :root if missing
     if (/animation|transition/i.test(content) && !/--duration|--ease|--motion/.test(content)) {
-      // Add to existing :root or create one
       if (/:root\s*\{/.test(content)) {
         content = content.replace(
           /(:root\s*\{)/,
@@ -52,17 +50,9 @@ function fixFile(filePath) {
     }
 
     if (fixed > 0) {
-      writeFileSync(filePath, content);
+      fs.writeFileSync(filePath, content);
     }
-  }
-
-  // For JSX/TSX, we can't safely auto-fix. Log what would need manual fixing.
-  if (['jsx', 'tsx', 'js', 'ts'].includes(ext)) {
-    // Auto-fix is not safe for JSX — return 0
-    return 0;
   }
 
   return fixed;
 }
-EOF
-echo "Written"

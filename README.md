@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](package.json)
 [![Rules](https://img.shields.io/badge/rules-20-orange.svg)](src/config.js)
-[![Sources](https://img.shields.io/badge/sources-20%20verified-green.svg)](SOURCES.md)
+[![Sources](https://img.shields.io/badge/sources-23%20verified-green.svg)](SOURCES.md)
 
 ```bash
 npx uiq ./src
@@ -50,7 +50,7 @@ These aren't taste problems. They're **objective, measurable failures** that age
 
 ## The solution
 
-`uiq` is a deterministic quality gate. It runs in seconds, needs no browser, and checks 20 rules across 5 categories. Your agent runs it after writing code, fixes the issues, and re-runs until it passes.
+`uiq` is a deterministic quality gate. It runs in seconds, needs no browser, and checks 23 rules across 5 categories. Your agent runs it after writing code, fixes the issues, and re-runs until it passes.
 
 **No taste debates. No rendering. No cost. Just rules.**
 
@@ -89,7 +89,7 @@ uiq ./src --ci --min-score 80
 
 | Command | What it does |
 |---|---|
-| `uiq ./src` | Quality gate — checks 20 rules |
+| `uiq ./src` | Quality gate — checks 23 rules |
 | `uiq ./src --decide` | Decision analysis — what interaction each component warrants |
 | `uiq ./src --full` | Full loop — decisions + quality + compliance |
 | `uiq ./src --state` | Save state + detect regressions |
@@ -118,7 +118,7 @@ uiq ./src --ci --min-score 80
 
 ---
 
-## What it checks (20 rules)
+## What it checks (23 rules)
 
 ### Motion (5 rules)
 | Rule | What it catches |
@@ -140,15 +140,22 @@ uiq ./src --ci --min-score 80
 | `interaction/error-state` | Data views without error state |
 | `interaction/active-route` | Navigation without active route indication |
 
-### Accessibility (4 rules)
+### Accessibility (5 rules)
 | Rule | What it catches |
 |---|---|
 | `a11y/keyboard-nav` | onClick on divs/spans (not keyboard accessible) |
 | `a11y/focus-management` | Modals/drawers without focus trapping |
 | `a11y/aria-dynamic` | Dynamic content without ARIA attributes |
 | `a11y/touch-targets` | No explicit touch target sizing (44×44px) |
+| `a11y/contrast` | Potential contrast issues (WCAG 4.5:1) |
 
-### Consistency (5 rules)
+### Performance (2 rules)
+| Rule | What it catches |
+|---|---|
+| `perf/compositor-only` | Animations on layout properties (main thread) |
+| `perf/layout-thrash` | Interleaved DOM reads/writes |
+
+### Consistency (4 rules)
 | Rule | What it catches |
 |---|---|
 | `consistency/motion-tokens` | No motion design tokens defined |
@@ -280,7 +287,7 @@ uiq escalate resolve esc-123 --option 2  # Resolve with option 2
 
 ```
 src/
-├── config.js              — Rule definitions (20 rules)
+├── config.js              — Rule definitions (23 rules)
 ├── index.js               — Quality gate runner
 ├── reporter.js            — Output formatting
 ├── parsers/               — JSX, CSS, Dart parsers
@@ -300,7 +307,7 @@ src/
 | Document | Description |
 |---|---|
 | [README.md](README.md) | This file — overview and usage |
-| [SOURCES.md](SOURCES.md) | All 20 rules with verified source citations |
+| [SOURCES.md](SOURCES.md) | All 23 rules with verified source citations |
 | [SKILL.md](SKILL.md) | Agent skill (Claude Code / Codex / Cursor) |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
 | [SECURITY.md](SECURITY.md) | Security policy |

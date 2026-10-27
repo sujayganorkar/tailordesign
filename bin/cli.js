@@ -18,6 +18,7 @@ program
   .option('--decide', 'Run interaction decision analysis')
   .option('--full', 'Run full workflow: decisions + quality + compliance')
   .option('--state', 'Save state and detect regressions')
+  .option('--human', 'Human-readable decision output (for non-technical review)')
   .option('--no-color', 'Disable colored output')
   .option('--quiet', 'Suppress non-essential output')
   .action(async (path, options, command) => {

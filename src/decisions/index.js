@@ -83,6 +83,9 @@ export async function runDecisions(targetPath, options = {}) {
   const format = options.format || 'text';
   if (format === 'json') {
     console.log(formatDecisionJson(allDecisions));
+  } else if (format === 'human' || options.human) {
+    const { formatHumanDecisionReport } = await import('./humanize.js');
+    console.log(formatHumanDecisionReport(allDecisions));
   } else {
     console.log(formatDecisionReport(allDecisions));
   }

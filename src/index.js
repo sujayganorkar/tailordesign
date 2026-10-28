@@ -102,14 +102,16 @@ export async function run(targetPath, options = {}) {
       ? issues.filter(i => ruleFilter.includes(i.rule))
       : issues;
 
-    // Add fix suggestions to each issue
+    // Add fix suggestions and line numbers to each issue
     const { getFixSuggestion } = await import('./fixer-suggestions.js');
+    const { addLineNumbers } = await import('./utils/line-mapper.js');
     for (const issue of filteredIssues) {
       const suggestion = getFixSuggestion(issue.rule);
       if (suggestion) {
         issue.fix = suggestion;
       }
     }
+    addLineNumbers(filteredIssues, parsed._content || '');
 
     allIssues.push(...filteredIssues);
   }

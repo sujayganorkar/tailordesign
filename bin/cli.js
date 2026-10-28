@@ -18,6 +18,7 @@ program
   .option('--decide', 'Run interaction decision analysis')
   .option('--full', 'Run full workflow: decisions + quality + compliance')
   .option('--state', 'Save state and detect regressions')
+  .option('--control', 'Show process control report (setpoint tracking, alarms, control points)')
   .option('--human', 'Human-readable decision output (for non-technical review)')
   .option('--no-color', 'Disable colored output')
   .option('--quiet', 'Suppress non-essential output')
@@ -58,14 +59,26 @@ program
 
         // State saving
         if (opts.state) {
+          const fsMod = await import('fs');
           const { createStateSnapshot, saveState, detectRegressions, formatRegressionReport, loadState } = await import('../src/state/persistence.js');
           const prevState = loadState(targetPath);
           const snapshot = createStateSnapshot(result, null);
-          const stateDir = fs.statSync(targetPath).isFile()
+          const stateDir = fsMod.statSync(targetPath).isFile()
             ? targetPath.split('/').slice(0, -1).join('/') || '.'
             : targetPath;
           saveState(stateDir, snapshot);
           if (!opts.quiet) console.log(formatRegressionReport(detectRegressions(snapshot, prevState)));
+        }
+
+        // Process control report
+        if (opts.control) {
+          const { createProcessState, updateVariables, formatControlReport, getControlDecision } = await import('../src/control/process.js');
+          const state = createProcessState(parseInt(opts.minScore) || 80);
+          updateVariables(state, result);
+          console.log(formatControlReport(state));
+          const decision = getControlDecision(state);
+          console.log(`  Next action: ${decision.action} (${decision.priority}) — ${decision.message}`);
+          console.log('');
         }
       }
     } catch (err) {

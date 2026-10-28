@@ -176,6 +176,18 @@ export async function runFull(targetPath, options = {}) {
     writeMotionSpec(spec, stateDir);
   } catch (e) { /* non-critical */ }
 
+  // Process control report
+  if (options?.control) {
+    const { createProcessState, updateVariables, formatControlReport, getControlDecision, completeControlPoint } = await import('../control/process.js');
+    const state = createProcessState(parseInt(options.minScore) || 80);
+    updateVariables(state, result, result.complianceScore);
+    completeControlPoint(state, 'post-scan', { issues: result.totalIssues });
+    console.log(formatControlReport(state));
+    const decision = getControlDecision(state);
+    console.log(`  Next action: ${decision.action} (${decision.priority}) — ${decision.message}`);
+    console.log('');
+  }
+
   // Format output
   const format = options?.format || 'text';
   if (format === 'json') {

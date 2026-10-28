@@ -38,6 +38,9 @@ export function formatText(result) {
       const icon = issue.severity === 'error' ? chalk.red('✗') : issue.severity === 'warning' ? chalk.yellow('⚠') : chalk.blue('ℹ');
       const rule = chalk.dim(issue.rule);
       lines.push(`    ${icon} ${rule}`);
+      if (issue.line) {
+        lines.push(`      ${chalk.dim(`Line ${issue.line}:`)} ${issue.snippet ? issue.snippet.split('\n')[1]?.trim() || '' : ''}`);
+      }
       lines.push(`      ${issue.message}`);
       if (issue.fix) {
         const isJsx = issue.file && /\.(jsx|tsx|js|ts)$/.test(issue.file);

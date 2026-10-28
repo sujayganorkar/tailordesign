@@ -281,4 +281,173 @@ program
       process.exit(1);
     }
   });
+
+// Explain command
+program
+  .command('explain')
+  .description('Explain a rule in plain English with examples and sources')
+  .argument('[rule]', 'Rule ID to explain (or "all" for all rules)')
+  .action(async (rule) => {
+    try {
+      const { RULES, SOURCES } = await import('../src/config.js');
+      const { FIX_SUGGESTIONS } = await import('../src/fixer-suggestions.js');
+
+      if (!rule || rule === 'all') {
+        console.log('\nAll 23 rules:\n');
+        for (const r of RULES) {
+          console.log(`  ${r.id} (${r.severity})`);
+          console.log(`    ${r.description}`);
+          if (r.source) console.log(`    Source: ${r.source.url}`);
+          console.log('');
+        }
+        return;
+      }
+
+      const found = RULES.find(r => r.id === rule);
+      if (!found) {
+        console.log(`Rule not found: ${rule}`);
+        console.log('Run "uiq explain all" to see all rules.');
+        return;
+      }
+
+      const source = SOURCES[rule] || found.source;
+      const fix = FIX_SUGGESTIONS[rule];
+
+      console.log(`\n${'━'.repeat(60)}`);
+      console.log(`  ${found.id}`);
+      console.log(`${'━'.repeat(60)}\n`);
+      console.log(`  Severity: ${found.severity}`);
+      console.log(`  Category: ${found.category}`);
+      console.log(`  Description: ${found.description}\n`);
+
+      if (source) {
+        console.log(`  Why this rule exists:`);
+        console.log(`    ${source.summary}\n`);
+        console.log(`  Source: ${source.url}`);
+        if (source.also) console.log(`  Also: ${source.also}`);
+        console.log('');
+      }
+
+      if (fix) {
+        console.log(`  How to fix:`);
+        console.log(`    ${fix.description}`);
+        console.log(`    CSS: ${fix.css}`);
+        console.log(`    JSX: ${fix.jsx}`);
+        console.log(`    Example:`);
+        console.log(`    ${fix.example.split('\n').join('\n    ')}`);
+        console.log('');
+      }
+    } catch (err) {
+      console.error(`Error: ${err.message}`);
+      process.exit(1);
+    }
+  });
+
+// Dashboard command (human-facing web UI)
+program
+  .command('dashboard')
+  .description('Open a local web dashboard for visual issue review')
+  .argument('[path]', 'Path to scan', '.')
+  .option('--port <port>', 'Port number', '3456')
+  .action(async (path, options) => {
+    try {
+      const { run } = await import('../src/index.js');
+      const result = await run(path || '.', { format: 'json' });
+      const port = parseInt(options.port) || 3456;
+
+      const http = await import('http');
+      const server = http.createServer((req, res) => {
+        if (req.url === '/') {
+          res.writeHead(200, { 'Content-Type': 'text/html' });
+          res.end(generateDashboardHTML(result));
+        } else if (req.url === '/api/results') {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(result));
+        } else {
+          res.writeHead(404);
+          res.end('Not found');
+        }
+      });
+
+      server.listen(port, () => {
+        console.log(`Dashboard running at http://localhost:${port}`);
+        console.log('Press Ctrl+C to stop.');
+      });
+    } catch (err) {
+      console.error(`Error: ${err.message}`);
+      process.exit(1);
+    }
+  });
+
+function generateDashboardHTML(result) {
+  const issuesByFile = {};
+  for (const issue of result.issues) {
+    if (!issuesByFile[issue.file]) issuesByFile[issue.file] = [];
+    issuesByFile[issue.file].push(issue);
+  }
+
+  const scoreColor = result.score >= 80 ? '#22c55e' : result.score >= 60 ? '#eab308' : '#ef4444';
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>uiq Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; padding: 2rem; }
+    .header { display: flex; align-items: center; gap: 2rem; margin-bottom: 2rem; }
+    .score { font-size: 3rem; font-weight: bold; color: ${scoreColor}; }
+    .stats { display: flex; gap: 1.5rem; }
+    .stat { text-align: center; }
+    .stat-value { font-size: 1.5rem; font-weight: bold; }
+    .stat-label { font-size: 0.75rem; color: #94a3b8; }
+    .card { background: #1e293b; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1rem; }
+    .file { font-weight: bold; color: #60a5fa; margin-bottom: 0.5rem; }
+    .issue { padding: 0.5rem 0; border-bottom: 1px solid #334155; }
+    .issue:last-child { border-bottom: none; }
+    .severity-error { color: #f87171; }
+    .severity-warning { color: #fbbf24; }
+    .severity-info { color: #60a5fa; }
+    .rule { font-family: monospace; font-size: 0.85rem; }
+    .message { font-size: 0.9rem; color: #cbd5e1; margin-top: 0.25rem; }
+    .fix { font-size: 0.8rem; color: #94a3b8; margin-top: 0.25rem; font-style: italic; }
+    .line { font-size: 0.75rem; color: #64748b; }
+    h2 { margin: 1.5rem 0 1rem; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="score">${result.score}<span style="font-size:1rem;color:#94a3b8">/100</span></div>
+    <div class="stats">
+      <div class="stat"><div class="stat-value">${result.filesScanned}</div><div class="stat-label">Files</div></div>
+      <div class="stat"><div class="stat-value" style="color:#f87171">${result.errors}</div><div class="stat-label">Errors</div></div>
+      <div class="stat"><div class="stat-value" style="color:#fbbf24">${result.warnings}</div><div class="stat-label">Warnings</div></div>
+      <div class="stat"><div class="stat-value" style="color:#60a5fa">${result.infos}</div><div class="stat-label">Info</div></div>
+      <div class="stat"><div class="stat-value">${result.passed ? '✓' : '✗'}</div><div class="stat-label">Status</div></div>
+    </div>
+  </div>
+
+  <h2>Issues by file</h2>
+  ${Object.entries(issuesByFile).map(([file, issues]) => `
+    <div class="card">
+      <div class="file">${file}</div>
+      ${issues.map(issue => `
+        <div class="issue">
+          <span class="severity-${issue.severity}">${issue.severity === 'error' ? '✗' : issue.severity === 'warning' ? '⚠' : 'ℹ'}</span>
+          <span class="rule">${issue.rule}</span>
+          ${issue.line ? `<span class="line"> (line ${issue.line})</span>` : ''}
+          <div class="message">${issue.message}</div>
+          ${issue.fix ? `<div class="fix">Fix: ${issue.fix.jsx || issue.fix.css || issue.fix.description}</div>` : ''}
+        </div>
+      `).join('')}
+    </div>
+  `).join('')}
+
+  ${result.issues.length === 0 ? '<div class="card"><p style="color:#22c55e">✓ No issues found. Your UI passes the quality gate.</p></div>' : ''}
+</body>
+</html>`;
+}
+
 program.parse();

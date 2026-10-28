@@ -58,23 +58,13 @@ export async function runDecisions(targetPath, options = {}) {
     const ext = file.split('.').pop().toLowerCase();
     let parsed;
 
-    if (['jsx', 'tsx', 'js', 'ts'].includes(ext)) {
-      if (!looksLikeUI(content)) continue;
-      parsed = parseJSX(content, file);
-      parsed._content = content;
-    } else if (['css', 'scss', 'less'].includes(ext)) {
-      parsed = parseCSS(content, file);
-      parsed._content = content;
-    } else if (['html', 'htm'].includes(ext)) {
-      parsed = parseJSX(content, file);
-      parsed._content = content;
-      parsed.type = 'html';
-    } else if (ext === 'dart') {
-      if (!looksLikeFlutterUI(content)) continue;
-      parsed = parseDart(content, file);
-    } else {
-      continue;
-    }
+    const { detectAdapter } = await import('../adapters/registry.js');
+    const adapter = detectAdapter(content, file);
+    const adapterResult = adapter.parse(content, file);
+    if (!adapterResult) continue;
+    parsed = adapterResult.parsed;
+    parsed._content = content;
+    parsed._framework = adapterResult.framework;
 
     const decisions = analyzeDecisions(parsed, content);
     allDecisions.push(...decisions);

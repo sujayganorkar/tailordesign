@@ -76,25 +76,14 @@ export async function run(targetPath, options = {}) {
     const ext = file.split('.').pop().toLowerCase();
     let parsed;
 
-    if (['jsx', 'tsx', 'js', 'ts'].includes(ext)) {
-      // Only parse JS/TS files that look like UI code
-      if (!looksLikeUI(content)) continue;
-      parsed = parseJSX(content, file);
-      parsed._content = content;
-    } else if (['css', 'scss', 'less'].includes(ext)) {
-      parsed = parseCSS(content, file);
-    } else if (ext === 'dart') {
-      // Only parse Dart files that contain UI widgets
-      if (!looksLikeFlutterUI(content)) continue;
-      parsed = parseDart(content, file);
-    } else if (['html', 'htm'].includes(ext)) {
-      // Treat HTML like JSX for now
-      parsed = parseJSX(content, file);
-      parsed._content = content;
-      parsed.type = 'html';
-    } else {
-      continue;
-    }
+    // Use adapter system for framework detection
+    const { detectAdapter } = await import('./adapters/registry.js');
+    const adapter = detectAdapter(content, file);
+    const adapterResult = adapter.parse(content, file);
+    if (!adapterResult) continue;
+    parsed = adapterResult.parsed;
+    parsed._content = content;
+    parsed._framework = adapterResult.framework;
 
     allParsed.push(parsed);
     const issues = runRules(parsed, allParsed);

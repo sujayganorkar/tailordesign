@@ -9,7 +9,7 @@
   "types": "uiq.d.ts",
   "type": "module",
   "scripts": {
-    "test": "node --test 'tests/**/*.test.js'",
+    "test": "node --test tests/*.test.js",
     "lint": "node bin/cli.js ."
   },
   "keywords": [

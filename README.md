@@ -5,11 +5,11 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](package.json)
-[![Rules](https://img.shields.io/badge/rules-20-orange.svg)](src/config.js)
+[![Rules](https://img.shields.io/badge/rules-23-orange.svg)](src/config.js)
 [![Sources](https://img.shields.io/badge/sources-23%20verified-green.svg)](SOURCES.md)
 
 ```bash
-npx uiq ./src
+npx @sujayganorkar/uiq ./src
 ```
 
 ```
@@ -59,9 +59,9 @@ These aren't taste problems. They're **objective, measurable failures** that age
 ## Install
 
 ```bash
-npm install -g uiq
+npm install -g @sujayganorkar/uiq
 # or use directly
-npx uiq ./src
+npx @sujayganorkar/uiq ./src
 ```
 
 **As an agent skill** (Claude Code / Codex / Cursor):
@@ -75,12 +75,12 @@ git clone https://github.com/sujayganorkar/tailordesign.git ~/.claude/skills/uiq
 
 ```bash
 # 1. Scan your UI
-uiq ./src
+npx @sujayganorkar/uiq ./src
 
 # 2. Fix the issues (agent does this automatically)
 
 # 3. Re-run until it passes
-uiq ./src --ci --min-score 80
+npx @sujayganorkar/uiq ./src --ci --min-score 80
 ```
 
 ---
@@ -98,6 +98,10 @@ uiq ./src --ci --min-score 80
 | `uiq state` | View scan history |
 | `uiq init` | Scaffold a .uiqrc.json config |
 | `uiq watch ./src` | Watch for changes and re-scan |
+| `uiq create [path]` | Create a new frontend project with the quality gate wired in |
+| `uiq scaffold [path]` | Scaffold tokens + components into an existing project |
+| `uiq explain [rule]` | Explain a rule in plain English (or `all`) |
+| `uiq dashboard [path]` | Local web dashboard for visual review |
 
 ### Flags
 
@@ -206,7 +210,7 @@ DECIDE → IMPLEMENT → CHECK → COMPLY → ESCALATE/REVIEW → LEARN → DECI
 
 ```
 After writing or modifying UI code:
-1. Run: uiq ./src
+1. Run: npx @sujayganorkar/uiq ./src
 2. Fix errors first, then warnings
 3. Re-run until score ≥ 80
 4. Run: uiq ./src --full
@@ -214,7 +218,7 @@ After writing or modifying UI code:
 6. Only declare "done" when both pass
 
 For new components:
-1. Run: uiq ./src --decide
+1. Run: npx @sujayganorkar/uiq ./src --decide
 2. Implement all required states and recommended motion
 3. Follow anti-patterns list
 4. Run: uiq ./src
@@ -235,7 +239,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: '20' }
-      - run: npx uiq ./src --ci --min-score 80
+      - run: npx @sujayganorkar/npx @sujayganorkar/uiq ./src --ci --min-score 80
 ```
 
 ---

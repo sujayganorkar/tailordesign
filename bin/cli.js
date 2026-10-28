@@ -6,8 +6,8 @@ const program = new Command();
 
 program
   .name('uiq')
-  .description('Quality gate for UI code. 20 objective rules across motion, interaction states, accessibility, performance, and consistency. Plus interaction decision engine.')
-  .version('0.1.0')
+  .description('Quality gate for UI code. 23 objective rules across motion, interaction states, accessibility, performance, and consistency. Plus interaction decision engine.')
+  .version('0.2.0')
   .argument('[path]', 'Path to scan', '.')
   .option('-f, --format <format>', 'Output format: text, json, markdown', 'text')
   .option('--fix', 'Auto-fix simple issues (reduced-motion, motion tokens)')
@@ -252,15 +252,56 @@ async function loadConfig(targetPath) {
   const configPath = path.join(dir, '.uiqrc.json');
   if (fs.existsSync(configPath)) {
     try {
-      return JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+      const parsed = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+      if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+        console.error('Warning: .uiqrc.json must be a JSON object; ignoring.');
+        return null;
+      }
+      if (parsed.minScore !== undefined && typeof parsed.minScore !== 'number') {
+        console.error('Warning: .uiqrc.json minScore must be a number; ignoring config.');
+        return null;
+      }
+      if (parsed.ignore !== undefined && !Array.isArray(parsed.ignore)) {
+        console.error('Warning: .uiqrc.json ignore must be an array; ignoring config.');
+        return null;
+      }
+      if (parsed.rules !== undefined && (typeof parsed.rules !== 'object' || parsed.rules === null || Array.isArray(parsed.rules))) {
+        console.error('Warning: .uiqrc.json rules must be an object; ignoring config.');
+        return null;
+      }
+      return parsed;
     } catch {
+      console.error('Warning: .uiqrc.json is not valid JSON; ignoring.');
       return null;
     }
   }
   return null;
 }
 
-// Scaffold command
+// Create command (starter funnel)
+program
+  .command('create')
+  .description('Create a new frontend project with the UI quality gate wired in')
+  .argument('[path]', 'Project directory', '.')
+  .action(async (path) => {
+    try {
+      const { scaffold } = await import('../src/scaffold/index.js');
+      const dir = path || '.';
+      const results = scaffold(dir);
+      console.log('Created project:');
+      for (const r of results) console.log(`  ✓ ${r}`);
+      console.log(`\nNext steps:`);
+      console.log(`  1. cd ${dir} && npm install`);
+      console.log(`  2. npm run dev          (start Vite dev server)`);
+      console.log(`  3. npm run lint         (run the UI quality gate)`);
+      console.log(`  4. Edit src/App.jsx and components in src/components/`);
+    } catch (err) {
+      console.error(`Error: ${err.message}`);
+      process.exit(1);
+    }
+  });
+
+// Scaffold command (alias-friendly, lower-level)
 program
   .command('scaffold')
   .description('Scaffold a new project with UI quality gates, design tokens, and component templates')
@@ -275,7 +316,7 @@ program
       console.log(`\nNext steps:`);
       console.log(`  1. Import tokens.css in your main CSS file`);
       console.log(`  2. Use the component templates in src/components/`);
-      console.log(`  3. Run: uiq ./src`);
+      console.log(`  3. Run: npx @sujayganorkar/uiq ./src`);
     } catch (err) {
       console.error(`Error: ${err.message}`);
       process.exit(1);
@@ -359,6 +400,7 @@ program
       const server = http.createServer((req, res) => {
         if (req.url === '/') {
           res.writeHead(200, { 'Content-Type': 'text/html' });
+          const { generateDashboardHTML } = await import('../src/dashboard.js');
           res.end(generateDashboardHTML(result));
         } else if (req.url === '/api/results') {
           res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -379,75 +421,7 @@ program
     }
   });
 
-function generateDashboardHTML(result) {
-  const issuesByFile = {};
-  for (const issue of result.issues) {
-    if (!issuesByFile[issue.file]) issuesByFile[issue.file] = [];
-    issuesByFile[issue.file].push(issue);
-  }
 
-  const scoreColor = result.score >= 80 ? '#22c55e' : result.score >= 60 ? '#eab308' : '#ef4444';
 
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>uiq Dashboard</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; padding: 2rem; }
-    .header { display: flex; align-items: center; gap: 2rem; margin-bottom: 2rem; }
-    .score { font-size: 3rem; font-weight: bold; color: ${scoreColor}; }
-    .stats { display: flex; gap: 1.5rem; }
-    .stat { text-align: center; }
-    .stat-value { font-size: 1.5rem; font-weight: bold; }
-    .stat-label { font-size: 0.75rem; color: #94a3b8; }
-    .card { background: #1e293b; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1rem; }
-    .file { font-weight: bold; color: #60a5fa; margin-bottom: 0.5rem; }
-    .issue { padding: 0.5rem 0; border-bottom: 1px solid #334155; }
-    .issue:last-child { border-bottom: none; }
-    .severity-error { color: #f87171; }
-    .severity-warning { color: #fbbf24; }
-    .severity-info { color: #60a5fa; }
-    .rule { font-family: monospace; font-size: 0.85rem; }
-    .message { font-size: 0.9rem; color: #cbd5e1; margin-top: 0.25rem; }
-    .fix { font-size: 0.8rem; color: #94a3b8; margin-top: 0.25rem; font-style: italic; }
-    .line { font-size: 0.75rem; color: #64748b; }
-    h2 { margin: 1.5rem 0 1rem; }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <div class="score">${result.score}<span style="font-size:1rem;color:#94a3b8">/100</span></div>
-    <div class="stats">
-      <div class="stat"><div class="stat-value">${result.filesScanned}</div><div class="stat-label">Files</div></div>
-      <div class="stat"><div class="stat-value" style="color:#f87171">${result.errors}</div><div class="stat-label">Errors</div></div>
-      <div class="stat"><div class="stat-value" style="color:#fbbf24">${result.warnings}</div><div class="stat-label">Warnings</div></div>
-      <div class="stat"><div class="stat-value" style="color:#60a5fa">${result.infos}</div><div class="stat-label">Info</div></div>
-      <div class="stat"><div class="stat-value">${result.passed ? '✓' : '✗'}</div><div class="stat-label">Status</div></div>
-    </div>
-  </div>
-
-  <h2>Issues by file</h2>
-  ${Object.entries(issuesByFile).map(([file, issues]) => `
-    <div class="card">
-      <div class="file">${file}</div>
-      ${issues.map(issue => `
-        <div class="issue">
-          <span class="severity-${issue.severity}">${issue.severity === 'error' ? '✗' : issue.severity === 'warning' ? '⚠' : 'ℹ'}</span>
-          <span class="rule">${issue.rule}</span>
-          ${issue.line ? `<span class="line"> (line ${issue.line})</span>` : ''}
-          <div class="message">${issue.message}</div>
-          ${issue.fix ? `<div class="fix">Fix: ${issue.fix.jsx || issue.fix.css || issue.fix.description}</div>` : ''}
-        </div>
-      `).join('')}
-    </div>
-  `).join('')}
-
-  ${result.issues.length === 0 ? '<div class="card"><p style="color:#22c55e">✓ No issues found. Your UI passes the quality gate.</p></div>' : ''}
-</body>
-</html>`;
-}
 
 program.parse();

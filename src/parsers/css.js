@@ -1,6 +1,7 @@
 // src/parsers/css.js — Parse CSS files for UI patterns
 
 export function parseCSS(content, filePath) {
+  content = content == null ? '' : String(content);
   const result = {
     filePath,
     type: 'css',

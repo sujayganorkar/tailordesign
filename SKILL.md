@@ -35,7 +35,7 @@ uiq ./src --decide           # plan interactions first
 uiq ./src --full             # decisions + quality + compliance
 ```
 
-## Rules (20 total)
+## Rules (23 total)
 
 ### Motion
 - `motion/no-layout-animation` — Never animate width/height/top/margin. Use transform/opacity.

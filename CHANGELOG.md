@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.0] - 2026-10-29
+
+### Changed
+- Renamed package to scoped `@sujayganorkar/uiq` (avoids npm security holding package)
+- Added `create` command: scaffolds a runnable Vite + React + Tailwind starter with the quality gate wired in
+- Scaffold now generates package.json, index.html, Vite config, entry files, and .gitignore
+- Fixed npm test script for Node 22+/25
+- Fixed .npmignore corruption and included TypeScript definitions in publish
+- Aligned rule counts (23) across README, CLI, and SKILL
+- Aligned CI workflow to use the correct package name
+
 ## [0.1.0] - 2026-10-27
 
 ### Added

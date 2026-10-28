@@ -12,5 +12,3 @@ node_modules/
 motion-spec.json
 .env
 .env.local
-EOF
-echo "Written"

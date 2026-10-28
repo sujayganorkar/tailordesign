@@ -1,15 +1,15 @@
 {
-  "name": "uiq",
-  "version": "0.1.0",
+  "name": "@sujayganorkar/uiq",
+  "version": "0.2.0",
   "description": "Quality gate for UI code. 23 objective rules across motion, interaction states, accessibility, performance, and consistency. Plus interaction decision engine.",
   "bin": {
-    "uiq": "./bin/cli.js"
+    "uiq": "bin/cli.js"
   },
   "main": "src/index.js",
   "types": "uiq.d.ts",
   "type": "module",
   "scripts": {
-    "test": "node --test tests/",
+    "test": "node --test 'tests/**/*.test.js'",
     "lint": "node bin/cli.js ."
   },
   "keywords": [
@@ -28,7 +28,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sujayganorkar/tailordesign.git"
+    "url": "git+https://github.com/sujayganorkar/tailordesign.git"
   },
   "homepage": "https://github.com/sujayganorkar/tailordesign#readme",
   "bugs": {
@@ -40,7 +40,8 @@
     "SKILL.md",
     "README.md",
     "SOURCES.md",
-    "LICENSE"
+    "LICENSE",
+    "uiq.d.ts"
   ],
   "engines": {
     "node": ">=18"

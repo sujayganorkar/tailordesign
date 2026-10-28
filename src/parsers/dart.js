@@ -1,6 +1,7 @@
 // src/parsers/dart.js — Parse Dart/Flutter files for UI patterns
 
 export function parseDart(content, filePath) {
+  content = content == null ? '' : String(content);
   const result = {
     filePath,
     type: 'dart',

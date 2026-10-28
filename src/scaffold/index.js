@@ -295,7 +295,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: npx uiq ./src --ci --min-score 80
+      - run: npx @sujayganorkar/uiq ./src --ci --min-score 80
 `;
 
 // uiqrc config template
@@ -314,6 +314,112 @@ const UIQRC_TEMPLATE = {
   },
   componentMappings: {},
 };
+
+
+// Minimal runnable Vite + React starter (outcome-oriented crux)
+const PACKAGE_JSON_TEMPLATE = {
+  name: "my-ui-app",
+  private: true,
+  version: "0.0.0",
+  type: "module",
+  scripts: {
+    dev: "vite",
+    build: "vite build",
+    preview: "vite preview",
+    lint: "npx @sujayganorkar/uiq ./src",
+  },
+  dependencies: {
+    react: "^18.3.1",
+    "react-dom": "^18.3.1",
+  },
+  devDependencies: {
+    "@vitejs/plugin-react": "^4.3.1",
+    vite: "^5.4.0",
+    tailwindcss: "^4.0.0",
+    "@tailwindcss/vite": "^4.0.0",
+  },
+};
+
+const INDEX_HTML = `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UI App</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+`;
+
+const VITE_CONFIG = `import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+});
+`;
+
+const MAIN_JSX = `import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App.jsx';
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+`;
+
+const APP_JSX = `import { Button } from './components/Button.jsx';
+import { DataView } from './components/DataView.jsx';
+
+export default function App() {
+  return (
+    <main className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-2xl mx-auto space-y-6">
+        <h1 className="text-2xl font-semibold text-gray-900">UI Quality Gate Starter</h1>
+        <p className="text-gray-600">Run \`npx @sujayganorkar/uiq ./src\` to check this UI.</p>
+        <Button>Primary action</Button>
+        <DataView loading={false} data={[]} renderItem={(i) => <span>{i}</span>} />
+      </div>
+    </main>
+  );
+}
+`;
+
+const INDEX_CSS = `@import "tailwindcss";
+
+/* Design tokens */
+@import "./styles/tokens.css";
+`;
+
+const GITIGNORE = `node_modules/
+dist/
+.uiq-state.json
+.uiq-feedback.json
+.uiq-escalations.json
+`;
+
+
+const README_TEMPLATE = `# UI App
+
+Created with \`uiq create\`.
+
+## Scripts
+
+- \`npm run dev\` — start Vite dev server
+- \`npm run build\` — production build
+- \`npm run lint\` — run the UI quality gate (\`npx @sujayganorkar/uiq ./src\`)
+
+## Quality gate
+
+This project ships with a UI quality gate. Run \`npm run lint\` and fix issues until the score is >= 80.
+`;
 
 export function scaffold(dir) {
   const results = [];
@@ -372,6 +478,51 @@ export function scaffold(dir) {
       note: 'Run "uiq ./src --decide" to populate this file with interaction decisions.',
     }, null, 2));
     results.push('Created motion-spec.json');
+  }
+
+
+  // Minimal runnable starter files
+  const pkgPath = join(dir, 'package.json');
+  if (!existsSync(pkgPath)) {
+    writeFileSync(pkgPath, JSON.stringify(PACKAGE_JSON_TEMPLATE, null, 2));
+    results.push('Created package.json');
+  }
+  const indexHtmlPath = join(dir, 'index.html');
+  if (!existsSync(indexHtmlPath)) {
+    writeFileSync(indexHtmlPath, INDEX_HTML);
+    results.push('Created index.html');
+  }
+  const viteConfigPath = join(dir, 'vite.config.js');
+  if (!existsSync(viteConfigPath)) {
+    writeFileSync(viteConfigPath, VITE_CONFIG);
+    results.push('Created vite.config.js');
+  }
+  const mainPath = join(dir, 'src/main.jsx');
+  if (!existsSync(mainPath)) {
+    writeFileSync(mainPath, MAIN_JSX);
+    results.push('Created src/main.jsx');
+  }
+  const appPath = join(dir, 'src/App.jsx');
+  if (!existsSync(appPath)) {
+    writeFileSync(appPath, APP_JSX);
+    results.push('Created src/App.jsx');
+  }
+  const cssPath = join(dir, 'src/index.css');
+  if (!existsSync(cssPath)) {
+    writeFileSync(cssPath, INDEX_CSS);
+    results.push('Created src/index.css');
+  }
+  const gitignorePath = join(dir, '.gitignore');
+  if (!existsSync(gitignorePath)) {
+    writeFileSync(gitignorePath, GITIGNORE);
+    results.push('Created .gitignore');
+  }
+
+
+  const readmePath = join(dir, 'README.md');
+  if (!existsSync(readmePath)) {
+    writeFileSync(readmePath, README_TEMPLATE);
+    results.push('Created README.md');
   }
 
   return results;

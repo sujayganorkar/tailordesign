@@ -7,6 +7,7 @@
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { assertSafePath } from '../utils/safe-path.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 
 // Tool definitions
@@ -87,41 +88,50 @@ const TOOLS = [
   },
 ];
 
+
+
+import { resolve, normalize, sep } from 'path';
+
 // Tool handlers
 async function handleTool(name, args) {
   switch (name) {
     case 'uiq_scan': {
       const { run } = await import('../index.js');
-      const result = await run(args.path, { format: 'json', rules: args.rules, minScore: args.minScore || 80 });
+      const safePath = assertSafePath(args.path, 'path');
+      const result = await run(safePath, { format: 'json', rules: args.rules, minScore: args.minScore || 80 });
       return {
         content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
       };
     }
     case 'uiq_decide': {
       const { runDecisions } = await import('../decisions/index.js');
-      const decisions = await runDecisions(args.path, { format: 'json', human: args.human });
+      const safePath = assertSafePath(args.path, 'path');
+      const decisions = await runDecisions(safePath, { format: 'json', human: args.human });
       return {
         content: [{ type: 'text', text: JSON.stringify(decisions, null, 2) }],
       };
     }
     case 'uiq_full': {
       const { runFull } = await import('../workflow/full.js');
-      const result = await runFull(args.path, { format: 'json', minScore: args.minScore || 80 });
+      const safePath = assertSafePath(args.path, 'path');
+      const result = await runFull(safePath, { format: 'json', minScore: args.minScore || 80 });
       return {
         content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
       };
     }
     case 'uiq_scaffold': {
       const { scaffold } = await import('../scaffold/index.js');
-      const results = scaffold(args.path);
+      const safePath = assertSafePath(args.path, 'path');
+      const results = scaffold(safePath);
       return {
         content: [{ type: 'text', text: JSON.stringify({ scaffolded: results }, null, 2) }],
       };
     }
     case 'uiq_feedback': {
       const { addFeedback } = await import('../feedback/review.js');
-      const entry = addFeedback(args.dir, {
-        file: args.file,
+      const safeDir = assertSafePath(args.dir, 'dir');
+      const entry = addFeedback(safeDir, {
+        file: assertSafePath(args.file, 'file'),
         component: args.component,
         category: args.category,
         note: args.note,
@@ -132,7 +142,8 @@ async function handleTool(name, args) {
     }
     case 'uiq_escalate': {
       const { getPending } = await import('../escalation/cards.js');
-      const pending = getPending(args.dir);
+      const safeDir = assertSafePath(args.dir, 'dir');
+      const pending = getPending(safeDir);
       return {
         content: [{ type: 'text', text: JSON.stringify(pending, null, 2) }],
       };
@@ -144,7 +155,7 @@ async function handleTool(name, args) {
 
 // Server setup
 const server = new Server(
-  { name: 'uiq', version: '0.1.0' },
+  { name: 'uiq', version: '0.2.0' },
   { capabilities: { tools: {} } }
 );
 

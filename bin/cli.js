@@ -397,10 +397,10 @@ program
       const port = parseInt(options.port) || 3456;
 
       const http = await import('http');
+      const { generateDashboardHTML } = await import('../src/dashboard.js');
       const server = http.createServer((req, res) => {
         if (req.url === '/') {
           res.writeHead(200, { 'Content-Type': 'text/html' });
-          const { generateDashboardHTML } = await import('../src/dashboard.js');
           res.end(generateDashboardHTML(result));
         } else if (req.url === '/api/results') {
           res.writeHead(200, { 'Content-Type': 'application/json' });

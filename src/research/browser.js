@@ -39,8 +39,20 @@ export async function inspectResearchPage(url, options = {}) {
   try {
     browser = await chromium.launch({ headless: true });
     const context = await browser.newContext({ viewport, reducedMotion: 'reduce' });
+    // Keep the browser confined to local dev-server resources.
+    await context.route('**/*', route => {
+      try {
+        const requestUrl = new URL(route.request().url());
+        if (['http:', 'https:'].includes(requestUrl.protocol) &&
+            ['localhost', '127.0.0.1', '[::1]'].includes(requestUrl.hostname)) {
+          return route.continue();
+        }
+      } catch { /* abort malformed requests */ }
+      return route.abort();
+    });
     const page = await context.newPage();
     await page.goto(target, { waitUntil: 'domcontentloaded', timeout });
+    validateResearchUrl(page.url());
     if (task.readySelector) await page.locator(task.readySelector).waitFor({ state: 'visible', timeout });
 
     // WCAG 2.5.8 spacing: only non-inline targets and nearby targets.
@@ -94,7 +106,9 @@ export async function inspectResearchPage(url, options = {}) {
           const hit = document.elementFromPoint(rect.left + x * rect.width, rect.top + y * rect.height);
           return hit && (hit === el || el.contains(hit));
         }));
-        return { visible: true, exposed, ref: el.id ? '#' + el.id : el.tagName.toLowerCase() };
+        const allFocusables = Array.from(document.querySelectorAll('button, a[href], input, select, textarea, [tabindex]'));
+        const ordinal = allFocusables.indexOf(el);
+        return { visible: true, exposed, ref: el.id ? '#' + el.id : el.tagName.toLowerCase() + '[focus-' + ordinal + ']' };
       });
       if (!info) break;
       if (!info.visible) continue;

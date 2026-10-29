@@ -40,6 +40,21 @@ jobs:
           UIQ_REQUIRE_BROWSER: '1'
       - name: Benchmark labeled UI interactions across two viewports
         run: node benchmarks/hci/run.js --strict --out hci-report.json > hci-run.log
+      - name: Evaluate pinned W3C ARIA reference implementations
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/w3c-reference"
+          git -C "$RUNNER_TEMP/w3c-reference" init
+          git -C "$RUNNER_TEMP/w3c-reference" remote add origin https://github.com/w3c/aria-practices.git
+          git -C "$RUNNER_TEMP/w3c-reference" sparse-checkout init --cone
+          git -C "$RUNNER_TEMP/w3c-reference" sparse-checkout set content/shared content/images content/patterns/dialog-modal/examples content/patterns/alertdialog/examples
+          git -C "$RUNNER_TEMP/w3c-reference" fetch --depth 1 --filter=blob:none origin 0f765e4dc33e966026114ac12a8380db1de3b787
+          git -C "$RUNNER_TEMP/w3c-reference" checkout --detach FETCH_HEAD
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory "$RUNNER_TEMP/w3c-reference/content" &
+          HTTP_PID=$!
+          trap 'kill $HTTP_PID || true' EXIT
+          curl --retry 10 --retry-delay 1 --retry-connrefused -fsS http://127.0.0.1:8765/patterns/dialog-modal/examples/dialog.html >/dev/null
+          node benchmarks/hci/run.js benchmarks/hci/manifest.w3c.json --base-url http://127.0.0.1:8765 --strict --out hci-w3c-report.json > hci-w3c-run.log
       - name: Print signal-level detection metrics
         if: always()
         run: |
@@ -54,4 +69,6 @@ jobs:
           path: |
             hci-report.json
             hci-run.log
+            hci-w3c-report.json
+            hci-w3c-run.log
 

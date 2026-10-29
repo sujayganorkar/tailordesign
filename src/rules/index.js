@@ -1,11 +1,11 @@
-// src/rules/index.js — Rule implementations
+// src/rules/index.js - Rule implementations
 
 import { checkContrast } from '../parsers/color.js';
 
 export function runRules(parsed, allFiles) {
   const issues = [];
 
-  // --- MOTION RULES (JSX/HTML only — CSS has its own block below) ---
+  // --- MOTION RULES (JSX/HTML only - CSS has its own block below) ---
   // Sources: web.dev (layout thrashing), MDN (prefers-reduced-motion), Material Design (duration, easing, stagger)
   if (parsed.type !== 'css') {
     if (parsed.layoutAnimations && parsed.layoutAnimations.length > 0) {
@@ -88,7 +88,7 @@ export function runRules(parsed, allFiles) {
       }
     }
 
-    // a11y/contrast — check for potential contrast issues
+    // a11y/contrast - check for potential contrast issues
     try {
       const contrastIssues = checkContrast(parsed._content || '');
       if (contrastIssues.length > 0) {
@@ -108,7 +108,7 @@ export function runRules(parsed, allFiles) {
       issues.push({ rule: 'consistency/no-card-grid-hero', severity: 'info', message: 'Card grid in hero. Use full-bleed imagery.', file: parsed.filePath });
     }
 
-    // perf/layout-thrash — check for interleaved DOM reads and writes
+    // perf/layout-thrash - check for interleaved DOM reads and writes
     const hasLayoutRead = /offsetWidth|offsetHeight|getBoundingClientRect|clientWidth|clientHeight|scrollTop|scrollLeft/i.test(parsed._content || '');
     const hasLayoutWrite = /\.style\.\w+\s*=|classList\.(add|remove|toggle)|\.innerHTML\s*=/i.test(parsed._content || '');
     if (hasLayoutRead && hasLayoutWrite) {

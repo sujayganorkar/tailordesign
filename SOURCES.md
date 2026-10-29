@@ -200,4 +200,4 @@ Every numeric value in uiq is either **research-backed** (from a published sourc
 2. Check if it appears in the "Research-backed" table above
 3. If yes, visit the cited URL and confirm
 4. If no, it's in the "Heuristic" table with rationale
-5. If it's in neither table, it's a bug — please file an issue
+5. If it's in neither table, it's a bug - please file an issue

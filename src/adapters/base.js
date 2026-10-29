@@ -1,4 +1,4 @@
-// src/adapters/base.js — Base adapter interface for all UI frameworks
+// src/adapters/base.js - Base adapter interface for all UI frameworks
 
 export class BaseAdapter {
   constructor(name) {

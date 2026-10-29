@@ -1,4 +1,4 @@
-// src/decisions/humanize.js — Translate technical decisions into human-readable language
+// src/decisions/humanize.js - Translate technical decisions into human-readable language
 
 // Human-readable descriptions for each component type
 export const COMPONENT_DESCRIPTIONS = {
@@ -98,7 +98,7 @@ export function humanizeMotion(motionStr) {
     else if (ms <= 200) speed = 'fast';
     else if (ms <= 350) speed = 'normal speed';
     else speed = 'slow (deliberate)';
-    desc += ` — ${speed} (${duration}${durationMax ? '-' + durationMax : ''}ms)`;
+    desc += ` - ${speed} (${duration}${durationMax ? '-' + durationMax : ''}ms)`;
   }
 
   return desc;
@@ -179,7 +179,7 @@ export function formatHumanDecisionReport(decisions) {
           lines.push(`  │    • ${s.human}`);
         }
       } else {
-        lines.push(`  │  What it needs to do: (nothing interactive — passive content)`);
+        lines.push(`  │  What it needs to do: (nothing interactive - passive content)`);
       }
 
       lines.push(`  │`);
@@ -190,7 +190,7 @@ export function formatHumanDecisionReport(decisions) {
           lines.push(`  │    → ${m.human}`);
         }
       } else {
-        lines.push(`  │  How it should move: (keep it static — no animation needed)`);
+        lines.push(`  │  How it should move: (keep it static - no animation needed)`);
       }
 
       if (hd.antiPatterns.length > 0) {

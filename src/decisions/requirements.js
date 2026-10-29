@@ -1,4 +1,4 @@
-// src/decisions/requirements.js — Map component type → required states + recommended motion
+// src/decisions/requirements.js - Map component type → required states + recommended motion
 
 // Interaction requirements by component type
 // Each entry: { states: [], motion: [], antiPatterns: [], consequence: string }
@@ -13,7 +13,7 @@ const REQUIREMENTS = {
     consequence: 'instant-reversible',
     states: ['hover', 'focus-visible', 'active', 'disabled', 'loading'],
     motion: ['color shift on hover (100-150ms)', 'scale(0.97) on press', 'loading spinner replaces label'],
-    antiPatterns: ['Don\'t use generic blue — use brand color', 'Loading state must disable the button'],
+    antiPatterns: ['Don\'t use generic blue - use brand color', 'Loading state must disable the button'],
   },
   'button-destructive': {
     consequence: 'destructive',
@@ -103,7 +103,7 @@ const REQUIREMENTS = {
     consequence: 'unknown',
     states: ['hover', 'focus-visible', 'active'],
     motion: ['Determine appropriate motion based on component purpose'],
-    antiPatterns: ['Classify this component properly — it has onClick but is not a recognized interactive element', 'Consider using <button> instead of <div onClick>'],
+    antiPatterns: ['Classify this component properly - it has onClick but is not a recognized interactive element', 'Consider using <button> instead of <div onClick>'],
   },
   'tooltip': {
     consequence: 'instant-reversible',
@@ -119,7 +119,7 @@ const REQUIREMENTS = {
   },
 };
 
-// Context modifiers — adjust requirements based on where the component is used
+// Context modifiers - adjust requirements based on where the component is used
 const CONTEXT_MODIFIERS = {
   scroll: {
     // Components in scroll contexts get entrance animations

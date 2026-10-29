@@ -1,4 +1,4 @@
-// src/utils/lines.js — Line number utilities for precise issue reporting
+// src/utils/lines.js - Line number utilities for precise issue reporting
 
 // Find line numbers for a regex pattern in content
 export function findLineNumbers(content, pattern) {

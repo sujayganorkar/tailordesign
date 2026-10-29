@@ -1,4 +1,4 @@
-// tests/fixtures/GoodComponent.jsx — A well-crafted component
+// tests/fixtures/GoodComponent.jsx - A well-crafted component
 
 import React, { useState, useEffect } from 'react';
 import { useReducedMotion } from 'framer-motion';

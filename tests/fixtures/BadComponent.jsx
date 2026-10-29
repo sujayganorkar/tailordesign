@@ -1,4 +1,4 @@
-// tests/fixtures/BadComponent.jsx — A typical "AI slop" component
+// tests/fixtures/BadComponent.jsx - A typical "AI slop" component
 
 import React, { useState, useEffect } from 'react';
 

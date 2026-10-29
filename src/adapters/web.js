@@ -1,4 +1,4 @@
-// src/adapters/web.js — Web adapter (React, Vue, Svelte, HTML, CSS, Tailwind)
+// src/adapters/web.js - Web adapter (React, Vue, Svelte, HTML, CSS, Tailwind)
 import { BaseAdapter, createUniversalComponent } from './base.js';
 import { parseJSX } from '../parsers/jsx.js';
 import { parseCSS } from '../parsers/css.js';

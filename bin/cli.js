@@ -77,7 +77,7 @@ program
           updateVariables(state, result);
           console.log(formatControlReport(state));
           const decision = getControlDecision(state);
-          console.log(`  Next action: ${decision.action} (${decision.priority}) — ${decision.message}`);
+          console.log(`  Next action: ${decision.action} (${decision.priority}) - ${decision.message}`);
           console.log('');
         }
       }
@@ -115,7 +115,7 @@ program
           category: options.category,
           note: options.note,
         });
-        console.log(`Feedback added: ${entry.id} — ${entry.categoryLabel}`);
+        console.log(`Feedback added: ${entry.id} - ${entry.categoryLabel}`);
       } else if (options.resolve) {
         const resolved = resolveFeedback(dir, options.resolve);
         if (resolved) console.log(`Resolved: ${resolved.id}`);

@@ -1,4 +1,4 @@
-// src/parsers/color.js — Color parsing and contrast calculation utilities
+// src/parsers/color.js - Color parsing and contrast calculation utilities
 
 // Parse a hex color to RGB
 export function hexToRgb(hex) {

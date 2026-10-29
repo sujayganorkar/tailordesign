@@ -1,4 +1,4 @@
-// src/index.js — Main entry point
+// src/index.js - Main entry point
 
 import { glob } from 'glob';
 import { readFileSync } from 'fs';

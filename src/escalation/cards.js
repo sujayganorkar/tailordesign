@@ -1,4 +1,4 @@
-// src/escalation/cards.js — Escalation protocol for agent→human
+// src/escalation/cards.js - Escalation protocol for agent→human
 
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { join } from 'path';

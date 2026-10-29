@@ -1,4 +1,4 @@
-// src/feedback/review.js — Human feedback capture (structured)
+// src/feedback/review.js - Human feedback capture (structured)
 
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { join } from 'path';

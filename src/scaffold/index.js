@@ -1,4 +1,4 @@
-// src/scaffold/index.js — Project scaffolding for new repositories
+// src/scaffold/index.js - Project scaffolding for new repositories
 
 import { writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join } from 'path';
@@ -204,7 +204,7 @@ export function Input({ label, error, success, disabled = false, ...props }) {
 };
 
 // Design tokens (CSS custom properties)
-const DESIGN_TOKENS = `/* Design tokens — single source of truth for UI values */
+const DESIGN_TOKENS = `/* Design tokens - single source of truth for UI values */
 /* Source: W3C Design Tokens Community Group */
 /* https://design-tokens.github.io/community-group/format/ */
 
@@ -263,7 +263,7 @@ const DESIGN_TOKENS = `/* Design tokens — single source of truth for UI values
   --radius-2xl: 1rem;
 }
 
-/* Reduced motion — respect user preference */
+/* Reduced motion - respect user preference */
 /* Source: WCAG 2.1 SC 2.3.3 */
 /* https://www.w3.org/WAI/WCAG21/Understanding/animation-from-interactions.html */
 @media (prefers-reduced-motion: reduce) {
@@ -412,9 +412,9 @@ Created with \`uiq create\`.
 
 ## Scripts
 
-- \`npm run dev\` — start Vite dev server
-- \`npm run build\` — production build
-- \`npm run lint\` — run the UI quality gate (\`npx @sujayganorkar/uiq ./src\`)
+- \`npm run dev\` - start Vite dev server
+- \`npm run build\` - production build
+- \`npm run lint\` - run the UI quality gate (\`npx @sujayganorkar/uiq ./src\`)
 
 ## Quality gate
 

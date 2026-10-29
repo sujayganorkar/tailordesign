@@ -1,4 +1,4 @@
-// uiq.d.ts — TypeScript definitions for uiq
+// uiq.d.ts - TypeScript definitions for uiq
 
 export interface UiqOptions {
   format?: 'text' | 'json' | 'markdown';

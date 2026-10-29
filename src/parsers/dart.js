@@ -1,4 +1,4 @@
-// src/parsers/dart.js — Parse Dart/Flutter files for UI patterns
+// src/parsers/dart.js - Parse Dart/Flutter files for UI patterns
 
 export function parseDart(content, filePath) {
   content = content == null ? '' : String(content);
@@ -74,7 +74,7 @@ export function parseDart(content, filePath) {
     // If seconds, convert (heuristic: if preceded by 'seconds', multiply)
     result.durations.push(val);
   }
-  // Also catch Duration(milliseconds: N, seconds: M) combined — simpler: just grab all numbers after milliseconds/seconds
+  // Also catch Duration(milliseconds: N, seconds: M) combined - simpler: just grab all numbers after milliseconds/seconds
   const durRegex2 = /Duration\(([^)]+)\)/g;
   let durMatch2;
   while ((durMatch2 = durRegex2.exec(content)) !== null) {
@@ -98,7 +98,7 @@ export function parseDart(content, filePath) {
   // Layout animations: animating width/height in AnimatedContainer or TweenAnimationBuilder
   // Check for AnimatedContainer with width/height in tween
   if (/AnimatedContainer/.test(content)) {
-    // Look for width: or height: inside AnimatedContainer blocks — heuristic
+    // Look for width: or height: inside AnimatedContainer blocks - heuristic
     const containerBlocks = content.match(/AnimatedContainer\([^)]*\)/gs) || [];
     for (const block of containerBlocks) {
       if (/width\s*:|height\s*:/.test(block)) {

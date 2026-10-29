@@ -1,4 +1,4 @@
-// src/reporter.js — Output formatting
+// src/reporter.js - Output formatting
 
 import chalk from 'chalk';
 
@@ -104,7 +104,7 @@ export function formatMarkdown(result) {
     lines.push('');
     for (const issue of issues) {
       const icon = issue.severity === 'error' ? '✗' : issue.severity === 'warning' ? '⚠' : 'ℹ';
-      lines.push(`- ${icon} **${issue.rule}** — ${issue.message}`);
+      lines.push(`- ${icon} **${issue.rule}** - ${issue.message}`);
     }
     lines.push('');
   }

@@ -1,4 +1,4 @@
-// src/control/process.js — Process control engineering for the human-agent-tool workflow
+// src/control/process.js - Process control engineering for the human-agent-tool workflow
 //
 // Applies process control concepts to UI quality:
 // - Setpoint: quality threshold (default 80)

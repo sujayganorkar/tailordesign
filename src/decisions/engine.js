@@ -1,4 +1,4 @@
-// src/decisions/engine.js — Run the decision analysis on a codebase
+// src/decisions/engine.js - Run the decision analysis on a codebase
 
 import { classifyComponents } from './classifier.js';
 import { getRequirements } from './requirements.js';
@@ -54,7 +54,7 @@ export function formatDecisionReport(allDecisions) {
         lines.push(`  │    • ${s}`);
       }
       if (d.requiredStates.length === 0) {
-        lines.push(`  │    (none — passive component)`);
+        lines.push(`  │    (none - passive component)`);
       }
       lines.push(`  │`);
       lines.push(`  │  Recommended motion:`);
@@ -62,7 +62,7 @@ export function formatDecisionReport(allDecisions) {
         lines.push(`  │    → ${m}`);
       }
       if (d.recommendedMotion.length === 0) {
-        lines.push(`  │    (none — keep static)`);
+        lines.push(`  │    (none - keep static)`);
       }
       lines.push(`  │`);
       lines.push(`  │  Anti-patterns:`);
@@ -89,7 +89,7 @@ export function formatDecisionReport(allDecisions) {
   lines.push('  | Component | Pattern | Trigger | Duration | Easing | Reduced motion |');
   lines.push('  |-----------|---------|---------|----------|--------|----------------|');
   for (const d of allDecisions.slice(0, 10)) {
-    lines.push(`  | ${d.component} | ${d.recommendedMotion[0] || 'none'} | ${d.contexts[0] || 'click'} | — | — | instant appear |`);
+    lines.push(`  | ${d.component} | ${d.recommendedMotion[0] || 'none'} | ${d.contexts[0] || 'click'} | - | - | instant appear |`);
   }
   lines.push('');
 

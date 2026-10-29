@@ -1,4 +1,4 @@
-// src/decisions/classifier.js — AST-based component classification
+// src/decisions/classifier.js - AST-based component classification
 
 import { parse } from '@babel/parser';
 import traverse from '@babel/traverse';
@@ -228,7 +228,7 @@ function parseJSXAST(content) {
       },
     });
   } catch (e) {
-    // Parse failed — fall back to regex
+    // Parse failed - fall back to regex
     return null;
   }
 

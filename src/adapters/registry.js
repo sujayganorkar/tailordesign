@@ -1,4 +1,4 @@
-// src/adapters/registry.js — Auto-detect which adapter to use
+// src/adapters/registry.js - Auto-detect which adapter to use
 
 import { WebAdapter } from './web.js';
 import { FlutterAdapter } from './flutter.js';

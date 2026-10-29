@@ -1,4 +1,4 @@
-// src/workflow/full.js — Unified decision + quality gate workflow
+// src/workflow/full.js - Unified decision + quality gate workflow
 
 import { glob } from 'glob';
 import { readFileSync } from 'fs';
@@ -174,7 +174,7 @@ export async function runFull(targetPath, options = {}) {
     completeControlPoint(state, 'post-scan', { issues: result.totalIssues });
     console.log(formatControlReport(state));
     const decision = getControlDecision(state);
-    console.log(`  Next action: ${decision.action} (${decision.priority}) — ${decision.message}`);
+    console.log(`  Next action: ${decision.action} (${decision.priority}) - ${decision.message}`);
     console.log('');
   }
 
@@ -196,7 +196,7 @@ function formatFullText(result) {
 
   lines.push('');
   lines.push('━'.repeat(70));
-  lines.push('  AI UI Quality Gate — Full Report (Decisions + Quality)');
+  lines.push('  AI UI Quality Gate - Full Report (Decisions + Quality)');
   lines.push('━'.repeat(70));
   lines.push('');
 
@@ -218,7 +218,7 @@ function formatFullText(result) {
     } else {
       lines.push(chalk.red(`  ✗ ${missing.length} required state(s) missing:`));
       for (const m of missing) {
-        lines.push(`    • ${m.component} in ${m.file.split('/').pop()} — missing: ${m.state} (${m.ruleId})`);
+        lines.push(`    • ${m.component} in ${m.file.split('/').pop()} - missing: ${m.state} (${m.ruleId})`);
       }
     }
     lines.push('');
@@ -237,7 +237,7 @@ function formatFullText(result) {
       lines.push(chalk.bold(`  ${file}`));
       for (const issue of issues) {
         const icon = issue.severity === 'error' ? chalk.red('✗') : issue.severity === 'warning' ? chalk.yellow('⚠') : chalk.blue('ℹ');
-        lines.push(`    ${icon} ${chalk.dim(issue.rule)} — ${issue.message}`);
+        lines.push(`    ${icon} ${chalk.dim(issue.rule)} - ${issue.message}`);
       }
       lines.push('');
     }
@@ -266,7 +266,7 @@ function formatFullText(result) {
 
 function formatFullMarkdown(result) {
   const lines = [];
-  lines.push('# AI UI Quality Gate — Full Report');
+  lines.push('# AI UI Quality Gate - Full Report');
   lines.push('');
   lines.push(`| Metric | Value |`);
   lines.push(`|--------|-------|`);
@@ -284,7 +284,7 @@ function formatFullMarkdown(result) {
     lines.push('## Missing Required States');
     lines.push('');
     for (const m of missing) {
-      lines.push(`- **${m.component}** in \`${m.file.split('/').pop()}\` — missing: ${m.state}`);
+      lines.push(`- **${m.component}** in \`${m.file.split('/').pop()}\` - missing: ${m.state}`);
     }
     lines.push('');
   }
@@ -300,7 +300,7 @@ function formatFullMarkdown(result) {
     for (const [file, issues] of Object.entries(byFile)) {
       lines.push(`### ${file}`);
       for (const issue of issues) {
-        lines.push(`- ${issue.severity === 'error' ? '✗' : issue.severity === 'warning' ? '⚠' : 'ℹ'} **${issue.rule}** — ${issue.message}`);
+        lines.push(`- ${issue.severity === 'error' ? '✗' : issue.severity === 'warning' ? '⚠' : 'ℹ'} **${issue.rule}** - ${issue.message}`);
       }
       lines.push('');
     }

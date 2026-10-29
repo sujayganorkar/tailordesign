@@ -1,4 +1,4 @@
-// src/config.js — Rule definitions, configuration, and source citations
+// src/config.js - Rule definitions, configuration, and source citations
 //
 // Every rule in this file cites a real, published, verifiable source.
 // URLs are provided so humans can check the reasoning behind each rule.

@@ -1,4 +1,4 @@
-// src/adapters/flutter.js — Flutter/Dart adapter
+// src/adapters/flutter.js - Flutter/Dart adapter
 import { BaseAdapter, createUniversalComponent } from './base.js';
 import { parseDart } from '../parsers/dart.js';
 

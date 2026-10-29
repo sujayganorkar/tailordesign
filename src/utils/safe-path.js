@@ -1,4 +1,4 @@
-// src/utils/safe-path.js — Path safety helpers for untrusted input (MCP, etc.)
+// src/utils/safe-path.js - Path safety helpers for untrusted input (MCP, etc.)
 
 import { normalize, sep } from 'path';
 

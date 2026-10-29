@@ -1,4 +1,4 @@
-// src/state/persistence.js — State persistence + baseline + regression detection
+// src/state/persistence.js - State persistence + baseline + regression detection
 
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { join } from 'path';

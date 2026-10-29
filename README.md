@@ -3,7 +3,6 @@
 > **One command. Objective rules. Zero taste debates.**
 > Your code builds the UI. `uiq` makes sure it doesn't ship broken.
 
-[![npm version](https://img.shields.io/npm/v/@sujayganorkar/uiq.svg)](https://www.npmjs.com/package/@sujayganorkar/uiq)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](package.json)
 [![Rules](https://img.shields.io/badge/rules-23-orange.svg)](src/config.js)
@@ -49,13 +48,112 @@ AI agents build UI that is **technically correct but mechanically broken**:
 
 These aren't taste problems. They're **objective, measurable failures** that agents ship silently because nobody checks.
 
-## The solution
+## Use cases
+
+### 1. Cleaning up existing UI
+You have a codebase with AI-generated or hand-written UI that has issues:
+```bash
+uiq ./src                    # Find all issues
+uiq ./src --decide           # See what interactions each component should have
+uiq ./src --full             # Verify decisions match implementation
+uiq ./src --state            # Track regressions over time
+```
+
+### 2. Creating new UI
+You're starting a new project and want quality built in from day one:
+```bash
+uiq create ./my-app          # Scaffold with quality gates, tokens, templates
+cd my-app
+uiq ./src                    # Verify: 100/100 ✓
+```
+
+### 3. CI/CD pipeline
+Block PRs that don't meet quality standards:
+```yaml
+- run: npx @sujayganorkar/uiq ./src --ci --min-score 80
+```
+
+### 4. Agent workflow
+Your AI agent writes code, uiq verifies it:
+```
+Agent writes code → runs uiq → fixes issues → re-runs → declares done
+```
+
+### 5. Team onboarding
+New developers learn UI quality standards:
+```bash
+uiq ./src --decide --human   # Plain-English interaction recommendations
+uiq explain all              # Browse all 23 rules with sources
+```
+
+### 6. Design system enforcement
+Ensure components follow your design system:
+```bash
+# .uiqrc.json
+{
+  "rules": {
+    "consistency/motion-tokens": "error",
+    "consistency/no-generic-cta": "error"
+  },
+  "componentMappings": {
+    "MyButton": "button",
+    "MyCard": "card-clickable"
+  }
+}
+```
 
 `uiq` is a deterministic quality gate. It runs in seconds, needs no browser, and checks 23 rules across 5 categories. Your agent runs it after writing code, fixes the issues, and re-runs until it passes.
 
 **No taste debates. No rendering. No cost. Just rules.**
 
 ---
+
+## Scenarios
+
+### Scenario 1: "I have an existing messy codebase"
+1. Run `uiq ./src` → see 150 issues, score 27/100
+2. Hand report to agent: "Fix all errors, then warnings"
+3. Agent fixes 120 issues automatically
+4. Run `uiq ./src` → score 72/100
+5. Agent fixes remaining 30 issues
+6. Run `uiq ./src` → score 84/100 ✅
+7. Run `uiq ./src --full` → compliance 94% ✅
+8. Human reviews site → adds feedback → agent adjusts
+9. Run `uiq ./src --state` → baseline saved for future regression detection
+
+### Scenario 2: "I'm starting a new project"
+1. Run `uiq create ./my-app` → scaffold with quality built in
+2. Project has: 5 component templates, design tokens, CI workflow, config
+3. Run `uiq ./src` → 100/100 ✅ (zero issues from day one)
+4. As you add features, run `uiq ./src` after each change
+5. Quality never drops below 80 because the foundation is solid
+
+### Scenario 3: "My AI agent just wrote a page"
+1. Agent writes a landing page (hero, features, pricing, CTA)
+2. Agent runs `uiq ./src --format json`
+3. Agent sees: 14 issues (3 errors, 9 warnings, 2 info), score 57/100
+4. Agent fixes all errors: hover states, focus-visible, keyboard nav
+5. Agent fixes warnings: loading/empty/error states, reduced-motion, motion tokens
+6. Agent re-runs: score 84/100 ✅
+7. Agent runs `uiq ./src --decide` to check interaction completeness
+8. Agent implements missing states (loading on buttons, active route in nav)
+9. Agent runs `uiq ./src --full` → compliance 96% ✅
+10. Agent declares "done" — human never saw a single uiq report
+
+### Scenario 4: "I need to check accessibility for compliance"
+1. Run `uiq ./src --rules "a11y/keyboard-nav,a11y/focus-management,a11y/aria-dynamic,a11y/touch-targets,a11y/contrast"`
+2. Get focused accessibility report
+3. Fix all accessibility issues
+4. Run `uiq ./src --full` for compliance score
+5. Export report for legal/audit team
+
+### Scenario 5: "My teammate changed the code"
+1. Teammate adds new components without quality checks
+2. Run `uiq ./src --state`
+3. See: 3 new issues, score dropped 84 → 61
+4. Fix regressions: `uiq ./src --fix` (auto-fix CSS) + manual fixes
+5. Run `uiq ./src` → score back to 84 ✅
+6. Run `uiq ./src --state` → "No changes since last scan" (baseline updated)
 
 ## Install
 
@@ -191,6 +289,25 @@ Covers 16 component types for both web (JSX/TSX/CSS/HTML) and Flutter (Dart).
 
 ---
 
+## Creating new projects (scaffold)
+
+Instead of adding quality checks after the fact, start with them built in:
+
+```bash
+uiq create ./my-app
+cd my-app
+uiq ./src  # 100/100 ✅ zero issues from day one
+```
+
+The scaffold creates:
+- **5 component templates** (Button, Card, Modal, DataView, Input) — all with proper states, motion, and accessibility
+- **Design tokens** (colors, motion, spacing, radius) — single source of truth
+- **CI workflow** — GitHub Action that runs uiq on every PR
+- **Config file** (.uiqrc.json) — customizable rules and thresholds
+- **Motion spec** (motion-spec.json) — machine-readable interaction decisions
+
+Every generated component already passes the quality gate. As you add features, run `uiq ./src` after each change to maintain quality.
+
 ## The full loop
 
 ```
@@ -240,7 +357,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: '20' }
-      - run: npx @sujayganorkar/uiq ./src --ci --min-score 80
+      - run: npx @sujayganorkar/npx @sujayganorkar/uiq ./src --ci --min-score 80
 ```
 
 ---

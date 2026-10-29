@@ -1,4 +1,4 @@
-// src/spec/motion-spec.js — Machine-readable motion spec as source of truth
+// src/spec/motion-spec.js - Machine-readable motion spec as source of truth
 
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { join } from 'path';
@@ -94,7 +94,7 @@ export function verifyAgainstSpec(spec, parsed, content) {
   for (const entry of entries) {
     // Check required states
     for (const state of entry.requiredStates) {
-      // This is handled by the quality gate rules — but we add spec-specific checks
+      // This is handled by the quality gate rules - but we add spec-specific checks
     }
 
     // Check motion durations against spec

@@ -1,4 +1,4 @@
-// src/mcp/server.js — MCP server for uiq
+// src/mcp/server.js - MCP server for uiq
 // Allows agents (Claude Code, Cursor, Codex) to call uiq as a tool
 //
 // Usage: node src/mcp/server.js

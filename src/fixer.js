@@ -1,4 +1,4 @@
-// src/fixer.js — Auto-fix simple issues
+// src/fixer.js - Auto-fix simple issues
 
 import { readFileSync, writeFileSync } from 'fs';
 

@@ -1,4 +1,4 @@
-// src/utils/line-mapper.js — Map rules to line numbers in source code
+// src/utils/line-mapper.js - Map rules to line numbers in source code
 
 import { findFirstLine, getCodeSnippet } from './lines.js';
 

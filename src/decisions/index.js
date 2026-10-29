@@ -1,4 +1,4 @@
-// src/decisions/index.js — Decision analysis entry point
+// src/decisions/index.js - Decision analysis entry point
 
 import { glob } from 'glob';
 import { readFileSync } from 'fs';

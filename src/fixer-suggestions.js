@@ -1,4 +1,4 @@
-// src/fixer-suggestions.js — Actionable fix suggestions for agents
+// src/fixer-suggestions.js - Actionable fix suggestions for agents
 
 // Map each rule to a specific, actionable fix suggestion
 export const FIX_SUGGESTIONS = {
@@ -52,19 +52,19 @@ export const FIX_SUGGESTIONS = {
   },
   'interaction/loading-state': {
     description: 'Add loading state (skeleton, spinner, or placeholder)',
-    css: 'N/A — requires component logic',
+    css: 'N/A - requires component logic',
     jsx: 'Add conditional rendering: {loading ? <Skeleton /> : <Content />}',
     example: '// React:\nif (loading) return <div className="animate-pulse bg-gray-200 h-4 rounded" />;',
   },
   'interaction/empty-state': {
     description: 'Add empty state for when data is empty',
-    css: 'N/A — requires component logic',
+    css: 'N/A - requires component logic',
     jsx: 'Add conditional rendering: {data.length === 0 ? <EmptyState /> : <List />}',
     example: '// React:\nif (!data || data.length === 0) return <p className="text-gray-500">No items found.</p>;',
   },
   'interaction/error-state': {
     description: 'Add error state for failed requests',
-    css: 'N/A — requires component logic',
+    css: 'N/A - requires component logic',
     jsx: 'Add conditional rendering: {error ? <ErrorState onRetry={retry} /> : <Content />}',
     example: '// React:\nif (error) return <div role="alert">Failed to load. <button onClick={retry}>Retry</button></div>;',
   },
@@ -76,19 +76,19 @@ export const FIX_SUGGESTIONS = {
   },
   'a11y/keyboard-nav': {
     description: 'Replace onClick on divs with button or add keyboard support',
-    css: 'N/A — requires HTML change',
+    css: 'N/A - requires HTML change',
     jsx: 'Replace <div onClick={...}> with <button onClick={...}> or add role="button" tabIndex={0} onKeyDown',
     example: '// Before: <div onClick={handleClick}>Click me</div>\n// After:  <button onClick={handleClick}>Click me</button>',
   },
   'a11y/focus-management': {
     description: 'Add focus trapping and restoration to modals/drawers',
-    css: 'N/A — requires component logic',
+    css: 'N/A - requires component logic',
     jsx: 'Use focus-trap-react or implement manually: trap focus inside modal, restore on close',
     example: '// React:\nuseEffect(() => {\n  if (isOpen) previousFocus.current = document.activeElement;\n  else previousFocus.current?.focus();\n}, [isOpen]);',
   },
   'a11y/aria-dynamic': {
     description: 'Add ARIA attributes for dynamic content',
-    css: 'N/A — requires HTML change',
+    css: 'N/A - requires HTML change',
     jsx: 'Add role="dialog", aria-modal="true", aria-labelledby, aria-live="polite" as needed',
     example: '// Modal:\n<div role="dialog" aria-modal="true" aria-labelledby="modal-title">\n// Live region:\n<div aria-live="polite" aria-atomic="true">{status}</div>',
   },
@@ -124,13 +124,13 @@ export const FIX_SUGGESTIONS = {
   },
   'consistency/no-card-grid-hero': {
     description: 'Replace card grid in hero with full-bleed imagery',
-    css: 'N/A — requires layout change',
+    css: 'N/A - requires layout change',
     jsx: 'Use a full-bleed hero image with brand-first hierarchy instead of card grid',
     example: '// Before: <div className="grid grid-cols-3"><Card/>...</div> in hero\n// After:  <section className="relative h-screen"><img className="absolute inset-0" .../></section>',
   },
   'perf/layout-thrash': {
     description: 'Batch DOM reads before writes to avoid layout thrashing',
-    css: 'N/A — requires JS change',
+    css: 'N/A - requires JS change',
     jsx: 'Read all DOM measurements first, then write all changes',
     example: '// Before: el.style.width = el.offsetWidth + 10 + "px"; // read+write interleaved\n// After:  const w = el.offsetWidth; el.style.width = w + 10 + "px"; // batched',
   },

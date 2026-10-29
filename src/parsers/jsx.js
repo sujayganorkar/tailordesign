@@ -1,4 +1,4 @@
-// src/parsers/jsx.js — Parse JSX/TSX files for UI patterns
+// src/parsers/jsx.js - Parse JSX/TSX files for UI patterns
 
 export function parseJSX(content, filePath) {
   content = content == null ? '' : String(content);

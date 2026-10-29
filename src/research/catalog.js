@@ -7,7 +7,7 @@ export const HCI_FINDINGS = Object.freeze([
     "id": "undersized-pointer-target",
     "domain": "motor",
     "title": "Pointer targets below minimum size without an applicable exception",
-    "signal": "targetBelow24WithoutException",
+    "signal": "potentialUndersizedTarget",
     "kind": "standard-guided",
     "source": {
       "title": "WCAG 2.2",

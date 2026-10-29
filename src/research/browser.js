@@ -69,11 +69,11 @@ export async function inspectResearchPage(url, options = {}) {
           height: rect.height, cx: rect.left + rect.width / 2, cy: rect.top + rect.height / 2,
           x: rect.x, y: rect.y, ref: el.id ? '#' + el.id : el.tagName.toLowerCase() + '[sample-' + index + ']' };
       }).filter(t => t.visible && !t.inline);
-      const tooSmall = entries.filter(t => t.width < 24 && t.height < 24), potential = [];
+      const tooSmall = entries.filter(t => t.width < 24 || t.height < 24), potential = [];
       for (const small of tooSmall) {
         const near = entries.some(other => {
           if (other === small) return false;
-          if (other.width < 24 && other.height < 24) return Math.hypot(small.cx - other.cx, small.cy - other.cy) < 24;
+          if (other.width < 24 || other.height < 24) return Math.hypot(small.cx - other.cx, small.cy - other.cy) < 24;
           const px = Math.max(other.x, Math.min(small.cx, other.x + other.width));
           const py = Math.max(other.y, Math.min(small.cy, other.y + other.height));
           return Math.hypot(px - small.cx, py - small.cy) < 12;

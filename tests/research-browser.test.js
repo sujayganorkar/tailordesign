@@ -14,10 +14,10 @@ test('HCI browser allows only local HTTP(S) servers', () => {
 
 test('browser supplies observed HCI candidates only after real interaction', { timeout: 45000 }, async (t) => {
   let chromium;
-  try { ({ chromium } = await import('playwright')); } catch { t.skip('Playwright optional dependency not installed'); return; }
+  try { ({ chromium } = await import('playwright')); } catch { if (process.env.UIQ_REQUIRE_BROWSER === '1') throw new Error('Required Playwright dependency is missing'); t.skip('Playwright optional dependency not installed'); return; }
   let probe;
   try { probe = await chromium.launch({ headless: true }); }
-  catch { t.skip('Playwright Chromium browser not installed'); return; }
+  catch { if (process.env.UIQ_REQUIRE_BROWSER === '1') throw new Error('Required Playwright Chromium browser is missing'); t.skip('Playwright Chromium browser not installed'); return; }
   await probe.close();
 
   // Purposefully broken fixture: adjacent tiny targets and modal with no focus trap.

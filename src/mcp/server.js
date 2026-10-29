@@ -76,6 +76,20 @@ const TOOLS = [
     },
   },
   {
+    name: 'uiq_research',
+    description: 'Inspect a trusted localhost UI with an explicit task; returns sourced HCI candidates and abstentions, not a quality score.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        url: { type: 'string', description: 'Local development URL: http://localhost:PORT' },
+        task: { type: 'object', description: 'Task context; optional readySelector, modalSelector, modalTriggerSelector' },
+        width: { type: 'integer', minimum: 320, maximum: 2560 },
+        height: { type: 'integer', minimum: 320, maximum: 1600 },
+      },
+      required: ['url'],
+    },
+  },
+  {
     name: 'uiq_escalate',
     description: 'List pending escalations (issues needing human judgment).',
     inputSchema: {
@@ -140,6 +154,13 @@ async function handleTool(name, args) {
         content: [{ type: 'text', text: JSON.stringify(entry, null, 2) }],
       };
     }
+    case 'uiq_research': {
+      const { inspectResearchPage } = await import('../research/browser.js');
+      const result = await inspectResearchPage(args.url, {
+        task: args.task ?? {}, width: args.width, height: args.height,
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    }
     case 'uiq_escalate': {
       const { getPending } = await import('../escalation/cards.js');
       const safeDir = assertSafePath(args.dir, 'dir');
@@ -155,7 +176,7 @@ async function handleTool(name, args) {
 
 // Server setup
 const server = new Server(
-  { name: 'uiq', version: '0.2.0' },
+  { name: 'uiq', version: '0.3.0' },
   { capabilities: { tools: {} } }
 );
 

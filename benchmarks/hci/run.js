@@ -52,7 +52,7 @@ export async function runManifest(manifest, options = {}) {
   try {
     for (const c of manifest.cases) {
       for (const viewport of manifest.viewports) {
-        const url = c.route ? host.baseUrl + '/' + c.route : c.url;
+        const url = c.route ? host.baseUrl + '/' + c.route : (options.baseUrl ? new URL(c.url, options.baseUrl).toString() : c.url);
         try {
           const result = await inspectResearchPage(url, {
             task: c.task, width: viewport.width, height: viewport.height
@@ -92,7 +92,12 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     const outIndex = args.indexOf('--out');
     if (outIndex >= 0 && !args[outIndex + 1]) throw new Error('Expected filename after --out');
     const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
-    const report = await runManifest(manifest, { throwOnError: args.includes('--strict') });
+    const baseIndex = args.indexOf('--base-url');
+    if (baseIndex >= 0 && !args[baseIndex + 1]) throw new Error('Expected URL after --base-url');
+    const report = await runManifest(manifest, {
+      throwOnError: args.includes('--strict'),
+      ...(baseIndex >= 0 ? { baseUrl: args[baseIndex + 1] } : {})
+    });
     const json = JSON.stringify(report, null, 2);
     if (outIndex >= 0) writeFileSync(args[outIndex + 1], json + '\n');
     console.log(json);

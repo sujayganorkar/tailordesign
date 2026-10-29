@@ -55,6 +55,21 @@ jobs:
           trap 'kill $HTTP_PID || true' EXIT
           curl --retry 10 --retry-delay 1 --retry-connrefused -fsS http://127.0.0.1:8765/patterns/dialog-modal/examples/dialog.html >/dev/null
           node benchmarks/hci/run.js benchmarks/hci/manifest.w3c.json --base-url http://127.0.0.1:8765 --strict --out hci-w3c-report.json > hci-w3c-run.log
+      - name: Evaluate independent TodoMVC UI implementation
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/todomvc-reference"
+          git -C "$RUNNER_TEMP/todomvc-reference" init
+          git -C "$RUNNER_TEMP/todomvc-reference" remote add origin https://github.com/tastejs/todomvc.git
+          git -C "$RUNNER_TEMP/todomvc-reference" sparse-checkout init --cone
+          git -C "$RUNNER_TEMP/todomvc-reference" sparse-checkout set examples/javascript-es5/dist
+          git -C "$RUNNER_TEMP/todomvc-reference" fetch --depth 1 --filter=blob:none origin ff43b02e59dfa604386bb382034b2cd07c2bcd8a
+          git -C "$RUNNER_TEMP/todomvc-reference" checkout --detach FETCH_HEAD
+          python3 -m http.server 8766 --bind 127.0.0.1 --directory "$RUNNER_TEMP/todomvc-reference/examples/javascript-es5/dist" &
+          HTTP_PID=$!
+          trap 'kill $HTTP_PID || true' EXIT
+          curl --retry 10 --retry-delay 1 --retry-connrefused -fsS http://127.0.0.1:8766/index.html >/dev/null
+          node benchmarks/hci/run.js benchmarks/hci/manifest.todomvc.json --base-url http://127.0.0.1:8766 --strict --out hci-todomvc-report.json > hci-todomvc-run.log
       - name: Print signal-level detection metrics
         if: always()
         run: |
@@ -71,4 +86,6 @@ jobs:
             hci-run.log
             hci-w3c-report.json
             hci-w3c-run.log
+            hci-todomvc-report.json
+            hci-todomvc-run.log
 

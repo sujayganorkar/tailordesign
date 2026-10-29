@@ -9,7 +9,7 @@ test('research catalog contains 20 distinct evidence-bearing findings', () => {
   assert.equal(new Set(HCI_FINDINGS.map(f => f.signal)).size, 20);
   assert.ok(HCI_FINDINGS.every(f => f.source.url.startsWith('https://') && f.limits && f.verify));
   assert.equal(getHciFinding('fragile-pointer-corridor').source.type, 'empirical');
-  assert.equal(listHciFindings('motion').length, 3);
+  assert.equal(listHciFindings('motion').length, 4);
 });
 
 test('abstains when there is no supporting observation', () => {

@@ -29,6 +29,15 @@ The browser CI validates pinned W3C ARIA Authoring Practices interactive dialog 
 
 These are actual published implementations, not invented code. Only modal focus containment has a trusted expected label. Other observations are not scored without independent ground truth.
 
+A second independent repo is also exercised:
+
+- TodoMVC ES5: https://github.com/tastejs/todomvc
+- Commit: ff43b02e59dfa604386bb382034b2cd07c2bcd8a
+- Manifest: benchmarks/hci/manifest.todomvc.json
+- Labeled signal: focus not fully obscured in the initial task-entry state, across both viewports.
+
+Together these provide three published example interfaces from two upstream repositories. This is not a general production false-positive rate.
+
 Test an existing local app using a case manifest with explicit task and reviewed labels:
 
     node benchmarks/hci/run.js ./your-manifest.json --base-url http://127.0.0.1:3000 --out ./research-results.json

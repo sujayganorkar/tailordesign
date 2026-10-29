@@ -6,6 +6,16 @@ import { getRuleKind } from '../config.js';
 export function runRules(parsed, allFiles) {
   const issues = [];
 
+  const projectFiles = Array.isArray(allFiles) ? allFiles : [];
+  // Component-level scoping: a file that imports/consumes components inherits
+  // interaction states from those components, so per-file hover/focus findings
+  // are usually false positives. Likewise, project-wide reduced-motion handling
+  // (e.g. a global CSS media query) covers files that lack their own.
+  const otherFileHasReducedMotion = projectFiles.some(f => f && f !== parsed && f.hasReducedMotion);
+  // Only suppress hover/focus findings when the file delegates to imported components.
+  const delegatesInteractionStates = Array.isArray(parsed.imports) && parsed.imports.some(i =>
+    typeof i === 'string' && (i.startsWith('.') || i.startsWith('@/') || /components|ui\/|lib\//i.test(i)));
+
   // --- MOTION RULES (JSX/HTML only - CSS has its own block below) ---
   // Sources: web.dev (layout thrashing), MDN (prefers-reduced-motion), Material Design (duration, easing, stagger)
   if (parsed.type !== 'css') {
@@ -33,7 +43,7 @@ export function runRules(parsed, allFiles) {
       }
     }
 
-    if (parsed.animations && parsed.animations.length > 0 && !parsed.hasReducedMotion) {
+    if (parsed.animations && parsed.animations.length > 0 && !parsed.hasReducedMotion && !otherFileHasReducedMotion) {
       issues.push({ rule: 'motion/reduced-motion', severity: 'error', message: 'Animations found but no prefers-reduced-motion handling.', file: parsed.filePath });
     }
 
@@ -46,11 +56,14 @@ export function runRules(parsed, allFiles) {
       }
     }
 
-    if (parsed.interactiveElements && parsed.interactiveElements.length > 0 && !parsed.hasHover) {
+    // Suppress hover/focus findings for files that delegate to imported components:
+    // their states are defined in the component implementation, not inline here.
+    const suppressInteractionStates = delegatesInteractionStates;
+    if (parsed.interactiveElements && parsed.interactiveElements.length > 0 && !parsed.hasHover && !suppressInteractionStates) {
       issues.push({ rule: 'interaction/hover-state', severity: 'error', message: `Found ${parsed.interactiveElements.length} interactive element(s) but no hover state.`, file: parsed.filePath });
     }
 
-    if (parsed.interactiveElements && parsed.interactiveElements.length > 0 && !parsed.hasFocusVisible) {
+    if (parsed.interactiveElements && parsed.interactiveElements.length > 0 && !parsed.hasFocusVisible && !suppressInteractionStates) {
       issues.push({ rule: 'interaction/focus-visible', severity: 'error', message: `Found ${parsed.interactiveElements.length} interactive element(s) but no focus-visible state.`, file: parsed.filePath });
     }
 
@@ -133,7 +146,7 @@ export function runRules(parsed, allFiles) {
 
   // --- CSS RULES ---
   if (parsed.type === 'css') {
-    if (parsed.animations && parsed.animations.length > 0 && !parsed.hasReducedMotion) {
+    if (parsed.animations && parsed.animations.length > 0 && !parsed.hasReducedMotion && !otherFileHasReducedMotion) {
       issues.push({ rule: 'motion/reduced-motion', severity: 'error', message: 'CSS animations but no prefers-reduced-motion media query.', file: parsed.filePath });
     }
     if (parsed.layoutAnimations && parsed.layoutAnimations.length > 0) {
@@ -168,7 +181,7 @@ export function runRules(parsed, allFiles) {
         issues.push({ rule: 'motion/duration-range', severity: 'warning', message: `Flutter durations outside 100-500ms: ${outOfRange.slice(0, 5).join(', ')}ms`, file: parsed.filePath });
       }
     }
-    if (parsed.hasAnimations && !parsed.hasReducedMotion) {
+    if (parsed.hasAnimations && !parsed.hasReducedMotion && !otherFileHasReducedMotion) {
       issues.push({ rule: 'motion/reduced-motion', severity: 'error', message: 'Flutter animations but no reduced motion handling.', file: parsed.filePath });
     }
     if (parsed.interactiveElements && parsed.interactiveElements.length > 0 && !parsed.hasHover) {

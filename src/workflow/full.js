@@ -61,25 +61,28 @@ export async function runFull(targetPath, options = {}) {
   const allIssues = [];
   const allDecisions = [];
   const compliance = []; // { file, component, requiredState, found }
+  const parsedFiles = [];
 
+  // First pass: parse all files for project-wide context.
   for (const file of relevantFiles) {
     let content;
     try { content = readFileSync(file, 'utf-8'); } catch { continue; }
     if (content.length < 50) continue;
 
-    const ext = file.split('.').pop().toLowerCase();
-    let parsed;
-
     const { detectAdapter } = await import('../adapters/registry.js');
     const adapter = detectAdapter(content, file);
     const adapterResult = adapter.parse(content, file);
     if (!adapterResult) continue;
-    parsed = adapterResult.parsed;
+    const parsed = adapterResult.parsed;
     parsed._content = content;
     parsed._framework = adapterResult.framework;
+    parsedFiles.push({ file, content, parsed });
+  }
 
+  // Second pass: run rules + decisions with project context.
+  for (const { file, content, parsed } of parsedFiles) {
     // Run quality gate
-    const issues = runRules(parsed, []);
+    const issues = runRules(parsed, parsedFiles.map(p => p.parsed));
     const { getRuleKind } = await import('../config.js');
     for (const i of issues) i.kind = getRuleKind(i.rule);
     allIssues.push(...issues);

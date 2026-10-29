@@ -66,6 +66,7 @@ export async function run(targetPath, options = {}) {
   // Filter rules if specified (from CLI or config)
   const ruleFilter = options.rules ? options.rules.split(',').map(r => r.trim()) : (config?.rules ? Object.keys(config.rules) : null);
 
+  // First pass: parse all files so project-wide context (reduced-motion, hover, etc.) is available.
   for (const file of relevantFiles) {
     let content;
     try {
@@ -77,19 +78,20 @@ export async function run(targetPath, options = {}) {
     // Skip very small files
     if (content.length < 50) continue;
 
-    const ext = file.split('.').pop().toLowerCase();
-    let parsed;
-
     // Use adapter system for framework detection
     const { detectAdapter } = await import('./adapters/registry.js');
     const adapter = detectAdapter(content, file);
     const adapterResult = adapter.parse(content, file);
     if (!adapterResult) continue;
-    parsed = adapterResult.parsed;
+    const parsed = adapterResult.parsed;
     parsed._content = content;
     parsed._framework = adapterResult.framework;
 
     allParsed.push(parsed);
+  }
+
+  // Second pass: run rules with full project context.
+  for (const parsed of allParsed) {
     const issues = runRules(parsed, allParsed);
     const filteredIssues = ruleFilter
       ? issues.filter(i => ruleFilter.includes(i.rule))

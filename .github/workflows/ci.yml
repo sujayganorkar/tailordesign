@@ -38,3 +38,20 @@ jobs:
         run: node --test tests/research-browser.test.js
         env:
           UIQ_REQUIRE_BROWSER: '1'
+      - name: Benchmark labeled UI interactions across two viewports
+        run: node benchmarks/hci/run.js --strict --out hci-report.json > hci-run.log
+      - name: Print signal-level detection metrics
+        if: always()
+        run: |
+          if [ -f hci-report.json ]; then
+            node -e "const r=require('./hci-report.json'); console.log(JSON.stringify(r.detection.metrics,null,2)); console.log('Mistakes:',JSON.stringify(r.detection.mistakes));"
+          fi
+      - name: Upload HCI benchmark evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hci-benchmark-evidence
+          path: |
+            hci-report.json
+            hci-run.log
+

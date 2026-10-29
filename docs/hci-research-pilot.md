@@ -8,7 +8,7 @@ This is **not** a new linting layer or a WCAG conformance checker. It curates 20
 - `src/research/evaluate.js`: takes **explicit observations with evidence** and returns recommendations and abstentions.
 - `tests/research.test.js`: contract tests for grounding and non-inference.
 
-Current evaluation is **caller-supplied evidence only**. It does not automatically observe the DOM, inspect screenshots, or validate that cited papers prove the exact UI outcome. It is not yet wired into the CLI/MCP, quality score, or agent loop.
+Current evaluation is **caller-supplied evidence only**. It does not automatically observe the DOM, inspect screenshots, or validate that cited papers prove the exact UI outcome. Browser-observed signals are now accessible through the experimental `uiq research` CLI command and `uiq_research` MCP tool. They do not modify the quality score or agent loop.
 
 ## Example (Node ESM)
 
@@ -43,11 +43,13 @@ A citation is not proof that a design remedy improves this particular applicatio
 
 ## Next engineering steps
 
-1. Build typed observation extractors for a few defensible browser signals (focus occlusion, pointer target bounding boxes, modal keyboard containment).
+1. Validate the new browser observation extractors (focus occlusion, pointer target geometry, modal keyboard containment) across realistic interfaces and document false-positive rates.
 2. Add Playwright task scripts for submenu and form interactions; preserve recordings and traces.
 3. Add explicit task-graph metadata and intent before evaluating cognitive, perceptual or motion claims.
 4. Add provenance validation and a review protocol for research sources.
-5. Compare agent-with and agent-without findings on equivalent real-world tasks, with blinded human review and overhead tracking.
+5. Compare agent-with and agent-without research findings on equivalent real-world tasks, with blinded human review and overhead tracking.
 6. Connect to CLI/MCP only after provenance and test coverage are reliable.
 
 Avoid auto-assigning numeric scores or imposing universal animation preferences from this catalog.
+
+See [Browser pilot](hci-browser-pilot.md) for runnable CLI and MCP examples and limits.

@@ -4,7 +4,7 @@ This branch adds **experimental** UI research inspection. It does not affect the
 
 ## Run
 
-Requires Node >=18, optional Playwright and a Chromium browser:
+Requires Node 22.18+ or Node 24.11+, optional Playwright and a Chromium browser:
 
 ~~~sh
 npm install --save-optional playwright

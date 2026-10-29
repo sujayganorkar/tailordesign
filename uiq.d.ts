@@ -61,5 +61,3 @@ export interface UiqFullResult extends UiqResult {
 export function run(path: string, options?: UiqOptions): Promise<UiqResult>;
 export function runDecisions(path: string, options?: UiqOptions): Promise<UiqDecision[]>;
 export function runFull(path: string, options?: UiqOptions): Promise<UiqFullResult>;
-EOF
-echo "Written"

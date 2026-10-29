@@ -1,6 +1,6 @@
 {
   "name": "@sujayganorkar/uiq",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Quality gate for UI code. 23 objective rules across motion, interaction states, accessibility, performance, and consistency. Plus interaction decision engine.",
   "bin": {
     "uiq": "bin/cli.js"

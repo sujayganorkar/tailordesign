@@ -73,7 +73,7 @@ export async function inspectResearchPage(url, options = {}) {
     checks.push({ id: 'hci/target-geometry', status: targets.inspected ? 'inspected' : 'abstained', ...targets });
     if (targets.inspected) {
       const hit = targets.potential.length > 0;
-      observations.push(observation('targetBelow24WithoutException', hit,
+      observations.push(observation('potentialUndersizedTarget', hit,
         hit ? 'Closely spaced undersized targets in CSS px: ' + JSON.stringify(targets.potential) + '. Other exceptions untested.' : undefined,
         hit ? targets.potential[0].ref : undefined));
     }

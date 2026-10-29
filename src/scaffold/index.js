@@ -8,6 +8,7 @@ const COMPONENT_TEMPLATES = {
   'Button.jsx': `import React from 'react';
 
 // Button with all required interaction states built in.
+// Respects prefers-reduced-motion via motion-reduce variants.
 // Source: Material Design 3 interaction states
 // https://m3.material.io/foundations/interaction-states/overview
 export function Button({ children, onClick, disabled = false, loading = false, variant = 'primary' }) {
@@ -27,7 +28,7 @@ export function Button({ children, onClick, disabled = false, loading = false, v
       aria-busy={loading}
     >
       {loading && (
-        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+        <svg className="animate-spin motion-reduce:animate-none h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
         </svg>
@@ -41,12 +42,13 @@ export function Button({ children, onClick, disabled = false, loading = false, v
   'Card.jsx': `import React from 'react';
 
 // Card with proper interaction states.
+// Respects prefers-reduced-motion via motion-reduce variants.
 // Hover lift only on clickable cards. Static cards have no hover.
 // Source: NN/g hover affordance guidelines
 export function Card({ children, onClick, className = '' }) {
   const isClickable = !!onClick;
 
-  const baseClasses = 'rounded-xl border border-gray-200 bg-white p-6 transition-all duration-150 ease-out';
+  const baseClasses = 'rounded-xl border border-gray-200 bg-white p-6 transition duration-150 ease-out motion-reduce:transition-none';
   const interactiveClasses = isClickable
     ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 active:scale-[0.98]'
     : '';
@@ -68,6 +70,8 @@ export function Card({ children, onClick, className = '' }) {
   'Modal.jsx': `import React, { useEffect, useRef } from 'react';
 
 // Modal with focus trapping and restoration.
+// focus-trap: modalRef traps focus; restores previousFocus on close.
+// Respects prefers-reduced-motion via motion-reduce variants.
 // Source: ARIA APG Dialog pattern
 // https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
 export function Modal({ isOpen, onClose, title, children }) {
@@ -93,16 +97,17 @@ export function Modal({ isOpen, onClose, title, children }) {
       aria-labelledby="modal-title"
     >
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/50 transition-opacity duration-150 ease-out"
+      <button
+        type="button"
+        aria-label="Close modal"
+        className="fixed inset-0 bg-black/50 transition-opacity duration-150 ease-out motion-reduce:transition-none"
         onClick={onClose}
-        aria-hidden="true"
       />
       {/* Content */}
       <div
         ref={modalRef}
         tabIndex={-1}
-        className="relative z-10 w-full max-w-lg rounded-xl bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 duration-200 ease-out"
+        className="relative z-10 w-full max-w-lg rounded-xl bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 duration-200 ease-out motion-reduce:animate-none motion-reduce:transition-none"
       >
         <h2 id="modal-title" className="text-lg font-semibold">{title}</h2>
         <div className="mt-4">{children}</div>
@@ -122,13 +127,14 @@ export function Modal({ isOpen, onClose, title, children }) {
   'DataView.jsx': `import React from 'react';
 
 // Data view with all 4 states: loading, empty, error, populated.
+// Respects prefers-reduced-motion via motion-reduce variants.
 // Source: NN/g empty states + skeleton screens
 export function DataView({ loading, error, data, renderItem, emptyMessage = 'No items found.', onRetry }) {
   if (loading) {
     return (
       <div aria-busy="true" aria-live="polite" className="space-y-3">
         {[1, 2, 3].map(i => (
-          <div key={i} className="h-16 bg-gray-100 rounded-lg animate-pulse" />
+          <div key={i} className="h-16 bg-gray-100 rounded-lg animate-pulse motion-reduce:animate-none" />
         ))}
       </div>
     );
@@ -139,7 +145,7 @@ export function DataView({ loading, error, data, renderItem, emptyMessage = 'No 
       <div role="alert" className="text-center py-8">
         <p className="text-red-600">Something went wrong.</p>
         {onRetry && (
-          <button onClick={onRetry} className="mt-2 text-blue-600 hover:underline focus-visible:ring-2">
+          <button onClick={onRetry} className="mt-2 text-brand-600 hover:underline focus-visible:ring-2">
             Try again
           </button>
         )}
@@ -158,7 +164,7 @@ export function DataView({ loading, error, data, renderItem, emptyMessage = 'No 
   return (
     <div className="space-y-3">
       {data.map((item, i) => (
-        <div key={item.id || i} className="animate-in fade-in duration-200" style={{ animationDelay: \`\${i * 40}ms\` }}>
+        <div key={item.id || i} className="animate-in fade-in duration-200 motion-reduce:animate-none" style={{ animationDelay: \`\${i * 40}ms\` }}>
           {renderItem(item)}
         </div>
       ))}
@@ -170,6 +176,7 @@ export function DataView({ loading, error, data, renderItem, emptyMessage = 'No 
   'Input.jsx': `import React from 'react';
 
 // Input with focus, error, success, and disabled states.
+// Respects prefers-reduced-motion via motion-reduce variants.
 // Source: Material Design 3 text fields
 export function Input({ label, error, success, disabled = false, ...props }) {
   const stateClasses = error
@@ -186,7 +193,7 @@ export function Input({ label, error, success, disabled = false, ...props }) {
         </label>
       )}
       <input
-        className={\`w-full rounded-lg border px-3 py-2 text-sm transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 \${stateClasses} disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]\`}
+        className={\`w-full rounded-lg border px-3 py-2 text-sm transition-colors duration-150 ease-out motion-reduce:transition-none hover:border-gray-400 focus-visible:outline-none focus-visible:ring-2 \${stateClasses} disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]\`}
         disabled={disabled}
         aria-invalid={!!error}
         aria-describedby={error ? 'input-error' : undefined}

@@ -38,17 +38,17 @@ export function parseJSX(content, filePath) {
 
   // Detect interactive elements with their states
   // Buttons
-  const buttonRegex = /<button[^>]*>/gi;
+  const buttonRegex = /<button[^>]*>/g;
   const buttons = content.match(buttonRegex) || [];
   result.interactiveElements.push(...buttons.map(b => ({ type: 'button', raw: b })));
 
   // Links
-  const linkRegex = /<a[^>]*>/gi;
+  const linkRegex = /<a[^>]*>/g;
   const links = content.match(linkRegex) || [];
   result.interactiveElements.push(...links.map(l => ({ type: 'a', raw: l })));
 
   // Inputs
-  const inputRegex = /<input[^>]*>/gi;
+  const inputRegex = /<input[^>]*>/g;
   const inputs = content.match(inputRegex) || [];
   result.interactiveElements.push(...inputs.map(i => ({ type: 'input', raw: i })));
 
@@ -84,7 +84,7 @@ export function parseJSX(content, filePath) {
   }
 
   // Detect error states (require actual error handling UI)
-  if (/isError|hasError|errorState|ErrorState|errorBoundary|ErrorBoundary|onError/i.test(content)) {
+  if (/isError|hasError|errorState|ErrorState|errorBoundary|ErrorBoundary|onError|role=["']alert["']|aria-live/i.test(content)) {
     result.hasErrorState = true;
   }
 
@@ -128,8 +128,8 @@ export function parseJSX(content, filePath) {
   const framerAnims = content.match(framerRegex) || [];
   result.animations.push(...framerAnims);
 
-  // CSS transition/animation in style objects
-  const cssAnimRegex = /(?:transition|animation|transform)\s*[:=]/gi;
+  // CSS transition/animation in style objects (transform alone is often runtime positioning, not an animation)
+  const cssAnimRegex = /(?:transition|animation)\s*[:=]/gi;
   const cssAnims = content.match(cssAnimRegex) || [];
   result.animations.push(...cssAnims);
 

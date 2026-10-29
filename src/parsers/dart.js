@@ -125,13 +125,19 @@ export function parseDart(content, filePath) {
     }
   }
 
-  // Hover states
+  // Hover states (Material buttons have hover built-in)
   if (/onHover|hoverColor|MouseRegion|hovered/i.test(content)) {
     result.hasHover = true;
   }
+  if (/ElevatedButton|TextButton|OutlinedButton|FilledButton|IconButton|FloatingActionButton/i.test(content)) {
+    result.hasHover = true;
+  }
 
-  // Focus
+  // Focus (Material buttons have focus built-in)
   if (/Focus\(|focusNode|FocusTraversal|focusColor|onFocus/i.test(content)) {
+    result.hasFocus = true;
+  }
+  if (/ElevatedButton|TextButton|OutlinedButton|FilledButton|IconButton|FloatingActionButton/i.test(content)) {
     result.hasFocus = true;
   }
 
@@ -155,8 +161,11 @@ export function parseDart(content, filePath) {
     result.hasErrorState = true;
   }
 
-  // Semantics (accessibility)
+  // Semantics (Material buttons have semantics built-in)
   if (/Semantics\(|SemanticsProperties|MergeSemantics|ExcludeSemantics/i.test(content)) {
+    result.hasSemantics = true;
+  }
+  if (/ElevatedButton|TextButton|OutlinedButton|FilledButton|IconButton|FloatingActionButton/i.test(content)) {
     result.hasSemantics = true;
   }
 

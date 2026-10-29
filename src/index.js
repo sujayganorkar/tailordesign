@@ -49,6 +49,9 @@ export async function run(targetPath, options = {}) {
     const name = f.split('/').pop();
     if (name.includes('.test.') || name.includes('.spec.') || name.includes('.config.')) return false;
     if (name === 'package.json' || name === 'tsconfig.json') return false;
+    // Skip obvious non-UI scripts
+    if (/^(add-|generate-|build-|migrate-|sync-)/.test(name)) return false;
+    if (/\/(scripts|cli|bin|tools|mcp|server|dist|build)\//.test(f)) return false;
     return true;
   });
 

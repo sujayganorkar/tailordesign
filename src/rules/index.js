@@ -37,7 +37,9 @@ export function runRules(parsed, allFiles) {
       issues.push({ rule: 'motion/reduced-motion', severity: 'error', message: 'Animations found but no prefers-reduced-motion handling.', file: parsed.filePath });
     }
 
-    if (parsed.animations && parsed.animations.length > 3) {
+    // Only suggest stagger for lists/grids with multiple items, not single components with transition utilities
+    const isListContext = /\.map\(|grid-cols|<ul|<ol|<li/i.test(parsed._content || '');
+    if (isListContext && parsed.animations && parsed.animations.length > 3) {
       const hasStagger = /stagger|animation-delay|delay.*\d/i.test(parsed._content || '');
       if (!hasStagger) {
         issues.push({ rule: 'motion/stagger-interval', severity: 'info', message: 'Multiple animations but no stagger pattern. Consider 20-40ms stagger for rhythm.', file: parsed.filePath });
@@ -116,7 +118,8 @@ export function runRules(parsed, allFiles) {
       issues.push({ rule: 'perf/layout-thrash', severity: 'info', message: 'Potential layout thrashing: DOM reads and writes in same file. Batch reads before writes.', file: parsed.filePath });
     }
 
-    if (parsed.animations && parsed.animations.length > 0 && !parsed.motionTokens) {
+    const hasInlineMotion = /style\s*=\s*\{\{[^}]*transition\s*:|animation\s*:|transform\s*:/i.test(parsed._content || '') || /animate=|variants=|whileHover|whileTap/i.test(parsed._content || '');
+    if (hasInlineMotion && parsed.animations && parsed.animations.length > 0 && !parsed.motionTokens) {
       issues.push({ rule: 'consistency/motion-tokens', severity: 'warning', message: 'Animations but no motion design tokens.', file: parsed.filePath });
     }
 
@@ -143,13 +146,15 @@ export function runRules(parsed, allFiles) {
         issues.push({ rule: 'motion/duration-range', severity: 'warning', message: `CSS durations outside 100-500ms: ${outOfRange.slice(0, 5).join(', ')}ms`, file: parsed.filePath });
       }
     }
-    if (!parsed.hasHover) {
+    // Only require hover/focus-visible in CSS files that look like component stylesheets
+    const looksLikeComponentCss = /\b(button|input|textarea|select)\s*[,{]|\ba\s*\{|\.btn\b/i.test(parsed._content || '');
+    if (looksLikeComponentCss && !parsed.hasHover) {
       issues.push({ rule: 'interaction/hover-state', severity: 'warning', message: 'No :hover styles in CSS.', file: parsed.filePath });
     }
-    if (!parsed.hasFocusVisible) {
+    if (looksLikeComponentCss && !parsed.hasFocusVisible) {
       issues.push({ rule: 'interaction/focus-visible', severity: 'warning', message: 'No :focus-visible styles in CSS.', file: parsed.filePath });
     }
-    if (parsed.animations && parsed.animations.length > 0 && !parsed.hasMotionTokens) {
+    if (looksLikeComponentCss && parsed.animations && parsed.animations.length > 0 && !parsed.hasMotionTokens) {
       issues.push({ rule: 'consistency/motion-tokens', severity: 'warning', message: 'CSS animations but no motion tokens.', file: parsed.filePath });
     }
   }
@@ -188,7 +193,7 @@ export function runRules(parsed, allFiles) {
     if (!parsed.hasSemantics && parsed.interactiveElements && parsed.interactiveElements.length > 0) {
       issues.push({ rule: 'a11y/aria-dynamic', severity: 'warning', message: 'Interactive widgets but no Semantics widget.', file: parsed.filePath });
     }
-    if (parsed.hasAnimations && !parsed.hasMotionTokens) {
+    if (parsed.hasAnimations && !parsed.hasMotionTokens && /duration\s*:\s*Duration|Curve\./i.test(parsed._content || '')) {
       issues.push({ rule: 'consistency/motion-tokens', severity: 'warning', message: 'Animations but no motion tokens (ThemeData).', file: parsed.filePath });
     }
     if (parsed.genericCTA) {

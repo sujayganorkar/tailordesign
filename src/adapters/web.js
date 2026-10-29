@@ -25,7 +25,14 @@ export class WebAdapter extends BaseAdapter {
       }
     } else {
       // Check if it looks like UI code
-      if (!/<[A-Z]|className=|<div|<button|<input|<a |styled\.|css`/.test(content)) {
+      const looksLikeUI = /<[A-Z]/.test(content) || /className=/.test(content) ||
+        /<div|<button|<input|<a /.test(content) || /styled\./.test(content) || /css`/.test(content);
+      // For .ts/.js files, require an actual JSX return or component export (avoid schema/config scripts)
+      const ext = filePath.split('.').pop().toLowerCase();
+      if ((ext === 'ts' || ext === 'js') && !/return\s*\(\s*</.test(content) && !/export\s+default\s+function/.test(content) && !/=>\s*\(\s*</.test(content)) {
+        return null;
+      }
+      if (!looksLikeUI) {
         return null;
       }
       parsed = parseJSX(content, filePath);

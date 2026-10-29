@@ -45,27 +45,7 @@ export async function evaluateRendered(urlOrFile, options = {}) {
   // Deterministic checks
   const checks = [];
 
-  // 1. Console errors
-  checks.push({
-    id: 'render/console-errors',
-    kind: 'objective',
-    passed: consoleErrors.length === 0 && pageErrors.length === 0,
-    message: consoleErrors.length + pageErrors.length === 0
-      ? 'No console or page errors.'
-      : `${consoleErrors.length + pageErrors.length} console/page error(s).`,
-    details: [...consoleErrors, ...pageErrors],
-  });
-
-  // 2. Horizontal overflow (layout breakage)
-  const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 2);
-  checks.push({
-    id: 'render/no-horizontal-overflow',
-    kind: 'objective',
-    passed: !overflow,
-    message: overflow ? 'Page has horizontal overflow (layout breakage).' : 'No horizontal overflow.',
-  });
-
-  // 3. Focus visibility: tab through and check focus outline
+  // 1. Focus visibility (before interactions)
   const focusVisible = await page.evaluate(async () => {
     const els = Array.from(document.querySelectorAll('button, a, input, [tabindex]'));
     let visible = 0;
@@ -81,6 +61,35 @@ export async function evaluateRendered(urlOrFile, options = {}) {
     kind: 'objective',
     passed: focusVisible.total === 0 || focusVisible.visible > 0,
     message: `Focus visible on ${focusVisible.visible}/${focusVisible.total} sampled interactive elements.`,
+  });
+
+  // 2. Horizontal overflow
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 2);
+  checks.push({
+    id: 'render/no-horizontal-overflow',
+    kind: 'objective',
+    passed: !overflow,
+    message: overflow ? 'Page has horizontal overflow (layout breakage).' : 'No horizontal overflow.',
+  });
+
+  // 3. Trigger interactions to surface runtime errors
+  try {
+    const clickables = await page.$$('button, a, [role="button"]');
+    for (const el of clickables.slice(0, 5)) {
+      await el.click().catch(() => {});
+      await page.waitForTimeout(100);
+    }
+  } catch (e) { pageErrors.push('interaction-error: ' + e.message); }
+
+  // 4. Console errors (after interactions)
+  checks.push({
+    id: 'render/console-errors',
+    kind: 'objective',
+    passed: consoleErrors.length === 0 && pageErrors.length === 0,
+    message: consoleErrors.length + pageErrors.length === 0
+      ? 'No console or page errors.'
+      : `${consoleErrors.length + pageErrors.length} console/page error(s).`,
+    details: [...consoleErrors, ...pageErrors],
   });
 
   // Subjective (reported with uncertainty)

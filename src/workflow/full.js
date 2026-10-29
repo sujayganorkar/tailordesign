@@ -53,6 +53,8 @@ export async function runFull(targetPath, options = {}) {
   const relevantFiles = files.filter(f => {
     const name = f.split('/').pop();
     if (name.includes('.test.') || name.includes('.spec.') || name.includes('.config.')) return false;
+    if (/^(add-|generate-|build-|migrate-|sync-)/.test(name)) return false;
+    if (/\/(scripts|cli|bin|tools|mcp|server|dist|build)\//.test(f)) return false;
     return true;
   });
 

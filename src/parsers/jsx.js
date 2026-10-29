@@ -73,23 +73,23 @@ export function parseJSX(content, filePath) {
     result.hasReducedMotion = true;
   }
 
-  // Detect loading states
-  if (/loading|isLoading|isPending|fetching|skeleton|spinner|Skeleton|Spinner/i.test(content)) {
+  // Detect loading states (require actual loading UI, not just the word)
+  if (/isLoading|isPending|isFetching|<Skeleton|<Spinner|Skeleton|Spinner|CircularProgress|LinearProgress|skeleton/i.test(content)) {
     result.hasLoadingState = true;
   }
 
   // Detect empty states
-  if (/empty|isEmpty|noData|noResults|NoData|EmptyState|no .* found|nothing to show/i.test(content)) {
+  if (/isEmpty|emptyState|EmptyState|noData|noResults|NoData|nothing to show|no .* found/i.test(content)) {
     result.hasEmptyState = true;
   }
 
-  // Detect error states
-  if (/error|isError|hasError|ErrorState|errorBoundary/i.test(content)) {
+  // Detect error states (require actual error handling UI)
+  if (/isError|hasError|errorState|ErrorState|errorBoundary|ErrorBoundary|onError/i.test(content)) {
     result.hasErrorState = true;
   }
 
   // Detect focus management (modals/drawers)
-  if (/focus-trap|FocusTrap|trapFocus|useFocusTrap|focusTrap/i.test(content)) {
+  if (/focus-trap|FocusTrap|trapFocus|useFocusTrap|focusTrap|autoFocus|initialFocus/i.test(content)) {
     result.hasFocusManagement = true;
   }
   // Detect modal/dialog

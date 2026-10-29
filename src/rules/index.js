@@ -1,6 +1,7 @@
 // src/rules/index.js - Rule implementations
 
 import { checkContrast } from '../parsers/color.js';
+import { getRuleKind } from '../config.js';
 
 export function runRules(parsed, allFiles) {
   const issues = [];
@@ -198,5 +199,6 @@ export function runRules(parsed, allFiles) {
     }
   }
 
+  for (const i of issues) { if (!i.kind) i.kind = getRuleKind(i.rule); }
   return issues;
 }

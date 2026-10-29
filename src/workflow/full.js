@@ -78,6 +78,8 @@ export async function runFull(targetPath, options = {}) {
 
     // Run quality gate
     const issues = runRules(parsed, []);
+    const { getRuleKind } = await import('../config.js');
+    for (const i of issues) i.kind = getRuleKind(i.rule);
     allIssues.push(...issues);
 
     // Run decision analysis
@@ -102,14 +104,8 @@ export async function runFull(targetPath, options = {}) {
     }
   }
 
-  // Calculate score
-  let score = 100;
-  for (const issue of allIssues) {
-    if (issue.severity === 'error') score -= 10;
-    else if (issue.severity === 'warning') score -= 3;
-    else score -= 1;
-  }
-  score = Math.max(0, Math.round(score));
+  const { calculateScore } = await import('../utils/score.js');
+  const score = calculateScore(allIssues, relevantFiles.length);
 
   // Compliance score
   const totalRequired = compliance.length;

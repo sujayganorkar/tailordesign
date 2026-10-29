@@ -8,6 +8,7 @@ import { parseDart } from './parsers/dart.js';
 import { runRules } from './rules/index.js';
 import { formatText, formatJson, formatMarkdown } from './reporter.js';
 import chalk from 'chalk';
+import { calculateScore } from './utils/score.js';
 
 const IGNORE_PATTERNS = [
   'node_modules/**',
@@ -99,6 +100,9 @@ export async function run(targetPath, options = {}) {
       if (suggestion) {
         issue.fix = suggestion;
       }
+      const { getRuleKind } = await import('./config.js');
+      issue.kind = getRuleKind(issue.rule);
+      // objective vs subjective/recommendation
     }
     addLineNumbers(filteredIssues, parsed._content || '');
 
@@ -148,14 +152,3 @@ function looksLikeUI(content) {
   );
 }
 
-function calculateScore(issues, fileCount) {
-  if (fileCount === 0) return 100;
-  // Start at 100, deduct per issue (errors are severe)
-  let score = 100;
-  for (const issue of issues) {
-    if (issue.severity === 'error') score -= 10;
-    else if (issue.severity === 'warning') score -= 3;
-    else score -= 1;
-  }
-  return Math.max(0, Math.round(score));
-}

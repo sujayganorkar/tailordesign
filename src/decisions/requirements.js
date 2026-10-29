@@ -143,11 +143,19 @@ export function getRequirements(componentType, contexts = []) {
     antiPatterns: [],
   };
 
+  // Determine whether this component should animate at all.
+  const passive = base.consequence === 'passive-consumption';
+  const shouldAnimate = !passive || contexts.includes('scroll') || componentType === 'card-clickable';
+
   const result = {
     type: componentType,
     consequence: base.consequence,
+    shouldAnimate,
+    animationRationale: shouldAnimate
+      ? (passive ? 'Scroll-triggered reveal only; no continuous motion.' : 'Micro-interactions on hover/press are appropriate.')
+      : 'Static component: no animation needed. Avoid generic fade-ins.',
     requiredStates: [...base.states],
-    recommendedMotion: [...base.motion],
+    recommendedMotion: shouldAnimate ? [...base.motion] : [],
     antiPatterns: [...base.antiPatterns],
   };
 
@@ -170,7 +178,7 @@ export function getRequirements(componentType, contexts = []) {
           }
         }
       }
-      if (modifier.addMotion) {
+      if (modifier.addMotion && result.shouldAnimate) {
         result.recommendedMotion.push(...modifier.addMotion);
       }
     }

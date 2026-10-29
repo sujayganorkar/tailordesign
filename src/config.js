@@ -244,3 +244,29 @@ export function getRulesByCategory(category) {
 export function getSource(id) {
   return SOURCES[id] || null;
 }
+
+// ─── Objective vs subjective classification ────────────────────────────────
+// Objective: violations of published standards (WCAG, compositor-only, keyboard
+// access, reduced motion, focus management, required states for data views).
+// Subjective/recommendation: consistency, motion tuning, heuristic checks.
+const OBJECTIVE_RULES = new Set([
+  'motion/no-layout-animation',
+  'motion/reduced-motion',
+  'interaction/hover-state',
+  'interaction/focus-visible',
+  'interaction/loading-state',
+  'interaction/empty-state',
+  'interaction/error-state',
+  'interaction/active-route',
+  'a11y/keyboard-nav',
+  'a11y/focus-management',
+  'a11y/aria-dynamic',
+  'perf/compositor-only',
+]);
+
+export function getRuleKind(ruleId) {
+  return OBJECTIVE_RULES.has(ruleId) ? 'objective' : 'recommendation';
+}
+
+// Tag rules with kind at load time
+RULES.forEach(r => { r.kind = getRuleKind(r.id); });

@@ -21,6 +21,7 @@ program
   .option('--control', 'Show process control report (setpoint tracking, alarms, control points)')
   .option('--human', 'Human-readable decision output (for non-technical review)')
   .option('--no-color', 'Disable colored output')
+  .option('--render <url>', 'Run optional browser-based rendered evaluation (requires playwright)')
   .option('--quiet', 'Suppress non-essential output')
   .action(async (path, options, command) => {
     try {
@@ -39,10 +40,13 @@ program
 
       if (opts.full) {
         const { runFull } = await import('../src/workflow/full.js');
-        await runFull(targetPath, { ...opts, config });
+        const result = await runFull(targetPath, { ...opts, config });
+        if (opts.ci && result && !result.passed) process.exit(1);
       } else if (opts.decide) {
         const { runDecisions } = await import('../src/decisions/index.js');
-        await runDecisions(targetPath, { ...opts, config });
+        const result = await runDecisions(targetPath, { ...opts, config });
+        const hasUnknown = Array.isArray(result) && result.some(d => d.component === 'unknown-interactive');
+        if (opts.ci && hasUnknown) process.exit(1);
       } else {
         const { run } = await import('../src/index.js');
         const result = await run(targetPath, { ...opts, config });
@@ -68,6 +72,19 @@ program
             : targetPath;
           saveState(stateDir, snapshot);
           if (!opts.quiet) console.log(formatRegressionReport(detectRegressions(snapshot, prevState)));
+        }
+
+        // Rendered evaluation (optional, requires playwright)
+        if (opts.render) {
+          const { evaluateRendered } = await import('../src/render/evaluator.js');
+          const res = await evaluateRendered(opts.render);
+          if (!res.available) {
+            console.log(`  ${res.reason}`);
+          } else {
+            console.log(`  Rendered checks: ${res.checks.filter(c=>c.passed).length}/${res.checks.length} passed`);
+            for (const c of res.checks) console.log(`    ${c.passed ? '✓' : '✗'} ${c.id}: ${c.message}`);
+            for (const s of res.subjective) console.log(`    ? ${s.id}: ${s.message}`);
+          }
         }
 
         // Process control report
@@ -423,5 +440,55 @@ program
 
 
 
+
+
+// Verify command
+program
+  .command('verify')
+  .description('Verify a project passes quality + compliance (for CI/agent loop)')
+  .argument('[path]', 'Path to verify', '.')
+  .option('--min-score <score>', 'Minimum score', '80')
+  .option('--min-compliance <score>', 'Minimum compliance %', '80')
+  .action(async (path, options) => {
+    try {
+      const { runFull } = await import('../src/workflow/full.js');
+      const result = await runFull(path || '.', { format: 'json', minScore: options.minScore });
+      const minScore = parseInt(options.minScore) || 80;
+      const minComp = parseInt(options.minCompliance) || 80;
+      const ok = result.score >= minScore && (result.complianceScore ?? 100) >= minComp && result.errors === 0;
+      console.log(`VERIFY: ${ok ? 'PASS' : 'FAIL'} (score=${result.score}/${minScore}, compliance=${result.complianceScore}%/${minComp}, errors=${result.errors})`);
+      if (!ok) process.exit(1);
+    } catch (err) {
+      console.error(`Error: ${err.message}`);
+      process.exit(1);
+    }
+  });
+
+// Loop command (agent-driven refinement scaffold)
+program
+  .command('loop')
+  .description('Run the inspect->decide->evaluate loop with guards (agent implements fixes between iterations)')
+  .argument('[path]', 'Path to scan', '.')
+  .option('--max-iterations <n>', 'Max iterations', '5')
+  .action(async (path, options) => {
+    try {
+      const { createLoopState, recordIteration, shouldContinue, formatLoopReport } = await import('../src/loop/agent-loop.js');
+      const { runFull } = await import('../src/workflow/full.js');
+      const state = createLoopState({ maxIterations: parseInt(options.maxIterations) || 5 });
+      state.iteration = 0;
+      let result = await runFull(path || '.', { format: 'json' });
+      recordIteration(state, result);
+      state.iteration = 1;
+      while (shouldContinue(state, result)) {
+        console.log(`Iteration ${state.iteration} complete. Score=${result.score}. Implement fixes, then re-run. (loop guard active)`);
+        // In autonomous mode the agent would apply fixes here; CLI stops for human/agent action.
+        break;
+      }
+      console.log(formatLoopReport(state));
+    } catch (err) {
+      console.error(`Error: ${err.message}`);
+      process.exit(1);
+    }
+  });
 
 program.parse();

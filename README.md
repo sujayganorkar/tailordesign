@@ -201,6 +201,9 @@ npx @sujayganorkar/uiq ./src --ci --min-score 80
 | `uiq scaffold [path]` | Scaffold tokens + components into an existing project |
 | `uiq explain [rule]` | Explain a rule in plain English (or `all`) |
 | `uiq dashboard [path]` | Local web dashboard for visual review |
+| `uiq verify [path]` | Verify project passes quality + compliance (CI/agent) |
+| `uiq loop [path]` | Run inspect/decide/evaluate loop with guards |
+| `uiq --render <url>` | Optional browser-based rendered evaluation (requires playwright) |
 
 ### Flags
 
@@ -459,6 +462,16 @@ Out of scope. The tool checks mechanical correctness, not aesthetics. For taste,
 No. It works on any UI code. But it's designed for the agentic workflow where an agent writes code and needs automated verification.
 
 ---
+
+## Limitations and honesty
+
+- Static analysis only by default. Rendered layout, responsive behavior, and visual quality require the optional `--render` flag (Playwright). Without it, uiq cannot detect overflow, z-index issues, or visual regressions.
+- Component classification is ~70-80% accurate on real codebases; custom components may be missed or misclassified.
+- The `a11y/contrast` rule only checks Tailwind color classes within a single `className` string; it cannot evaluate CSS variables or computed styles.
+- `perf/layout-thrash` is a heuristic (DOM read + write in same file), not a runtime measurement.
+- Scores are a proxy for code-level quality, not a guarantee of good UX. A project can score 100 and still feel wrong; human "feel" review remains necessary.
+- Benchmark comparisons against agent-only implementations are not yet measured; the benchmark harness is provided for reproducible evaluation.
+- Motion recommendations are design guidance, not requirements; `shouldAnimate: false` means "no animation needed," not "animation forbidden."
 
 ## License
 

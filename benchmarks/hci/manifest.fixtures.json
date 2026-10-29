@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "dataset": "controlled-authored-fixtures",
+  "provenance": "Purpose-built examples modeled on real application workflows, not deployed third-party products.",
+  "viewports": [
+    {
+      "name": "mobile",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "name": "desktop",
+      "width": 1280,
+      "height": 800
+    }
+  ],
+  "cases": [
+    {
+      "id": "commerce-clean",
+      "route": "commerce-clean.html",
+      "task": {
+        "goal": "Find and sort inventory"
+      },
+      "expected": {
+        "potentialUndersizedTarget": false,
+        "focusedControlFullyObscured": false
+      }
+    },
+    {
+      "id": "commerce-broken",
+      "route": "commerce-broken.html",
+      "task": {
+        "goal": "Find and sort inventory"
+      },
+      "expected": {
+        "potentialUndersizedTarget": true,
+        "focusedControlFullyObscured": false
+      }
+    },
+    {
+      "id": "dashboard-clean",
+      "route": "dashboard-clean.html",
+      "task": {
+        "goal": "Navigate operations dashboard by keyboard"
+      },
+      "expected": {
+        "potentialUndersizedTarget": false,
+        "focusedControlFullyObscured": false
+      }
+    },
+    {
+      "id": "dashboard-broken",
+      "route": "dashboard-broken.html",
+      "task": {
+        "goal": "Navigate operations dashboard by keyboard"
+      },
+      "expected": {
+        "potentialUndersizedTarget": false,
+        "focusedControlFullyObscured": true
+      }
+    },
+    {
+      "id": "settings-clean",
+      "route": "settings-clean.html",
+      "task": {
+        "goal": "Edit workspace preferences",
+        "modalTriggerSelector": "#settings-open",
+        "modalSelector": "#settings-dialog"
+      },
+      "expected": {
+        "potentialUndersizedTarget": false,
+        "focusedControlFullyObscured": false,
+        "modalFocusEscapes": false
+      }
+    },
+    {
+      "id": "settings-broken",
+      "route": "settings-broken.html",
+      "task": {
+        "goal": "Edit workspace preferences",
+        "modalTriggerSelector": "#settings-open",
+        "modalSelector": "#settings-dialog"
+      },
+      "expected": {
+        "potentialUndersizedTarget": false,
+        "focusedControlFullyObscured": false,
+        "modalFocusEscapes": true
+      }
+    }
+  ]
+}

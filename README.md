@@ -3,6 +3,7 @@
 > **One command. Objective rules. Zero taste debates.**
 > Your code builds the UI. `uiq` makes sure it doesn't ship broken.
 
+[![npm version](https://img.shields.io/npm/v/@sujayganorkar/uiq.svg)](https://www.npmjs.com/package/@sujayganorkar/uiq)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](package.json)
 [![Rules](https://img.shields.io/badge/rules-23-orange.svg)](src/config.js)
@@ -239,7 +240,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: '20' }
-      - run: npx @sujayganorkar/npx @sujayganorkar/uiq ./src --ci --min-score 80
+      - run: npx @sujayganorkar/uiq ./src --ci --min-score 80
 ```
 
 ---

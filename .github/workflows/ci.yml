@@ -21,3 +21,20 @@ jobs:
       - run: npm test
       - run: node bin/cli.js tests/fixtures --ci --min-score 0
       - run: node bin/cli.js tests/fixtures --full 2>&1 | head -5
+
+  research-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm install --no-save playwright
+      - run: npx playwright install --with-deps chromium
+      - name: Run required browser integration tests
+        run: node --test tests/research-browser.test.js
+        env:
+          UIQ_REQUIRE_BROWSER: '1'

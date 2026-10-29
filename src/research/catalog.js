@@ -11,7 +11,7 @@ export const HCI_FINDINGS = Object.freeze([
     "kind": "standard-guided",
     "source": {
       "title": "WCAG 2.2",
-      "url": "https://www.w3.org/TR/WCAG22/",
+      "url": "https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html",
       "type": "standard"
     },
     "action": "Inspect the rendered hit area and spacing; enlarge or separate the target, or document the applicable WCAG exception.",
@@ -284,7 +284,7 @@ export const HCI_FINDINGS = Object.freeze([
     "kind": "recommendation",
     "source": {
       "title": "Card, Moran & Newell (1980): Keystroke-Level Model",
-      "url": "https://iihm.imag.fr/blanch/ens/2010-2011/M1/EIHM/cours/1980-Card-KLM.pdf",
+      "url": "https://doi.org/10.1145/358886.358895",
       "type": "empirical"
     },
     "action": "Compare alternative flows using task-step counts or a calibrated KLM model.",

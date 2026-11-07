@@ -83,7 +83,7 @@ Agent writes code → runs uiq → fixes issues → re-runs → declares done
 New developers learn UI quality standards:
 ```bash
 uiq ./src --decide --human   # Plain-English interaction recommendations
-uiq explain all              # Browse all 23 rules with sources
+uiq explain all              # Browse all rules with sources
 ```
 
 ### 6. Design system enforcement
@@ -102,7 +102,7 @@ Ensure components follow your design system:
 }
 ```
 
-`uiq` is a deterministic quality gate. It runs in seconds, needs no browser, and checks 23 rules across 5 categories. Your agent runs it after writing code, fixes the issues, and re-runs until it passes.
+`uiq` is a deterministic quality gate. It runs in seconds, needs no browser, and checks 22 core rules (+1 experimental) across 5 categories. Your agent runs it after writing code, fixes the issues, and re-runs until it passes.
 
 **No taste debates. No rendering. No cost. Just rules.**
 
@@ -190,7 +190,7 @@ npx @sujayganorkar/uiq ./src --ci --min-score 80
 
 | Command | What it does |
 |---|---|
-| `uiq ./src` | Quality gate — checks 23 rules |
+| `uiq ./src` | Quality gate — checks 22 core rules (+1 experimental) |
 | `uiq ./src --decide` | Decision analysis — what interaction each component warrants |
 | `uiq ./src --full` | Full loop — decisions + quality + compliance |
 | `uiq ./src --state` | Save state + detect regressions |
@@ -226,7 +226,9 @@ npx @sujayganorkar/uiq ./src --ci --min-score 80
 
 ---
 
-## What it checks (23 rules)
+## What it checks (22 core rules + 1 experimental)
+
+`a11y/contrast` is now **experimental** (enable with `--experimental`) because static regex cannot reliably evaluate CSS variables, dark-mode prefixes, or computed styles. For real contrast verification, run axe/Lighthouse.
 
 ### Motion (5 rules)
 | Rule | What it catches |
@@ -255,7 +257,7 @@ npx @sujayganorkar/uiq ./src --ci --min-score 80
 | `a11y/focus-management` | Modals/drawers without focus trapping |
 | `a11y/aria-dynamic` | Dynamic content without ARIA attributes |
 | `a11y/touch-targets` | No explicit touch target sizing (44×44px) |
-| `a11y/contrast` | Potential contrast issues (WCAG 4.5:1) |
+| `a11y/contrast` | Potential contrast issues (WCAG 4.5:1) — experimental, enable with `--experimental` |
 
 ### Performance (2 rules)
 | Rule | What it catches |
@@ -465,12 +467,22 @@ No. It works on any UI code. But it's designed for the agentic workflow where an
 
 ---
 
+## How it avoids false positives
+
+- **AST-based, element-level checks** (not file-wide regex): a file with 10 buttons where only one has `hover:` now flags the 9 missing ones instead of silently passing.
+- **Headless primitive registry**: components from Radix UI, Headless UI, and React Aria are recognized as accessible primitives, so their consumers are not re-flagged. Extend via `.uiqrc.json` → `primitives`.
+- **Two-pass component graph**: a file importing a local interactive component is only muted when that component actually contains interactive elements — utility-only imports no longer silence real errors.
+- **Project-wide reduced-motion**: a global `prefers-reduced-motion` media query in one CSS file covers animated components elsewhere.
+- **Scope-aware layout-thrash**: only flags when a DOM read and write occur in the *same function*, not merely the same file.
+- **CSS module resolution**: `className={styles.btn}` is resolved against the imported `.module.css` to check for `:hover`/`:focus`.
+- **Experimental contrast rule**: `a11y/contrast` is disabled by default; enable with `--experimental`.
+
 ## Limitations and honesty
 
 - Static analysis only by default. Rendered layout, responsive behavior, and visual quality require the optional `--render` flag (Playwright). Without it, uiq cannot detect overflow, z-index issues, or visual regressions.
 - Component classification is ~70-80% accurate on real codebases; custom components may be missed or misclassified.
-- The `a11y/contrast` rule only checks Tailwind color classes within a single `className` string; it cannot evaluate CSS variables or computed styles.
-- `perf/layout-thrash` is a heuristic (DOM read + write in same file), not a runtime measurement.
+- The `a11y/contrast` rule is experimental and only checks Tailwind color classes within a single `className` string; it cannot evaluate CSS variables or computed styles. Enable with `--experimental`.
+- `perf/layout-thrash` is a heuristic (DOM read + write in same function), not a runtime measurement.
 - Scores are a proxy for code-level quality, not a guarantee of good UX. A project can score 100 and still feel wrong; human "feel" review remains necessary.
 - Benchmark comparisons against agent-only implementations are not yet measured; the benchmark harness is provided for reproducible evaluation.
 - Motion recommendations are design guidance, not requirements; `shouldAnimate: false` means "no animation needed," not "animation forbidden."

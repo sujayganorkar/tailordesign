@@ -147,6 +147,8 @@ Ensure components follow your design system:
 4. Run `uiq ./src --full` for compliance score
 5. Export report for legal/audit team
 
+> Note: uiq's accessibility checks are a fast static pre-filter. For real accessibility compliance, also run axe/Lighthouse/pa11y and eslint-plugin-jsx-a11y. uiq complements, not replaces, those tools.
+
 ### Scenario 5: "My teammate changed the code"
 1. Teammate adds new components without quality checks
 2. Run `uiq ./src --state`

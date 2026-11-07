@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "dataset": "todomvc-javascript-es5-pinned-reference",
+  "provenance": "Public TodoMVC ES5 dist site https://github.com/tastejs/todomvc pinned ff43b02e59dfa604386bb382034b2cd07c2bcd8a. Only focus occlusion is manually scoped to visible keyboard navigation; no blanket accessibility claim.",
+  "viewports": [
+    {
+      "name": "mobile",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "name": "desktop",
+      "width": 1280,
+      "height": 800
+    }
+  ],
+  "cases": [
+    {
+      "id": "todomvc-empty-task-workflow",
+      "url": "/index.html",
+      "task": {
+        "goal": "Enter a new task using the keyboard, without a modal",
+        "readySelector": ".new-todo"
+      },
+      "expected": {
+        "focusedControlFullyObscured": false
+      }
+    }
+  ]
+}

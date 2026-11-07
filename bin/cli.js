@@ -21,6 +21,7 @@ program
   .option('--control', 'Show process control report (setpoint tracking, alarms, control points)')
   .option('--human', 'Human-readable decision output (for non-technical review)')
   .option('--no-color', 'Disable colored output')
+  .option('--experimental', 'Enable experimental rules (e.g. a11y/contrast)')
   .option('--render <url>', 'Run optional browser-based rendered evaluation (requires playwright)')
   .option('--quiet', 'Suppress non-essential output')
   .action(async (path, options, command) => {
@@ -101,6 +102,44 @@ program
     } catch (err) {
       console.error(`Error: ${err.message}`);
       process.exit(1);
+    }
+  });
+
+// Evidence-grounded HCI research review; kept separate from UI quality scores.
+program
+  .command('research')
+  .description('Inspect a trusted local UI with task context and return HCI research review candidates')
+  .requiredOption('--url <url>', 'Local development URL (localhost or loopback)')
+  .option('--task <file>', 'JSON file specifying task intent and optional modal selectors')
+  .option('--format <format>', 'Output: json or text', 'text')
+  .option('--width <pixels>', 'Viewport width', '1280')
+  .option('--height <pixels>', 'Viewport height', '800')
+  .action(async (opts) => {
+    try {
+      const { readFileSync } = await import('node:fs');
+      const task = opts.task ? JSON.parse(readFileSync(opts.task, 'utf8')) : {};
+      const { inspectResearchPage } = await import('../src/research/browser.js');
+      const result = await inspectResearchPage(opts.url, {
+        task, width: Number(opts.width), height: Number(opts.height),
+      });
+      if (opts.format === 'json') console.log(JSON.stringify(result, null, 2));
+      else {
+        if (!result.available) {
+          console.log(result.reason);
+          return;
+        }
+        console.log('HCI research review: ' + result.research.matched + ' candidate(s), ' +
+          result.research.abstained.length + ' uninspected signal(s).');
+        for (const finding of result.research.findings) {
+          console.log(' - ' + finding.id + ': ' + finding.evidence);
+          console.log('   Suggestion: ' + finding.action);
+          console.log('   Research: ' + finding.source.url);
+        }
+        console.log('Not an accessibility conformance test or automatic design score.');
+      }
+    } catch (error) {
+      console.error('Research evaluation failed: ' + error.message);
+      process.exitCode = 1;
     }
   });
 

@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18, 20, 22]
+        node-version: [22, 24]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -21,3 +21,71 @@ jobs:
       - run: npm test
       - run: node bin/cli.js tests/fixtures --ci --min-score 0
       - run: node bin/cli.js tests/fixtures --full 2>&1 | head -5
+
+  research-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm install --no-save playwright
+      - run: npx playwright install --with-deps chromium
+      - name: Run required browser integration tests
+        run: node --test tests/research-browser.test.js
+        env:
+          UIQ_REQUIRE_BROWSER: '1'
+      - name: Benchmark labeled UI interactions across two viewports
+        run: node benchmarks/hci/run.js --strict --out hci-report.json > hci-run.log
+      - name: Evaluate pinned W3C ARIA reference implementations
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/w3c-reference"
+          git -C "$RUNNER_TEMP/w3c-reference" init
+          git -C "$RUNNER_TEMP/w3c-reference" remote add origin https://github.com/w3c/aria-practices.git
+          git -C "$RUNNER_TEMP/w3c-reference" sparse-checkout init --cone
+          git -C "$RUNNER_TEMP/w3c-reference" sparse-checkout set content/shared content/images content/patterns/dialog-modal/examples content/patterns/alertdialog/examples
+          git -C "$RUNNER_TEMP/w3c-reference" fetch --depth 1 --filter=blob:none origin 0f765e4dc33e966026114ac12a8380db1de3b787
+          git -C "$RUNNER_TEMP/w3c-reference" checkout --detach FETCH_HEAD
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory "$RUNNER_TEMP/w3c-reference/content" &
+          HTTP_PID=$!
+          trap 'kill $HTTP_PID || true' EXIT
+          curl --retry 10 --retry-delay 1 --retry-connrefused -fsS http://127.0.0.1:8765/patterns/dialog-modal/examples/dialog.html >/dev/null
+          node benchmarks/hci/run.js benchmarks/hci/manifest.w3c.json --base-url http://127.0.0.1:8765 --strict --out hci-w3c-report.json > hci-w3c-run.log
+      - name: Evaluate independent TodoMVC UI implementation
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/todomvc-reference"
+          git -C "$RUNNER_TEMP/todomvc-reference" init
+          git -C "$RUNNER_TEMP/todomvc-reference" remote add origin https://github.com/tastejs/todomvc.git
+          git -C "$RUNNER_TEMP/todomvc-reference" sparse-checkout init --cone
+          git -C "$RUNNER_TEMP/todomvc-reference" sparse-checkout set examples/javascript-es5/dist
+          git -C "$RUNNER_TEMP/todomvc-reference" fetch --depth 1 --filter=blob:none origin ff43b02e59dfa604386bb382034b2cd07c2bcd8a
+          git -C "$RUNNER_TEMP/todomvc-reference" checkout --detach FETCH_HEAD
+          python3 -m http.server 8766 --bind 127.0.0.1 --directory "$RUNNER_TEMP/todomvc-reference/examples/javascript-es5/dist" &
+          HTTP_PID=$!
+          trap 'kill $HTTP_PID || true' EXIT
+          curl --retry 10 --retry-delay 1 --retry-connrefused -fsS http://127.0.0.1:8766/index.html >/dev/null
+          node benchmarks/hci/run.js benchmarks/hci/manifest.todomvc.json --base-url http://127.0.0.1:8766 --strict --out hci-todomvc-report.json > hci-todomvc-run.log
+      - name: Print signal-level detection metrics
+        if: always()
+        run: |
+          if [ -f hci-report.json ]; then
+            node -e "const r=require('./hci-report.json'); console.log(JSON.stringify(r.detection.metrics,null,2)); console.log('Mistakes:',JSON.stringify(r.detection.mistakes));"
+          fi
+      - name: Upload HCI benchmark evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hci-benchmark-evidence
+          path: |
+            hci-report.json
+            hci-run.log
+            hci-w3c-report.json
+            hci-w3c-run.log
+            hci-todomvc-report.json
+            hci-todomvc-run.log
+

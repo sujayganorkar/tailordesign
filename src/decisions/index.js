@@ -49,6 +49,14 @@ export async function runDecisions(targetPath, options = {}) {
       loadCustomMappings(options.config);
     }
   } catch (e) { /* non-critical */ }
+  try {
+    const { configurePrimitives } = await import('../primitives/registry.js');
+    configurePrimitives(options.config || null);
+  } catch (e) { /* non-critical */ }
+  try {
+    const { setExperimental } = await import('../experimental.js');
+    setExperimental(!!(options.experimental || options.config?.experimental));
+  } catch (e) { /* non-critical */ }
 
   const allDecisions = [];
 

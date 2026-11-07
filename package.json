@@ -58,7 +58,7 @@
     "uiq.d.ts"
   ],
   "engines": {
-    "node": ">=18"
+    "node": "^22.18.0 || >=24.11.0"
   },
   "dependencies": {
     "@babel/parser": "^8.0.8",

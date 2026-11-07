@@ -33,6 +33,8 @@ export async function run(targetPath, options = {}) {
   configurePrimitives(config);
   const { setExperimental } = await import('./experimental.js');
   setExperimental(!!(options.experimental || config?.experimental));
+  const { setPlatform } = await import('./platform.js');
+  setPlatform(options.platform || config?.platform || 'auto');
   const ignore = [...IGNORE_PATTERNS, ...(options.ignore ? options.ignore.split(',') : []), ...(config?.ignore || [])];
 
   // Collect files

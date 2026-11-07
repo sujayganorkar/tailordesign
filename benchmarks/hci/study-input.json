@@ -1,0 +1,705 @@
+{
+  "schemaVersion": 1,
+  "studyName": "Agent generated UI control vs source-backed HCI recommendations",
+  "generatedAt": "2026-11-07T10:35:28.020Z",
+  "tasks": [
+    {
+      "id": "landing-page",
+      "prompt": "Improve this landing page for interaction quality, accessibility and motion. Keep functionality.",
+      "baselineFile": "landing.jsx",
+      "treatmentContext": {
+        "scan": {
+          "filesScanned": 1,
+          "filesWithIssues": 1,
+          "totalIssues": 5,
+          "errors": 2,
+          "warnings": 0,
+          "infos": 3,
+          "score": 77,
+          "passed": false,
+          "issues": [
+            {
+              "rule": "interaction/hover-state",
+              "severity": "error",
+              "message": "Found 3 interactive element(s) without a hover state.",
+              "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/landing.jsx",
+              "kind": "objective",
+              "fix": {
+                "description": "Add hover state to interactive elements",
+                "css": ":hover { background-color: ...; } or use Tailwind hover: classes",
+                "jsx": "Add \"hover:bg-gray-100\" or \"hover:scale-105\" to className",
+                "example": "// Before: className=\"px-4 py-2 bg-blue-500\"\n// After:  className=\"px-4 py-2 bg-blue-500 hover:bg-blue-600 transition-colors\""
+              },
+              "line": 7,
+              "snippet": "  6:       <nav>\n> 7:         <a href=\"/\">Home</a>\n  8:         <a href=\"/about\">About</a>"
+            },
+            {
+              "rule": "interaction/focus-visible",
+              "severity": "error",
+              "message": "Found 3 interactive element(s) without a focus-visible state.",
+              "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/landing.jsx",
+              "kind": "objective",
+              "fix": {
+                "description": "Add focus-visible state for keyboard navigation",
+                "css": ":focus-visible { outline: 2px solid blue; outline-offset: 2px; }",
+                "jsx": "Add \"focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2\" to className",
+                "example": "// Tailwind:\nclassName=\"... focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500\""
+              },
+              "line": 7,
+              "snippet": "  6:       <nav>\n> 7:         <a href=\"/\">Home</a>\n  8:         <a href=\"/about\">About</a>"
+            },
+            {
+              "rule": "interaction/disabled-state",
+              "severity": "info",
+              "message": "Interactive elements found but no disabled state handling.",
+              "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/landing.jsx",
+              "kind": "recommendation",
+              "fix": {
+                "description": "Add disabled state styling",
+                "css": ":disabled { opacity: 0.5; cursor: not-allowed; }",
+                "jsx": "Add \"disabled:opacity-50 disabled:cursor-not-allowed\" to className",
+                "example": "// Tailwind:\nclassName=\"... disabled:opacity-50 disabled:cursor-not-allowed\""
+              },
+              "line": 13,
+              "snippet": "  12:         <p>Tagline here</p>\n> 13:         <button className=\"bg-blue-500 text-white px-4 py-2\">Get Started</button>\n  14:       </section>"
+            },
+            {
+              "rule": "interaction/active-route",
+              "severity": "info",
+              "message": "Navigation but no active route indication.",
+              "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/landing.jsx",
+              "kind": "objective",
+              "fix": {
+                "description": "Add active route indication in navigation",
+                "css": "Add .active class styling for current route",
+                "jsx": "Add aria-current=\"page\" and active styling based on current route",
+                "example": "// React Router:\n<NavLink className={({ isActive }) => isActive ? \"text-blue-600 font-bold\" : \"text-gray-600\"}>"
+              },
+              "line": 6,
+              "snippet": "  5:     <div>\n> 6:       <nav>\n  7:         <a href=\"/\">Home</a>"
+            },
+            {
+              "rule": "consistency/no-generic-cta",
+              "severity": "info",
+              "message": "Generic blue CTA detected. Use brand colors.",
+              "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/landing.jsx",
+              "kind": "recommendation",
+              "fix": {
+                "description": "Replace generic blue CTA with brand colors",
+                "css": "Change background from #3b82f6 to your brand color",
+                "jsx": "Change bg-blue-500 to bg-brand-500 or your brand color class",
+                "example": "// Before: className=\"bg-blue-500 text-white\"\n// After:  className=\"bg-brand-600 text-white\""
+              },
+              "line": 13,
+              "snippet": "  12:         <p>Tagline here</p>\n> 13:         <button className=\"bg-blue-500 text-white px-4 py-2\">Get Started</button>\n  14:       </section>"
+            }
+          ]
+        },
+        "decisions": [
+          {
+            "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/landing.jsx",
+            "component": "nav",
+            "count": 1,
+            "contexts": [
+              "navigation"
+            ],
+            "consequence": "navigation",
+            "shouldAnimate": true,
+            "animationRationale": "Micro-interactions on hover/press are appropriate.",
+            "requiredStates": [
+              "active-route",
+              "hover",
+              "mobile-open",
+              "mobile-closed"
+            ],
+            "recommendedMotion": [
+              "Mobile collapse: slide (250ms, ease-out)",
+              "Active indicator: sliding (layout animation)",
+              "Entrance: slide-down (200ms)"
+            ],
+            "antiPatterns": [
+              "Don't scroll-jack navigation",
+              "Active state must be clear without hover"
+            ],
+            "implementationSteps": [
+              "Implement active-route state (styling + behavior).",
+              "Implement hover state (styling + behavior).",
+              "Implement mobile-open state (styling + behavior).",
+              "Implement mobile-closed state (styling + behavior).",
+              "Add motion: Mobile collapse: slide (250ms, ease-out).",
+              "Add motion: Active indicator: sliding (layout animation).",
+              "Add motion: Entrance: slide-down (200ms).",
+              "Avoid: Don't scroll-jack navigation.",
+              "Avoid: Active state must be clear without hover."
+            ]
+          },
+          {
+            "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/landing.jsx",
+            "component": "link",
+            "count": 2,
+            "contexts": [
+              "navigation"
+            ],
+            "consequence": "navigation",
+            "shouldAnimate": true,
+            "animationRationale": "Micro-interactions on hover/press are appropriate.",
+            "requiredStates": [
+              "hover",
+              "focus-visible",
+              "active",
+              "visited",
+              "active-route"
+            ],
+            "recommendedMotion": [
+              "Color/underline transition (100-150ms)"
+            ],
+            "antiPatterns": [
+              "No entrance animation on links",
+              "Visited state for navigation context"
+            ],
+            "implementationSteps": [
+              "Implement hover state (styling + behavior).",
+              "Implement focus-visible state (styling + behavior).",
+              "Implement active state (styling + behavior).",
+              "Implement visited state (styling + behavior).",
+              "Implement active-route state (styling + behavior).",
+              "Add motion: Color/underline transition (100-150ms).",
+              "Avoid: No entrance animation on links.",
+              "Avoid: Visited state for navigation context."
+            ]
+          },
+          {
+            "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/landing.jsx",
+            "component": "button",
+            "count": 1,
+            "contexts": [
+              "navigation"
+            ],
+            "consequence": "instant-reversible",
+            "shouldAnimate": true,
+            "animationRationale": "Micro-interactions on hover/press are appropriate.",
+            "requiredStates": [
+              "hover",
+              "focus-visible",
+              "active",
+              "disabled"
+            ],
+            "recommendedMotion": [
+              "color/opacity shift on hover (100-150ms)",
+              "scale(0.97-0.98) on press (80-100ms)"
+            ],
+            "antiPatterns": [
+              "No layout property animation",
+              "No entrance animation on buttons",
+              "Don't animate button size"
+            ],
+            "implementationSteps": [
+              "Implement hover state (styling + behavior).",
+              "Implement focus-visible state (styling + behavior).",
+              "Implement active state (styling + behavior).",
+              "Implement disabled state (styling + behavior).",
+              "Add motion: color/opacity shift on hover (100-150ms).",
+              "Add motion: scale(0.97-0.98) on press (80-100ms).",
+              "Avoid: No layout property animation.",
+              "Avoid: No entrance animation on buttons.",
+              "Avoid: Don't animate button size."
+            ]
+          },
+          {
+            "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/landing.jsx",
+            "component": "card",
+            "count": 3,
+            "contexts": [
+              "navigation"
+            ],
+            "consequence": "passive-consumption",
+            "shouldAnimate": false,
+            "animationRationale": "Static component: no animation needed. Avoid generic fade-ins.",
+            "requiredStates": [],
+            "recommendedMotion": [],
+            "antiPatterns": [
+              "Don't animate card dimensions",
+              "Don't add parallax to card images in grids"
+            ],
+            "implementationSteps": [
+              "Keep component static; do not add entrance animations.",
+              "Avoid: Don't animate card dimensions.",
+              "Avoid: Don't add parallax to card images in grids."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "contact-form",
+      "prompt": "Improve this contact form for interaction quality, accessibility and motion. Keep functionality.",
+      "baselineFile": "form.jsx",
+      "treatmentContext": {
+        "scan": {
+          "filesScanned": 1,
+          "filesWithIssues": 1,
+          "totalIssues": 6,
+          "errors": 2,
+          "warnings": 3,
+          "infos": 1,
+          "score": 70,
+          "passed": false,
+          "issues": [
+            {
+              "rule": "interaction/hover-state",
+              "severity": "error",
+              "message": "Found 1 interactive element(s) without a hover state.",
+              "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/form.jsx",
+              "kind": "objective",
+              "fix": {
+                "description": "Add hover state to interactive elements",
+                "css": ":hover { background-color: ...; } or use Tailwind hover: classes",
+                "jsx": "Add \"hover:bg-gray-100\" or \"hover:scale-105\" to className",
+                "example": "// Before: className=\"px-4 py-2 bg-blue-500\"\n// After:  className=\"px-4 py-2 bg-blue-500 hover:bg-blue-600 transition-colors\""
+              },
+              "line": 8,
+              "snippet": "  7:     <form onSubmit={handleSubmit}>\n> 8:       <input value={email} onChange={e=>setEmail(e.target.value)} placeholder=\"Email\" />\n  9:       <button type=\"submit\" className=\"bg-indigo-600 text-white\">Submit</button>"
+            },
+            {
+              "rule": "interaction/focus-visible",
+              "severity": "error",
+              "message": "Found 2 interactive element(s) without a focus-visible state.",
+              "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/form.jsx",
+              "kind": "objective",
+              "fix": {
+                "description": "Add focus-visible state for keyboard navigation",
+                "css": ":focus-visible { outline: 2px solid blue; outline-offset: 2px; }",
+                "jsx": "Add \"focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2\" to className",
+                "example": "// Tailwind:\nclassName=\"... focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500\""
+              },
+              "line": 8,
+              "snippet": "  7:     <form onSubmit={handleSubmit}>\n> 8:       <input value={email} onChange={e=>setEmail(e.target.value)} placeholder=\"Email\" />\n  9:       <button type=\"submit\" className=\"bg-indigo-600 text-white\">Submit</button>"
+            },
+            {
+              "rule": "interaction/loading-state",
+              "severity": "warning",
+              "message": "Data fetching but no loading state (skeleton/spinner).",
+              "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/form.jsx",
+              "kind": "objective",
+              "fix": {
+                "description": "Add loading state (skeleton, spinner, or placeholder)",
+                "css": "N/A - requires component logic",
+                "jsx": "Add conditional rendering: {loading ? <Skeleton /> : <Content />}",
+                "example": "// React:\nif (loading) return <div className=\"animate-pulse bg-gray-200 h-4 rounded\" />;"
+              },
+              "line": 5,
+              "snippet": "  4:   const [email, setEmail] = useState('');\n> 5:   const handleSubmit = (e) => { e.preventDefault(); fetch('/api/contact', { method: 'POST' }); };\n  6:   return ("
+            },
+            {
+              "rule": "interaction/empty-state",
+              "severity": "warning",
+              "message": "Data fetching but no empty state.",
+              "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/form.jsx",
+              "kind": "objective",
+              "fix": {
+                "description": "Add empty state for when data is empty",
+                "css": "N/A - requires component logic",
+                "jsx": "Add conditional rendering: {data.length === 0 ? <EmptyState /> : <List />}",
+                "example": "// React:\nif (!data || data.length === 0) return <p className=\"text-gray-500\">No items found.</p>;"
+              },
+              "line": 5,
+              "snippet": "  4:   const [email, setEmail] = useState('');\n> 5:   const handleSubmit = (e) => { e.preventDefault(); fetch('/api/contact', { method: 'POST' }); };\n  6:   return ("
+            },
+            {
+              "rule": "interaction/error-state",
+              "severity": "warning",
+              "message": "Data fetching but no error state.",
+              "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/form.jsx",
+              "kind": "objective",
+              "fix": {
+                "description": "Add error state for failed requests",
+                "css": "N/A - requires component logic",
+                "jsx": "Add conditional rendering: {error ? <ErrorState onRetry={retry} /> : <Content />}",
+                "example": "// React:\nif (error) return <div role=\"alert\">Failed to load. <button onClick={retry}>Retry</button></div>;"
+              },
+              "line": 5,
+              "snippet": "  4:   const [email, setEmail] = useState('');\n> 5:   const handleSubmit = (e) => { e.preventDefault(); fetch('/api/contact', { method: 'POST' }); };\n  6:   return ("
+            },
+            {
+              "rule": "consistency/no-generic-cta",
+              "severity": "info",
+              "message": "Generic blue CTA detected. Use brand colors.",
+              "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/form.jsx",
+              "kind": "recommendation",
+              "fix": {
+                "description": "Replace generic blue CTA with brand colors",
+                "css": "Change background from #3b82f6 to your brand color",
+                "jsx": "Change bg-blue-500 to bg-brand-500 or your brand color class",
+                "example": "// Before: className=\"bg-blue-500 text-white\"\n// After:  className=\"bg-brand-600 text-white\""
+              },
+              "line": null
+            }
+          ]
+        },
+        "decisions": [
+          {
+            "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/form.jsx",
+            "component": "form",
+            "count": 1,
+            "contexts": [
+              "click",
+              "data"
+            ],
+            "consequence": "data-mutation",
+            "shouldAnimate": true,
+            "animationRationale": "Micro-interactions on hover/press are appropriate.",
+            "requiredStates": [
+              "idle",
+              "submitting",
+              "success",
+              "error",
+              "validation"
+            ],
+            "recommendedMotion": [
+              "Field focus: border color transition (150ms)",
+              "Submit: button loading spinner",
+              "Success: checkmark (300ms)",
+              "Error: shake (once, 300ms)"
+            ],
+            "antiPatterns": [
+              "Don't animate form layout on validation",
+              "Disable submit during submission"
+            ],
+            "implementationSteps": [
+              "Implement idle state (styling + behavior).",
+              "Implement submitting state (styling + behavior).",
+              "Implement success state (styling + behavior).",
+              "Implement error state (styling + behavior).",
+              "Implement validation state (styling + behavior).",
+              "Add motion: Field focus: border color transition (150ms).",
+              "Add motion: Submit: button loading spinner.",
+              "Add motion: Success: checkmark (300ms).",
+              "Add motion: Error: shake (once, 300ms).",
+              "Avoid: Don't animate form layout on validation.",
+              "Avoid: Disable submit during submission."
+            ]
+          },
+          {
+            "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/form.jsx",
+            "component": "input",
+            "count": 1,
+            "contexts": [
+              "click",
+              "data"
+            ],
+            "consequence": "instant-reversible",
+            "shouldAnimate": true,
+            "animationRationale": "Micro-interactions on hover/press are appropriate.",
+            "requiredStates": [
+              "focus",
+              "error",
+              "success",
+              "disabled"
+            ],
+            "recommendedMotion": [
+              "Border color transition (150ms)",
+              "Label float (200ms, ease-out)"
+            ],
+            "antiPatterns": [
+              "Don't animate input size",
+              "Error state must be accessible (aria-invalid)"
+            ],
+            "implementationSteps": [
+              "Implement focus state (styling + behavior).",
+              "Implement error state (styling + behavior).",
+              "Implement success state (styling + behavior).",
+              "Implement disabled state (styling + behavior).",
+              "Add motion: Border color transition (150ms).",
+              "Add motion: Label float (200ms, ease-out).",
+              "Avoid: Don't animate input size.",
+              "Avoid: Error state must be accessible (aria-invalid)."
+            ]
+          },
+          {
+            "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/form.jsx",
+            "component": "button",
+            "count": 1,
+            "contexts": [
+              "click",
+              "data"
+            ],
+            "consequence": "instant-reversible",
+            "shouldAnimate": true,
+            "animationRationale": "Micro-interactions on hover/press are appropriate.",
+            "requiredStates": [
+              "hover",
+              "focus-visible",
+              "active",
+              "disabled"
+            ],
+            "recommendedMotion": [
+              "color/opacity shift on hover (100-150ms)",
+              "scale(0.97-0.98) on press (80-100ms)"
+            ],
+            "antiPatterns": [
+              "No layout property animation",
+              "No entrance animation on buttons",
+              "Don't animate button size"
+            ],
+            "implementationSteps": [
+              "Implement hover state (styling + behavior).",
+              "Implement focus-visible state (styling + behavior).",
+              "Implement active state (styling + behavior).",
+              "Implement disabled state (styling + behavior).",
+              "Add motion: color/opacity shift on hover (100-150ms).",
+              "Add motion: scale(0.97-0.98) on press (80-100ms).",
+              "Avoid: No layout property animation.",
+              "Avoid: No entrance animation on buttons.",
+              "Avoid: Don't animate button size."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "operations-dashboard",
+      "prompt": "Improve this dashboard for interaction quality, accessibility and motion. Keep functionality.",
+      "baselineFile": "dashboard.jsx",
+      "treatmentContext": {
+        "scan": {
+          "filesScanned": 1,
+          "filesWithIssues": 1,
+          "totalIssues": 7,
+          "errors": 3,
+          "warnings": 3,
+          "infos": 1,
+          "score": 60,
+          "passed": false,
+          "issues": [
+            {
+              "rule": "interaction/hover-state",
+              "severity": "error",
+              "message": "Found 1 interactive element(s) without a hover state.",
+              "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/dashboard.jsx",
+              "kind": "objective",
+              "fix": {
+                "description": "Add hover state to interactive elements",
+                "css": ":hover { background-color: ...; } or use Tailwind hover: classes",
+                "jsx": "Add \"hover:bg-gray-100\" or \"hover:scale-105\" to className",
+                "example": "// Before: className=\"px-4 py-2 bg-blue-500\"\n// After:  className=\"px-4 py-2 bg-blue-500 hover:bg-blue-600 transition-colors\""
+              },
+              "line": 8,
+              "snippet": "  7:     <div>\n> 8:       <nav><a href=\"/dash\">Dashboard</a></nav>\n  9:       <div onClick={() => console.log('click')} className=\"card\">Stat 1</div>"
+            },
+            {
+              "rule": "interaction/focus-visible",
+              "severity": "error",
+              "message": "Found 1 interactive element(s) without a focus-visible state.",
+              "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/dashboard.jsx",
+              "kind": "objective",
+              "fix": {
+                "description": "Add focus-visible state for keyboard navigation",
+                "css": ":focus-visible { outline: 2px solid blue; outline-offset: 2px; }",
+                "jsx": "Add \"focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2\" to className",
+                "example": "// Tailwind:\nclassName=\"... focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500\""
+              },
+              "line": 8,
+              "snippet": "  7:     <div>\n> 8:       <nav><a href=\"/dash\">Dashboard</a></nav>\n  9:       <div onClick={() => console.log('click')} className=\"card\">Stat 1</div>"
+            },
+            {
+              "rule": "a11y/keyboard-nav",
+              "severity": "error",
+              "message": "onClick on non-interactive element (div/span/p). Use <button> or add role+tabIndex+onKeyDown.",
+              "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/dashboard.jsx",
+              "kind": "objective",
+              "fix": {
+                "description": "Replace onClick on divs with button or add keyboard support",
+                "css": "N/A - requires HTML change",
+                "jsx": "Replace <div onClick={...}> with <button onClick={...}> or add role=\"button\" tabIndex={0} onKeyDown",
+                "example": "// Before: <div onClick={handleClick}>Click me</div>\n// After:  <button onClick={handleClick}>Click me</button>"
+              },
+              "line": 9,
+              "snippet": "  8:       <nav><a href=\"/dash\">Dashboard</a></nav>\n> 9:       <div onClick={() => console.log('click')} className=\"card\">Stat 1</div>\n  10:       <div className=\"grid grid-cols-4\">"
+            },
+            {
+              "rule": "interaction/loading-state",
+              "severity": "warning",
+              "message": "Data fetching but no loading state (skeleton/spinner).",
+              "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/dashboard.jsx",
+              "kind": "objective",
+              "fix": {
+                "description": "Add loading state (skeleton, spinner, or placeholder)",
+                "css": "N/A - requires component logic",
+                "jsx": "Add conditional rendering: {loading ? <Skeleton /> : <Content />}",
+                "example": "// React:\nif (loading) return <div className=\"animate-pulse bg-gray-200 h-4 rounded\" />;"
+              },
+              "line": 5,
+              "snippet": "  4:   const [data, setData] = useState(null);\n> 5:   useEffect(() => { fetch('/api/data').then(r=>r.json()).then(setData); }, []);\n  6:   return ("
+            },
+            {
+              "rule": "interaction/empty-state",
+              "severity": "warning",
+              "message": "Data fetching but no empty state.",
+              "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/dashboard.jsx",
+              "kind": "objective",
+              "fix": {
+                "description": "Add empty state for when data is empty",
+                "css": "N/A - requires component logic",
+                "jsx": "Add conditional rendering: {data.length === 0 ? <EmptyState /> : <List />}",
+                "example": "// React:\nif (!data || data.length === 0) return <p className=\"text-gray-500\">No items found.</p>;"
+              },
+              "line": 5,
+              "snippet": "  4:   const [data, setData] = useState(null);\n> 5:   useEffect(() => { fetch('/api/data').then(r=>r.json()).then(setData); }, []);\n  6:   return ("
+            },
+            {
+              "rule": "interaction/error-state",
+              "severity": "warning",
+              "message": "Data fetching but no error state.",
+              "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/dashboard.jsx",
+              "kind": "objective",
+              "fix": {
+                "description": "Add error state for failed requests",
+                "css": "N/A - requires component logic",
+                "jsx": "Add conditional rendering: {error ? <ErrorState onRetry={retry} /> : <Content />}",
+                "example": "// React:\nif (error) return <div role=\"alert\">Failed to load. <button onClick={retry}>Retry</button></div>;"
+              },
+              "line": 5,
+              "snippet": "  4:   const [data, setData] = useState(null);\n> 5:   useEffect(() => { fetch('/api/data').then(r=>r.json()).then(setData); }, []);\n  6:   return ("
+            },
+            {
+              "rule": "interaction/active-route",
+              "severity": "info",
+              "message": "Navigation but no active route indication.",
+              "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/dashboard.jsx",
+              "kind": "objective",
+              "fix": {
+                "description": "Add active route indication in navigation",
+                "css": "Add .active class styling for current route",
+                "jsx": "Add aria-current=\"page\" and active styling based on current route",
+                "example": "// React Router:\n<NavLink className={({ isActive }) => isActive ? \"text-blue-600 font-bold\" : \"text-gray-600\"}>"
+              },
+              "line": 8,
+              "snippet": "  7:     <div>\n> 8:       <nav><a href=\"/dash\">Dashboard</a></nav>\n  9:       <div onClick={() => console.log('click')} className=\"card\">Stat 1</div>"
+            }
+          ]
+        },
+        "decisions": [
+          {
+            "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/dashboard.jsx",
+            "component": "nav",
+            "count": 1,
+            "contexts": [
+              "click",
+              "data",
+              "navigation"
+            ],
+            "consequence": "navigation",
+            "shouldAnimate": true,
+            "animationRationale": "Micro-interactions on hover/press are appropriate.",
+            "requiredStates": [
+              "active-route",
+              "hover",
+              "mobile-open",
+              "mobile-closed"
+            ],
+            "recommendedMotion": [
+              "Mobile collapse: slide (250ms, ease-out)",
+              "Active indicator: sliding (layout animation)",
+              "Entrance: slide-down (200ms)"
+            ],
+            "antiPatterns": [
+              "Don't scroll-jack navigation",
+              "Active state must be clear without hover"
+            ],
+            "implementationSteps": [
+              "Implement active-route state (styling + behavior).",
+              "Implement hover state (styling + behavior).",
+              "Implement mobile-open state (styling + behavior).",
+              "Implement mobile-closed state (styling + behavior).",
+              "Add motion: Mobile collapse: slide (250ms, ease-out).",
+              "Add motion: Active indicator: sliding (layout animation).",
+              "Add motion: Entrance: slide-down (200ms).",
+              "Avoid: Don't scroll-jack navigation.",
+              "Avoid: Active state must be clear without hover."
+            ]
+          },
+          {
+            "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/dashboard.jsx",
+            "component": "link",
+            "count": 1,
+            "contexts": [
+              "click",
+              "data",
+              "navigation"
+            ],
+            "consequence": "navigation",
+            "shouldAnimate": true,
+            "animationRationale": "Micro-interactions on hover/press are appropriate.",
+            "requiredStates": [
+              "hover",
+              "focus-visible",
+              "active",
+              "visited",
+              "active-route"
+            ],
+            "recommendedMotion": [
+              "Color/underline transition (100-150ms)"
+            ],
+            "antiPatterns": [
+              "No entrance animation on links",
+              "Visited state for navigation context"
+            ],
+            "implementationSteps": [
+              "Implement hover state (styling + behavior).",
+              "Implement focus-visible state (styling + behavior).",
+              "Implement active state (styling + behavior).",
+              "Implement visited state (styling + behavior).",
+              "Implement active-route state (styling + behavior).",
+              "Add motion: Color/underline transition (100-150ms).",
+              "Avoid: No entrance animation on links.",
+              "Avoid: Visited state for navigation context."
+            ]
+          },
+          {
+            "file": "/home/sujay/Downloads/tailoredesign/benchmarks/interfaces/dashboard.jsx",
+            "component": "card-clickable",
+            "count": 1,
+            "contexts": [
+              "click",
+              "data",
+              "navigation"
+            ],
+            "consequence": "navigation",
+            "shouldAnimate": true,
+            "animationRationale": "Micro-interactions on hover/press are appropriate.",
+            "requiredStates": [
+              "hover",
+              "focus-visible",
+              "active"
+            ],
+            "recommendedMotion": [
+              "translateY(-2px) + shadow on hover (150ms, ease-out)",
+              "scale(0.98) on press (100ms)",
+              "Entrance fade-in on scroll (200ms)"
+            ],
+            "antiPatterns": [
+              "Don't animate width/height",
+              "Don't add hover if card is not clickable"
+            ],
+            "implementationSteps": [
+              "Implement hover state (styling + behavior).",
+              "Implement focus-visible state (styling + behavior).",
+              "Implement active state (styling + behavior).",
+              "Add motion: translateY(-2px) + shadow on hover (150ms, ease-out).",
+              "Add motion: scale(0.98) on press (100ms).",
+              "Add motion: Entrance fade-in on scroll (200ms).",
+              "Avoid: Don't animate width/height.",
+              "Avoid: Don't add hover if card is not clickable."
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "runs": [],
+  "protocol": {
+    "control": "Identical task text, no uiq recommendations",
+    "hci": "Identical task text plus the embedded uiq scan/decide output from the baseline",
+    "honesty": "Do not populate runs until actual agent executions exist."
+  }
+}

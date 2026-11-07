@@ -163,6 +163,27 @@ function classifyElement(tagName, attributes, hasOnClick) {
     return 'button';
   }
 
+  // Component naming conventions (e.g. ProductCard, ActionButton, SearchInput)
+  if (/^[A-Z]/.test(tagName)) {
+    if (/Button$/i.test(tagName)) return 'button';
+    if (/Card$/i.test(tagName)) return hasOnClick ? 'card-clickable' : 'card';
+    if (/Modal$|Dialog$/i.test(tagName)) return 'modal';
+    if (/Drawer$|Sheet$/i.test(tagName)) return 'drawer';
+    if (/Input$|Field$|Select$|Textarea$/i.test(tagName)) return 'input';
+    if (/Link$/i.test(tagName)) return 'link';
+    if (/Nav$|Navbar$|Navigation$/i.test(tagName)) return 'nav';
+    if (/List$|Table$/i.test(tagName)) return 'list';
+    if (/Image$|Avatar$/i.test(tagName)) return 'image';
+    if (/Tooltip$|Popover$/i.test(tagName)) return 'tooltip';
+    if (/Accordion$|Collapse$/i.test(tagName)) return 'accordion';
+    if (/Skeleton$|Spinner$|Loader$/i.test(tagName)) return 'loading';
+  }
+
+  // MDX content / documentation wrappers
+  if (/^MDX|CodeBlock|Callout|Admonition|Step$|Steps$/i.test(tagName)) {
+    return hasOnClick ? 'unknown-interactive' : null;
+  }
+
   // Unknown interactive (has onClick but not recognized)
   if (hasOnClick) {
     return 'unknown-interactive';

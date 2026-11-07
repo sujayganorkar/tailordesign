@@ -4,6 +4,7 @@ import { checkContrast } from '../parsers/color.js';
 import { getRuleKind } from '../config.js';
 import { isExperimental } from '../experimental.js';
 import { isKnownLibrary } from '../primitives/registry.js';
+import { isMobileOnly } from '../platform.js';
 
 export function runRules(parsed, allFiles) {
   const issues = [];
@@ -33,9 +34,9 @@ export function runRules(parsed, allFiles) {
   });
   const delegatesInteractionStates = importsInteractiveComponent;
 
-  // --- MOTION RULES (JSX/HTML only - CSS has its own block below) ---
+  // --- MOTION & INTERACTION RULES (JSX/HTML only - CSS and Dart have their own blocks below) ---
   // Sources: web.dev (layout thrashing), MDN (prefers-reduced-motion), Material Design (duration, easing, stagger)
-  if (parsed.type !== 'css') {
+  if (parsed.type !== 'css' && parsed.type !== 'dart') {
     if (parsed.layoutAnimations && parsed.layoutAnimations.length > 0) {
       issues.push({ rule: 'motion/no-layout-animation', severity: 'error', message: `Found ${parsed.layoutAnimations.length} animation(s) on layout properties: ${parsed.layoutAnimations.slice(0, 3).join(', ')}. Use transform/opacity instead.`, file: parsed.filePath });
     }
@@ -203,10 +204,11 @@ export function runRules(parsed, allFiles) {
     if (parsed.hasAnimations && !parsed.hasReducedMotion && !otherFileHasReducedMotion) {
       issues.push({ rule: 'motion/reduced-motion', severity: 'error', message: 'Flutter animations but no reduced motion handling.', file: parsed.filePath });
     }
-    if (parsed.interactiveElements && parsed.interactiveElements.length > 0 && !parsed.hasHover) {
+    const isMobileDart = isMobileOnly(parsed._content || '');
+    if (!isMobileDart && parsed.interactiveElements && parsed.interactiveElements.length > 0 && !parsed.hasHover) {
       issues.push({ rule: 'interaction/hover-state', severity: 'warning', message: `Flutter has ${parsed.interactiveElements.length} interactive widget(s) but no hover handling.`, file: parsed.filePath });
     }
-    if (parsed.interactiveElements && parsed.interactiveElements.length > 0 && !parsed.hasFocus) {
+    if (!isMobileDart && parsed.interactiveElements && parsed.interactiveElements.length > 0 && !parsed.hasFocus) {
       issues.push({ rule: 'interaction/focus-visible', severity: 'warning', message: 'Flutter interactive widgets but no focus handling.', file: parsed.filePath });
     }
     const hasDataFetching = /FutureBuilder|StreamBuilder|http\.get|dio\.|supabase/i.test(parsed._content || '');

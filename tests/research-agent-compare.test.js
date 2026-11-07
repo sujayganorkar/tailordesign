@@ -37,3 +37,20 @@ test('A/B comparator rejects duplicates and invalid ratings',()=>{
     {...common,arm:'control',runId:'a',blindQualityRatings:[7]}
   ]}),/blindQualityRatings/);
 });
+
+test('A/B comparator reports exploratory-only status when ≥3 distinct tasks have paired runs and ratings', () => {
+  const tasks = [{ id: 't1' }, { id: 't2' }, { id: 't3' }];
+  const runs = [
+    { ...common, taskId: 't1', arm: 'control', runId: 'c1' },
+    { ...common, taskId: 't1', arm: 'hci', runId: 'h1', blindQualityRatings: [4, 5] },
+    { ...common, taskId: 't2', arm: 'control', runId: 'c2' },
+    { ...common, taskId: 't2', arm: 'hci', runId: 'h2', blindQualityRatings: [4, 5] },
+    { ...common, taskId: 't3', arm: 'control', runId: 'c3' },
+    { ...common, taskId: 't3', arm: 'hci', runId: 'h3', blindQualityRatings: [4, 5] },
+  ];
+  const r = compareAgentRuns({ schemaVersion: 1, tasks, runs });
+  assert.equal(r.status, 'exploratory-only');
+  assert.equal(r.pairedRuns, 3);
+  assert.equal(r.distinctTasks, 3);
+  assert.equal(r.meanDeltas.blindQuality, 1);
+});

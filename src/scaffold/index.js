@@ -99,6 +99,7 @@ export function Modal({ isOpen, onClose, title, children }) {
       {/* Backdrop */}
       <button
         type="button"
+        tabIndex={-1}
         aria-label="Close modal"
         className="fixed inset-0 bg-black/50 transition-opacity duration-150 ease-out motion-reduce:transition-none"
         onClick={onClose}

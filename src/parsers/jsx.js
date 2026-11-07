@@ -66,7 +66,14 @@ function getClassNameString(attr) {
   if (v.type === 'JSXExpressionContainer') {
     const expr = v.expression;
     if (expr.type === 'StringLiteral') return expr.value;
-    if (expr.type === 'TemplateLiteral') return expr.quasis.map(q => q.value.cooked || '').join(' ');
+    if (expr.type === 'TemplateLiteral') {
+      if (expr.expressions && expr.expressions.length > 0) {
+        const rawQuasis = expr.quasis.map(q => q.value.cooked || '').join(' ').trim();
+        if (/hover:|focus/i.test(rawQuasis)) return rawQuasis;
+        return null; // dynamic expression: fall back to file-level signals
+      }
+      return expr.quasis.map(q => q.value.cooked || '').join(' ');
+    }
     return null; // expression (identifier/call) -> unknown
   }
   return '';
@@ -118,8 +125,8 @@ export function parseJSX(content, filePath) {
   }
   if (/hero/i.test(content) && /grid.*card|card.*grid|grid-cols.*card/i.test(content)) result.cardGridHero = true;
 
-  // Animations / durations / easings / layout animations (regex token extraction)
-  const tailwindAnimRegex = /(?:animate-|transition-|duration-|ease-|delay-)[a-z0-9-]+/gi;
+  // Actual motion animations (exclude style-only transitions like colors/opacity and timing tokens)
+  const tailwindAnimRegex = /\b(?:animate-(?!none\b)[a-z0-9-]+|transition-all|transition-transform)\b/gi;
   result.animations.push(...(content.match(tailwindAnimRegex) || []));
   const framerRegex = /(?:motion\.\w+|animate=|initial=|exit=|whileHover|whileTap|whileInView|variants=)/gi;
   result.animations.push(...(content.match(framerRegex) || []));
@@ -238,11 +245,18 @@ export function parseJSX(content, filePath) {
       if (isOnClickNonInteractive) result.hasOnClickDiv = true;
 
       if (isNativeInteractive) {
+        const isClickable = ['button', 'a'].includes(lower);
+        const tabIndexAttr = attrs.find(a => a.name?.name === 'tabIndex' || a.name?.name === 'tabindex');
+        const tabIndexVal = tabIndexAttr ? getAttributeValue(tabIndexAttr.value) : null;
+        const isNonTabbable = tabIndexVal === -1 || tabIndexVal === '-1';
+        const isBackdrop = /fixed.*inset-0|inset-0.*bg-|backdrop/i.test(classStr || '') ||
+          (isNonTabbable && /close.*(modal|dialog)|backdrop/i.test(attrs.find(a => a.name?.name === 'aria-label')?.value || ''));
+
         result.interactiveElements.push({
           type: lower === 'a' ? 'a' : lower,
           raw: '',
-          hasHover: primitive ? true : (elHasHover || globalCssHover),
-          hasFocusVisible: primitive ? true : (elHasFocus || globalCssFocus),
+          hasHover: primitive || isBackdrop ? true : (isClickable ? (elHasHover || globalCssHover) : true),
+          hasFocusVisible: primitive || isNonTabbable || isBackdrop ? true : (elHasFocus || globalCssFocus),
         });
       }
 
@@ -266,20 +280,59 @@ export function parseJSX(content, filePath) {
     },
   });
 
-  // Layout thrash: only flag if a read and a write occur in the same function scope.
+  // Layout thrash: only flag if a read and a write occur in the closest enclosing function scope.
   try {
+    const funcMap = new Map();
+
+    const markRead = (p) => {
+      const fn = p.getFunctionParent();
+      if (!fn) return;
+      const rec = funcMap.get(fn.node) || { read: false, write: false };
+      rec.read = true;
+      funcMap.set(fn.node, rec);
+    };
+
+    const markWrite = (p) => {
+      const fn = p.getFunctionParent();
+      if (!fn) return;
+      const rec = funcMap.get(fn.node) || { read: false, write: false };
+      rec.write = true;
+      funcMap.set(fn.node, rec);
+    };
+
     traverse(ast, {
-      'FunctionDeclaration|FunctionExpression|ArrowFunctionExpression'(path) {
-        const node = path.node;
-        const start = node.body && node.body.start;
-        const end = node.body && node.body.end;
-        if (typeof start !== 'number' || typeof end !== 'number') return;
-        const src = content.slice(start, end);
-        const read = /offsetWidth|offsetHeight|getBoundingClientRect|clientWidth|clientHeight|scrollTop|scrollLeft/i.test(src);
-        const write = /\.style\.\w+\s*=|classList\.(add|remove|toggle)|\.innerHTML\s*=/i.test(src);
-        if (read && write) result.layoutThrash = true;
+      MemberExpression(p) {
+        const propName = p.node.property && (p.node.property.name || p.node.property.value);
+        if (['offsetWidth', 'offsetHeight', 'getBoundingClientRect', 'clientWidth', 'clientHeight', 'scrollTop', 'scrollLeft'].includes(propName)) {
+          markRead(p);
+        }
+      },
+      AssignmentExpression(p) {
+        const left = p.get('left');
+        if (left.isMemberExpression()) {
+          const src = content.slice(left.node.start, left.node.end);
+          if (/\.style\.\w+|\.innerHTML/.test(src)) {
+            markWrite(p);
+          }
+        }
+      },
+      CallExpression(p) {
+        const callee = p.get('callee');
+        if (callee.isMemberExpression()) {
+          const src = content.slice(callee.node.start, callee.node.end);
+          if (/classList\.(add|remove|toggle)/.test(src)) {
+            markWrite(p);
+          }
+        }
       },
     });
+
+    for (const { read, write } of funcMap.values()) {
+      if (read && write) {
+        result.layoutThrash = true;
+        break;
+      }
+    }
   } catch (e) { /* ignore */ }
   // Fallback: if no function scopes found but file has both, keep old behavior
   if (!result.layoutThrash) {
@@ -338,7 +391,7 @@ function parseJSXRegex(content, filePath) {
   if (/<nav|<Nav|navigation|Navigation/i.test(content)) result.hasNav = true;
   if (/isActive|activeRoute|activePath|useLocation|usePathname|aria-current/i.test(content)) result.hasActiveRoute = true;
 
-  const tailwindAnimRegex = /(?:animate-|transition-|duration-|ease-|delay-)[a-z0-9-]+/gi;
+  const tailwindAnimRegex = /\b(?:animate-(?!none\b)[a-z0-9-]+|transition-all|transition-transform)\b/gi;
   result.animations.push(...(content.match(tailwindAnimRegex) || []));
   const framerRegex = /(?:motion\.\w+|animate=|initial=|exit=|whileHover|whileTap|whileInView|variants=)/gi;
   result.animations.push(...(content.match(framerRegex) || []));

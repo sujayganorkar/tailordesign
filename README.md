@@ -54,6 +54,8 @@ These aren't taste problems. They're **objective, measurable failures** that age
 You have a codebase with AI-generated or hand-written UI that has issues:
 ```bash
 uiq ./src                    # Find all issues
+uiq ./src --platform mobile  # Target mobile (mutes desktop hover/focus on touch widgets)
+uiq ./src --experimental     # Enable experimental rules (e.g. a11y/contrast)
 uiq ./src --decide           # See what interactions each component should have
 uiq ./src --full             # Verify decisions match implementation
 uiq ./src --state            # Track regressions over time
@@ -68,7 +70,15 @@ uiq ./src                    # Verify: 100/100 ✓
 ```
 
 ### 3. CI/CD pipeline
-Block PRs that don't meet quality standards:
+Use the official GitHub Action:
+```yaml
+- name: UI Quality Gate
+  uses: sujayganorkar/tailordesign@main
+  with:
+    path: './src'
+    min-score: 80
+```
+Or run directly via CLI:
 ```yaml
 - run: npx @sujayganorkar/uiq ./src --ci --min-score 80
 ```

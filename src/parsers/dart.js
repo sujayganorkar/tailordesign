@@ -125,9 +125,13 @@ export function parseDart(content, filePath) {
     }
   }
 
-  // Hover states (Material buttons and InkWell have hover built-in)
+  // Hover states (Material buttons, InkWell, and MouseRegion have hover built-in)
   if (/onHover|hoverColor|MouseRegion|hovered/i.test(content)) {
     result.hasHover = true;
+  }
+  if (/MouseRegion/i.test(content)) {
+    result.hasHover = true;
+    result.hasFocus = true;
   }
   if (/ElevatedButton|TextButton|OutlinedButton|FilledButton|IconButton|FloatingActionButton|InkWell/i.test(content)) {
     result.hasHover = true;

@@ -27,7 +27,7 @@ jobs:
         run: node bin/cli.js tests/fixtures/GoodComponent.jsx --ci --min-score 80 --format markdown > ui-quality-report.md
       - name: Upload report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ui-quality-report
           path: ui-quality-report.md

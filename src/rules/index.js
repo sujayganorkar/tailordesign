@@ -3,19 +3,35 @@
 import { checkContrast } from '../parsers/color.js';
 import { getRuleKind } from '../config.js';
 import { isExperimental } from '../experimental.js';
+import { isKnownLibrary } from '../primitives/registry.js';
 
 export function runRules(parsed, allFiles) {
   const issues = [];
 
   const projectFiles = Array.isArray(allFiles) ? allFiles : [];
-  // Component-level scoping: a file that imports/consumes components inherits
-  // interaction states from those components, so per-file hover/focus findings
-  // are usually false positives. Likewise, project-wide reduced-motion handling
-  // (e.g. a global CSS media query) covers files that lack their own.
   const otherFileHasReducedMotion = projectFiles.some(f => f && f !== parsed && f.hasReducedMotion);
-  // Only suppress hover/focus findings when the file delegates to imported components.
-  const delegatesInteractionStates = Array.isArray(parsed.imports) && parsed.imports.some(i =>
-    typeof i === 'string' && (i.startsWith('.') || i.startsWith('@/') || /components|ui\/|lib\//i.test(i)));
+
+  // Build a component capability index from the project (Phase 3).
+  const componentIndex = new Map();
+  for (const f of projectFiles) {
+    if (!f || !f.filePath) continue;
+    const key = String(f.filePath).split('/').pop().replace(/\.(jsx|tsx|js|ts|dart)$/, '');
+    componentIndex.set(key, {
+      hasInteractiveElements: Array.isArray(f.interactiveElements) && f.interactiveElements.length > 0,
+    });
+  }
+  // Suppress hover/focus only when the file delegates to an interactive component
+  // (a local component that itself contains interactive elements, or a known
+  // headless library). This avoids muting real errors in files that merely
+  // import utilities.
+  const importsInteractiveComponent = Array.isArray(parsed.imports) && parsed.imports.some(src => {
+    if (typeof src !== 'string') return false;
+    if (isKnownLibrary(src)) return true;
+    const key = src.split('/').pop().replace(/\.(jsx|tsx|js|ts)$/, '');
+    const cap = componentIndex.get(key);
+    return !!(cap && cap.hasInteractiveElements);
+  });
+  const delegatesInteractionStates = importsInteractiveComponent;
 
   // --- MOTION RULES (JSX/HTML only - CSS has its own block below) ---
   // Sources: web.dev (layout thrashing), MDN (prefers-reduced-motion), Material Design (duration, easing, stagger)

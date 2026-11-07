@@ -2,7 +2,9 @@
 
 import { parse } from '@babel/parser';
 import traverse from '@babel/traverse';
-import { getPrimitiveSet, isPrimitive, isKnownLibrary } from '../primitives/registry.js';
+import { getPrimitiveSet, isPrimitive } from '../primitives/registry.js';
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 
 function baseResult(content, filePath) {
   return {
@@ -77,6 +79,22 @@ function hasFocusProp(attrs) {
   return attrs.some(a => a.name?.name === 'onFocus');
 }
 
+function readCssModule(source, filePath) {
+  try {
+    const full = resolve(dirname(filePath), source);
+    return readFileSync(full, 'utf-8');
+  } catch (e) {
+    return null;
+  }
+}
+
+function extractCssRule(css, className) {
+  // Find a rule block for .className { ... } (best-effort, one level)
+  const re = new RegExp('\\.' + className + '\\s*\\{([^}]*)\\}', 'i');
+  const m = css.match(re);
+  return m ? m[1] : '';
+}
+
 export function parseJSX(content, filePath) {
   content = content == null ? '' : String(content);
   const result = baseResult(content, filePath);
@@ -137,6 +155,7 @@ export function parseJSX(content, filePath) {
 
   const primitiveSet = getPrimitiveSet();
   const importMap = {};
+  const cssModuleImports = {}; // localName -> source path
 
   // AST traversal
   let ast;
@@ -152,9 +171,13 @@ export function parseJSX(content, filePath) {
       if (path.node.source && path.node.source.value) {
         const src = path.node.source.value;
         result.imports.push(src);
+        const isCssModule = /\.(css|scss|less|module\.css)$/i.test(src);
         for (const spec of path.node.specifiers || []) {
           const local = spec.local && spec.local.name;
-          if (local) importMap[local] = src;
+          if (local) {
+            importMap[local] = src;
+            if (isCssModule) cssModuleImports[local] = src;
+          }
         }
       }
     },
@@ -168,15 +191,41 @@ export function parseJSX(content, filePath) {
       const isExpr = classStr === null && !!classNameAttr && !!classNameAttr.value &&
         classNameAttr.value.type === 'JSXExpressionContainer';
 
+      // CSS Module resolution: className={styles.btn}
+      let cssModuleHover = null;
+      let cssModuleFocus = null;
+      if (isExpr) {
+        const expr = classNameAttr.value.expression;
+        let moduleName = null;
+        let propName = null;
+        if (expr.type === 'MemberExpression' && expr.object.type === 'Identifier' && expr.property) {
+          moduleName = expr.object.name;
+          propName = expr.property.name || (expr.property.type === 'Literal' ? expr.property.value : null);
+        }
+        if (moduleName && cssModuleImports[moduleName] && propName) {
+          const css = readCssModule(cssModuleImports[moduleName], filePath);
+          if (css !== null) {
+            const block = extractCssRule(css, propName);
+            // Also check for separate :hover / :focus-visible rules
+            cssModuleHover = /:hover/i.test(block) || new RegExp('\\.' + propName + '\\s*:\\s*hover', 'i').test(css);
+            cssModuleFocus = /:focus/i.test(block) || new RegExp('\\.' + propName + '\\s*:\\s*focus', 'i').test(css);
+          }
+        }
+      }
+
       const elHasHover = hasHoverProp(attrs) || (
-        classStr !== null
-          ? /hover:|:hover/i.test(classStr)
-          : (globalCssHover || globalTailwindHover)
+        cssModuleHover !== null
+          ? cssModuleHover
+          : (classStr !== null
+              ? /hover:|:hover/i.test(classStr)
+              : (globalCssHover || globalTailwindHover))
       );
       const elHasFocus = hasFocusProp(attrs) || (
-        classStr !== null
-          ? /focus-visible:|focus:|:focus-visible|:focus\b/i.test(classStr)
-          : (globalCssFocus || globalTailwindFocus)
+        cssModuleFocus !== null
+          ? cssModuleFocus
+          : (classStr !== null
+              ? /focus-visible:|focus:|:focus-visible|:focus\b/i.test(classStr)
+              : (globalCssFocus || globalTailwindFocus))
       );
 
       const lower = tagName.toLowerCase();

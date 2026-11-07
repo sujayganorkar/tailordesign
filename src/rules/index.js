@@ -49,7 +49,7 @@ export function runRules(parsed, allFiles) {
     }
 
     if (parsed.easings && parsed.easings.length > 0) {
-      const knownEasings = ['ease', 'ease-in', 'ease-out', 'ease-in-out', 'linear'];
+      const knownEasings = ['ease', 'ease-in', 'ease-out', 'ease-in-out', 'linear', 'ease-linear', 'step-start', 'step-end'];
       const unknown = parsed.easings.filter(e => {
         const n = e.trim().toLowerCase().replace(/\s+/g, '');
         if (knownEasings.includes(n)) return false;
@@ -118,7 +118,7 @@ export function runRules(parsed, allFiles) {
     }
 
     if (parsed.interactiveElements && parsed.interactiveElements.length > 3) {
-      const hasTouchTargets = /min-h-\[4[4-9]px\]|min-w-\[4[4-9]px\]|min-h-11|min-w-11/i.test(parsed._content || '');
+      const hasTouchTargets = /min-h-\[4[4-9]px\]|min-w-\[4[4-9]px\]|min-h-11|min-w-11|min-h-12|min-w-12|size-1[1-9]|h-1[1-9]|h-12|py-[3-9]|p-[3-9]|min-height:\s*(?:4[4-9]|5\d)px/i.test(parsed._content || '');
       if (!hasTouchTargets) {
         issues.push({ rule: 'a11y/touch-targets', severity: 'info', message: 'No explicit touch target sizing (min 44×44px).', file: parsed.filePath });
       }

@@ -4,18 +4,18 @@
 
 export const DEFAULT_PRIMITIVES = {
   // Radix UI
-  '@radix-ui/react-dialog': ['Dialog', 'DialogContent', 'DialogTrigger', 'DialogClose', 'DialogTitle', 'DialogDescription'],
-  '@radix-ui/react-popover': ['Popover', 'PopoverContent', 'PopoverTrigger', 'PopoverClose'],
-  '@radix-ui/react-tooltip': ['Tooltip', 'TooltipContent', 'TooltipTrigger', 'TooltipProvider'],
-  '@radix-ui/react-dropdown-menu': ['DropdownMenu', 'DropdownMenuContent', 'DropdownMenuTrigger', 'DropdownMenuItem'],
-  '@radix-ui/react-select': ['Select', 'SelectContent', 'SelectTrigger', 'SelectItem', 'SelectValue'],
-  '@radix-ui/react-tabs': ['Tabs', 'TabsList', 'TabsTrigger', 'TabsContent'],
-  '@radix-ui/react-accordion': ['Accordion', 'AccordionItem', 'AccordionTrigger', 'AccordionContent'],
-  '@radix-ui/react-alert-dialog': ['AlertDialog', 'AlertDialogContent', 'AlertDialogTrigger', 'AlertDialogAction', 'AlertDialogCancel'],
-  '@radix-ui/react-checkbox': ['Checkbox', 'CheckboxIndicator'],
-  '@radix-ui/react-switch': ['Switch', 'SwitchThumb'],
-  '@radix-ui/react-slider': ['Slider', 'SliderTrack', 'SliderRange', 'SliderThumb'],
-  '@radix-ui/react-toast': ['Toast', 'ToastProvider', 'ToastViewport'],
+  '@radix-ui/react-dialog': ['Dialog', 'DialogContent', 'DialogTrigger', 'DialogClose', 'DialogTitle', 'DialogDescription', 'Root', 'Trigger', 'Content', 'Close', 'Title', 'Description', 'Overlay', 'Portal'],
+  '@radix-ui/react-popover': ['Popover', 'PopoverContent', 'PopoverTrigger', 'PopoverClose', 'Root', 'Trigger', 'Content', 'Close', 'Portal', 'Anchor'],
+  '@radix-ui/react-tooltip': ['Tooltip', 'TooltipContent', 'TooltipTrigger', 'TooltipProvider', 'Root', 'Trigger', 'Content', 'Provider', 'Portal'],
+  '@radix-ui/react-dropdown-menu': ['DropdownMenu', 'DropdownMenuContent', 'DropdownMenuTrigger', 'DropdownMenuItem', 'Root', 'Trigger', 'Content', 'Item', 'CheckboxItem', 'RadioItem', 'Label', 'Separator', 'Sub', 'SubTrigger', 'SubContent', 'Group'],
+  '@radix-ui/react-select': ['Select', 'SelectContent', 'SelectTrigger', 'SelectItem', 'SelectValue', 'Root', 'Trigger', 'Content', 'Item', 'Value', 'Group', 'Label', 'Separator', 'ScrollUpButton', 'ScrollDownButton', 'Viewport'],
+  '@radix-ui/react-tabs': ['Tabs', 'TabsList', 'TabsTrigger', 'TabsContent', 'Root', 'List', 'Trigger', 'Content'],
+  '@radix-ui/react-accordion': ['Accordion', 'AccordionItem', 'AccordionTrigger', 'AccordionContent', 'Root', 'Item', 'Header', 'Trigger', 'Content'],
+  '@radix-ui/react-alert-dialog': ['AlertDialog', 'AlertDialogContent', 'AlertDialogTrigger', 'AlertDialogAction', 'AlertDialogCancel', 'Root', 'Trigger', 'Content', 'Action', 'Cancel', 'Title', 'Description', 'Overlay', 'Portal'],
+  '@radix-ui/react-checkbox': ['Checkbox', 'CheckboxIndicator', 'Root', 'Indicator'],
+  '@radix-ui/react-switch': ['Switch', 'SwitchThumb', 'Root', 'Thumb'],
+  '@radix-ui/react-slider': ['Slider', 'SliderTrack', 'SliderRange', 'SliderThumb', 'Root', 'Track', 'Range', 'Thumb'],
+  '@radix-ui/react-toast': ['Toast', 'ToastProvider', 'ToastViewport', 'Root', 'Provider', 'Viewport', 'Title', 'Description', 'Action', 'Close'],
   // Headless UI
   '@headlessui/react': ['Dialog', 'DialogPanel', 'DialogTitle', 'DialogDescription', 'Transition', 'Menu', 'MenuButton', 'MenuItems', 'MenuItem', 'Listbox', 'ListboxButton', 'ListboxOptions', 'ListboxOption', 'Popover', 'PopoverButton', 'PopoverPanel', 'Switch', 'Tab', 'TabGroup', 'TabList', 'TabPanel', 'Combobox', 'ComboboxInput', 'ComboboxOptions', 'ComboboxOption'],
   // React Aria

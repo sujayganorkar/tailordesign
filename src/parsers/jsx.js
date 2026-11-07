@@ -144,7 +144,7 @@ export function parseJSX(content, filePath) {
   let twDurMatch;
   while ((twDurMatch = twDurRegex.exec(content)) !== null) result.durations.push(parseInt(twDurMatch[1]));
 
-  const easingRegex = /ease[-:]?\s*[-a-z]+|cubic-bezier\([^)]+\)/gi;
+  const easingRegex = /\bease(?:-in|-out|-in-out|-linear)?\b|cubic-bezier\([^)]+\)/gi;
   result.easings.push(...(content.match(easingRegex) || []));
 
   const twTransitionAll = content.match(/transition-all/g) || [];
@@ -236,8 +236,12 @@ export function parseJSX(content, filePath) {
       );
 
       const lower = tagName.toLowerCase();
-      const isNativeInteractive = ['button', 'a', 'input', 'select', 'textarea'].includes(lower);
-      const importSource = importMap[tagName] || null;
+      // Only intrinsic lowercase HTML DOM elements are checked for raw missing styles.
+      // Capitalized elements (<Button>, <Link>, <Input>) are React components that encapsulate their own styles.
+      const isNativeInteractive = ['button', 'a', 'input', 'select', 'textarea'].includes(tagName);
+      const isComponentInteractive = /^[A-Z]/.test(tagName) && /Button|Link|Trigger|Action|Close|Item|Tab|Input|Select/i.test(tagName);
+      const rootTag = tagName.includes('.') ? tagName.split('.')[0] : tagName;
+      const importSource = importMap[tagName] || importMap[rootTag] || null;
       const primitive = isPrimitive(tagName, importSource, primitiveSet);
       const isOnClickNonInteractive = ['div', 'span', 'p', 'section', 'article'].includes(lower) &&
         attrs.some(a => a.name?.name === 'onClick') && !primitive;
@@ -260,9 +264,9 @@ export function parseJSX(content, filePath) {
         });
       }
 
-      // Treat primitive components as interactive-but-handled: register a synthetic
-      // entry so counts reflect them, but never flag.
-      if (!isNativeInteractive && primitive) {
+      // Treat primitive and custom interactive components as interactive-but-handled:
+      // register a synthetic entry so counts reflect them, but never flag missing inline styles.
+      if (!isNativeInteractive && (primitive || isComponentInteractive)) {
         result.interactiveElements.push({
           type: 'component',
           raw: '',
@@ -409,7 +413,7 @@ function parseJSXRegex(content, filePath) {
   let twDurMatch;
   while ((twDurMatch = twDurRegex.exec(content)) !== null) result.durations.push(parseInt(twDurMatch[1]));
 
-  const easingRegex = /ease[-:]?\s*[-a-z]+|cubic-bezier\([^)]+\)/gi;
+  const easingRegex = /\bease(?:-in|-out|-in-out|-linear)?\b|cubic-bezier\([^)]+\)/gi;
   result.easings.push(...(content.match(easingRegex) || []));
 
   if (/--duration|--ease|--motion/.test(content)) result.motionTokens = true;

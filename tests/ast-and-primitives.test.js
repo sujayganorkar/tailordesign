@@ -60,7 +60,8 @@ test('Primitives Registry: Radix and Headless UI primitives recognized', () => {
 
   const primSet = buildPrimitiveSet();
   assert.strictEqual(isPrimitive('Dialog', '@radix-ui/react-dialog', primSet), true);
-  assert.strictEqual(isPrimitive('Dialog.Root', '@radix-ui/react-dialog', primSet), false);
+  assert.strictEqual(isPrimitive('Dialog.Root', '@radix-ui/react-dialog', primSet), true);
+  assert.strictEqual(isPrimitive('UnknownWidget', '@radix-ui/react-dialog', primSet), false);
   assert.strictEqual(isPrimitive('Dialog', './components/MyDialog', primSet), false);
 });
 

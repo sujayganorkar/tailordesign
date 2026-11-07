@@ -125,7 +125,7 @@ export function parseDart(content, filePath) {
     }
   }
 
-  // Hover states (Material buttons, InkWell, and MouseRegion have hover built-in)
+  // Hover states (Material buttons, inputs, controls, InkWell, and MouseRegion have hover built-in)
   if (/onHover|hoverColor|MouseRegion|hovered/i.test(content)) {
     result.hasHover = true;
   }
@@ -133,15 +133,14 @@ export function parseDart(content, filePath) {
     result.hasHover = true;
     result.hasFocus = true;
   }
-  if (/ElevatedButton|TextButton|OutlinedButton|FilledButton|IconButton|FloatingActionButton|InkWell/i.test(content)) {
+  const builtInInteractiveRegex = /ElevatedButton|TextButton|OutlinedButton|FilledButton|IconButton|FloatingActionButton|InkWell|Checkbox|Switch|Slider|TextField|TextFormField|DropdownButton|PopupMenuButton|ListTile/i;
+  if (builtInInteractiveRegex.test(content)) {
     result.hasHover = true;
-  }
-
-  // Focus (Material buttons and InkWell have focus built-in)
-  if (/Focus\(|focusNode|FocusTraversal|focusColor|onFocus/i.test(content)) {
     result.hasFocus = true;
   }
-  if (/ElevatedButton|TextButton|OutlinedButton|FilledButton|IconButton|FloatingActionButton|InkWell/i.test(content)) {
+
+  // Focus (Material widgets have focus built-in)
+  if (/Focus\(|focusNode|FocusTraversal|focusColor|onFocus/i.test(content)) {
     result.hasFocus = true;
   }
 
@@ -165,11 +164,11 @@ export function parseDart(content, filePath) {
     result.hasErrorState = true;
   }
 
-  // Semantics (Material buttons have semantics built-in)
+  // Semantics (Material buttons and standard interactive widgets have semantics built-in)
   if (/Semantics\(|SemanticsProperties|MergeSemantics|ExcludeSemantics/i.test(content)) {
     result.hasSemantics = true;
   }
-  if (/ElevatedButton|TextButton|OutlinedButton|FilledButton|IconButton|FloatingActionButton|InkWell/i.test(content)) {
+  if (builtInInteractiveRegex.test(content)) {
     result.hasSemantics = true;
   }
 

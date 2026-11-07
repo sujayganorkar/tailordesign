@@ -1,6 +1,6 @@
 ---
 name: uiq
-description: Quality gate for UI code. Checks 23 objective rules across motion, interaction states, accessibility, performance, and consistency. Also provides interaction decision analysis. Use after writing or modifying any UI code.
+description: Quality gate for UI code. Checks 22 core rules (+1 experimental) across motion, interaction states, accessibility, performance, and consistency. Also provides interaction decision analysis. Use after writing or modifying any UI code.
 ---
 
 # uiq - Quality Gate for AI-Generated UI
@@ -13,7 +13,7 @@ Run `uiq ./src` after writing UI code. Fix errors. Re-run until score ≥ 80. Ne
 
 | Command | Purpose |
 |---|---|
-| `uiq ./src` | Quality gate - 23 rules, < 2 seconds |
+| `uiq ./src` | Quality gate - 22 core rules (+1 experimental), < 2 seconds |
 | `uiq ./src --decide` | What interaction each component warrants |
 | `uiq ./src --full` | Decisions + quality + compliance in one pass |
 | `uiq ./src --state` | Save state + detect regressions |

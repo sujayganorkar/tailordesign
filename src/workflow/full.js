@@ -40,6 +40,11 @@ const STATE_TO_RULE = {
 
 export async function runFull(targetPath, options = {}) {
   const ignore = [...IGNORE_PATTERNS];
+  const config = options.config || null;
+  const { configurePrimitives } = await import('../primitives/registry.js');
+  configurePrimitives(config);
+  const { setExperimental } = await import('../experimental.js');
+  setExperimental(!!(options.experimental || config?.experimental));
   let files;
   const stat = (await import('fs')).statSync(targetPath);
   if (stat.isFile()) {

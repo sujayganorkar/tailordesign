@@ -21,6 +21,7 @@ program
   .option('--control', 'Show process control report (setpoint tracking, alarms, control points)')
   .option('--human', 'Human-readable decision output (for non-technical review)')
   .option('--no-color', 'Disable colored output')
+  .option('--experimental', 'Enable experimental rules (e.g. a11y/contrast)')
   .option('--render <url>', 'Run optional browser-based rendered evaluation (requires playwright)')
   .option('--quiet', 'Suppress non-essential output')
   .action(async (path, options, command) => {

@@ -182,7 +182,7 @@ function parseJSXAST(content) {
       plugins: ['jsx', 'typescript', 'decorators-legacy'],
     });
 
-    traverse.default(ast, {
+    traverse(ast, {
       JSXElement(path) {
         const opening = path.node.openingElement;
         const tagName = getTagName(opening.name);

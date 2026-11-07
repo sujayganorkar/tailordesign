@@ -29,6 +29,10 @@ const FILE_EXTENSIONS = {
 export async function run(targetPath, options = {}) {
   // Load config file
   const config = options.config || null;
+  const { configurePrimitives } = await import('./primitives/registry.js');
+  configurePrimitives(config);
+  const { setExperimental } = await import('./experimental.js');
+  setExperimental(!!(options.experimental || config?.experimental));
   const ignore = [...IGNORE_PATTERNS, ...(options.ignore ? options.ignore.split(',') : []), ...(config?.ignore || [])];
 
   // Collect files

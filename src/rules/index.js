@@ -2,6 +2,7 @@
 
 import { checkContrast } from '../parsers/color.js';
 import { getRuleKind } from '../config.js';
+import { isExperimental } from '../experimental.js';
 
 export function runRules(parsed, allFiles) {
   const issues = [];
@@ -59,12 +60,14 @@ export function runRules(parsed, allFiles) {
     // Suppress hover/focus findings for files that delegate to imported components:
     // their states are defined in the component implementation, not inline here.
     const suppressInteractionStates = delegatesInteractionStates;
-    if (parsed.interactiveElements && parsed.interactiveElements.length > 0 && !parsed.hasHover && !suppressInteractionStates) {
-      issues.push({ rule: 'interaction/hover-state', severity: 'error', message: `Found ${parsed.interactiveElements.length} interactive element(s) but no hover state.`, file: parsed.filePath });
+    const lackingHover = (parsed.interactiveElements || []).filter(e => !e.hasHover).length;
+    const lackingFocus = (parsed.interactiveElements || []).filter(e => !e.hasFocusVisible).length;
+    if (lackingHover > 0 && !suppressInteractionStates) {
+      issues.push({ rule: 'interaction/hover-state', severity: 'error', message: `Found ${lackingHover} interactive element(s) without a hover state.`, file: parsed.filePath });
     }
 
-    if (parsed.interactiveElements && parsed.interactiveElements.length > 0 && !parsed.hasFocusVisible && !suppressInteractionStates) {
-      issues.push({ rule: 'interaction/focus-visible', severity: 'error', message: `Found ${parsed.interactiveElements.length} interactive element(s) but no focus-visible state.`, file: parsed.filePath });
+    if (lackingFocus > 0 && !suppressInteractionStates) {
+      issues.push({ rule: 'interaction/focus-visible', severity: 'error', message: `Found ${lackingFocus} interactive element(s) without a focus-visible state.`, file: parsed.filePath });
     }
 
     if (parsed.interactiveElements && parsed.interactiveElements.length > 2) {
@@ -89,11 +92,11 @@ export function runRules(parsed, allFiles) {
       issues.push({ rule: 'interaction/error-state', severity: 'warning', message: 'Data fetching but no error state.', file: parsed.filePath });
     }
 
-    if (parsed.hasModal && !parsed.hasFocusManagement) {
+    if (parsed.hasModal && !parsed.hasFocusManagement && !parsed.hasPrimitiveModal) {
       issues.push({ rule: 'a11y/focus-management', severity: 'error', message: 'Modal/dialog/drawer but no focus management (focus-trap).', file: parsed.filePath });
     }
 
-    if (parsed.hasModal && !parsed.hasAriaLive) {
+    if (parsed.hasModal && !parsed.hasAriaLive && !parsed.hasPrimitiveModal) {
       issues.push({ rule: 'a11y/aria-dynamic', severity: 'warning', message: 'Modal/dialog but no ARIA attributes.', file: parsed.filePath });
     }
 
@@ -104,13 +107,15 @@ export function runRules(parsed, allFiles) {
       }
     }
 
-    // a11y/contrast - check for potential contrast issues
-    try {
-      const contrastIssues = checkContrast(parsed._content || '');
-      if (contrastIssues.length > 0) {
-        issues.push({ rule: 'a11y/contrast', severity: 'warning', message: `Potential contrast issues (${contrastIssues.length}): ${contrastIssues.slice(0, 2).map(c => 'ratio ' + c.ratio).join(', ')}. WCAG AA requires 4.5:1.`, file: parsed.filePath });
-      }
-    } catch (e) { /* color parser not available */ }
+    // a11y/contrast - experimental, shallow static check. Enable with --experimental.
+    if (isExperimental()) {
+      try {
+        const contrastIssues = checkContrast(parsed._content || '');
+        if (contrastIssues.length > 0) {
+          issues.push({ rule: 'a11y/contrast', severity: 'warning', message: `Potential contrast issues (${contrastIssues.length}): ${contrastIssues.slice(0, 2).map(c => 'ratio ' + c.ratio).join(', ')}. WCAG AA requires 4.5:1. (experimental)`, file: parsed.filePath });
+        }
+      } catch (e) { /* color parser not available */ }
+    }
 
     if (parsed.hasNav && !parsed.hasActiveRoute) {
       issues.push({ rule: 'interaction/active-route', severity: 'info', message: 'Navigation but no active route indication.', file: parsed.filePath });
@@ -124,11 +129,9 @@ export function runRules(parsed, allFiles) {
       issues.push({ rule: 'consistency/no-card-grid-hero', severity: 'info', message: 'Card grid in hero. Use full-bleed imagery.', file: parsed.filePath });
     }
 
-    // perf/layout-thrash - check for interleaved DOM reads and writes
-    const hasLayoutRead = /offsetWidth|offsetHeight|getBoundingClientRect|clientWidth|clientHeight|scrollTop|scrollLeft/i.test(parsed._content || '');
-    const hasLayoutWrite = /\.style\.\w+\s*=|classList\.(add|remove|toggle)|\.innerHTML\s*=/i.test(parsed._content || '');
-    if (hasLayoutRead && hasLayoutWrite) {
-      issues.push({ rule: 'perf/layout-thrash', severity: 'info', message: 'Potential layout thrashing: DOM reads and writes in same file. Batch reads before writes.', file: parsed.filePath });
+    // perf/layout-thrash - only when a read and write occur in the same function scope
+    if (parsed.layoutThrash) {
+      issues.push({ rule: 'perf/layout-thrash', severity: 'info', message: 'Potential layout thrashing: DOM reads and writes in same function. Batch reads before writes.', file: parsed.filePath });
     }
 
     const hasInlineMotion = /style\s*=\s*\{\{[^}]*transition\s*:|animation\s*:|transform\s*:/i.test(parsed._content || '') || /animate=|variants=|whileHover|whileTap/i.test(parsed._content || '');

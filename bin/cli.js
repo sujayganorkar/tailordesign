@@ -22,6 +22,7 @@ program
   .option('--human', 'Human-readable decision output (for non-technical review)')
   .option('--no-color', 'Disable colored output')
   .option('--experimental', 'Enable experimental rules (e.g. a11y/contrast)')
+  .option('--library', 'Audit as a component library: component-level compliance report')
   .option('--platform <platform>', 'Target platform: auto, mobile, web, desktop, all', 'auto')
   .option('--render <url>', 'Run optional browser-based rendered evaluation (requires playwright)')
   .option('--quiet', 'Suppress non-essential output')

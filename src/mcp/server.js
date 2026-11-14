@@ -90,6 +90,18 @@ const TOOLS = [
     },
   },
   {
+    name: 'uiq_library_audit',
+    description: 'Audit a component library directory. Returns per-component quality/compliance report. Use to maintain design-system consistency.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        path: { type: 'string', description: 'Path to component library directory' },
+        minScore: { type: 'number', description: 'Minimum score to pass (default: 80)' },
+      },
+      required: ['path'],
+    },
+  },
+  {
     name: 'uiq_escalate',
     description: 'List pending escalations (issues needing human judgment).',
     inputSchema: {
@@ -160,6 +172,14 @@ async function handleTool(name, args) {
         task: args.task ?? {}, width: args.width, height: args.height,
       });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    }
+    case 'uiq_library_audit': {
+      const { run } = await import('../index.js');
+      const safePath = assertSafePath(args.path, 'path');
+      const result = await run(safePath, { format: 'json', library: true, minScore: args.minScore || 80 });
+      return {
+        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+      };
     }
     case 'uiq_escalate': {
       const { getPending } = await import('../escalation/cards.js');

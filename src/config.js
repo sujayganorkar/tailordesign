@@ -231,6 +231,9 @@ export const RULES = [
   { id: 'consistency/no-card-grid-hero', category: CATEGORIES.CONSISTENCY, severity: SEVERITY.INFO,
     description: 'Avoid card grids in the hero section. Use full-bleed imagery and brand-first hierarchy.',
     source: SOURCES['consistency/no-card-grid-hero'] },
+  { id: 'library/no-raw-interactive', category: CATEGORIES.CONSISTENCY, severity: SEVERITY.INFO,
+    description: 'In a component library, raw interactive elements should be wrapped in library primitives for consistency.',
+    source: { title: 'Design system consistency', url: 'https://www.designsystems.com/', summary: 'Centralize interactive primitives so states and accessibility are consistent.' } },
 ];
 
 export function getRule(id) {

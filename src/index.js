@@ -33,6 +33,8 @@ export async function run(targetPath, options = {}) {
   configurePrimitives(config);
   const { setExperimental } = await import('./experimental.js');
   setExperimental(!!(options.experimental || config?.experimental));
+  const { setLibraryMode } = await import('./library.js');
+  setLibraryMode(!!options.library);
   const { setPlatform } = await import('./platform.js');
   setPlatform(options.platform || config?.platform || 'auto');
   const ignore = [...IGNORE_PATTERNS, ...(options.ignore ? options.ignore.split(',') : []), ...(config?.ignore || [])];
@@ -58,6 +60,12 @@ export async function run(targetPath, options = {}) {
     // Skip obvious non-UI scripts
     if (/^(add-|generate-|build-|migrate-|sync-)/.test(name)) return false;
     if (/\/(scripts|cli|bin|tools|mcp|server|dist|build)\//.test(f)) return false;
+    // In library mode, only audit component definition files
+    if (options.library) {
+      const isComponentDir = /\/components\//i.test(f);
+      // We'll refine after reading content; keep broad here, filter below
+      if (!isComponentDir && !/\.(jsx|tsx)$/i.test(f)) return false;
+    }
     return true;
   });
 
@@ -83,6 +91,13 @@ export async function run(targetPath, options = {}) {
 
     // Skip very small files
     if (content.length < 50) continue;
+
+    // In library mode, only audit component definition files
+    if (options.library) {
+      const isComponentDir = /\/components\//i.test(file);
+      const exportsComponent = /export\s+default\s+function\s+[A-Z]/.test(content) || /export\s+const\s+[A-Z]\w*\s*=/.test(content);
+      if (!isComponentDir && !exportsComponent) continue;
+    }
 
     // Use adapter system for framework detection
     const { detectAdapter } = await import('./adapters/registry.js');
@@ -134,6 +149,19 @@ export async function run(targetPath, options = {}) {
     passed: score >= (options.minScore ? parseInt(options.minScore) : 80),
     issues: allIssues,
   };
+
+  if (options.library) {
+    const byFile = {};
+    for (const i of allIssues) {
+      if (!byFile[i.file]) byFile[i.file] = [];
+      byFile[i.file].push(i);
+    }
+    result.libraryReport = relevantFiles.map(f => ({
+      file: f,
+      issues: (byFile[f] || []).length,
+      errors: (byFile[f] || []).filter(i => i.severity === 'error').length,
+    }));
+  }
 
   // Format output
   const format = options.format || 'text';

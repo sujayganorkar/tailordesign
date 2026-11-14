@@ -45,6 +45,8 @@ export async function runFull(targetPath, options = {}) {
   configurePrimitives(config);
   const { setExperimental } = await import('../experimental.js');
   setExperimental(!!(options.experimental || config?.experimental));
+  const { setLibraryMode } = await import('../library.js');
+  setLibraryMode(!!options.library);
   const { setPlatform } = await import('../platform.js');
   setPlatform(options.platform || config?.platform || 'auto');
   let files;

@@ -4,6 +4,7 @@ import { checkContrast } from '../parsers/color.js';
 import { getRuleKind } from '../config.js';
 import { isExperimental } from '../experimental.js';
 import { isKnownLibrary } from '../primitives/registry.js';
+import { isLibraryMode } from '../library.js';
 import { isMobileOnly } from '../platform.js';
 
 export function runRules(parsed, allFiles) {
@@ -160,6 +161,15 @@ export function runRules(parsed, allFiles) {
       const unique = new Set(parsed.easings.map(e => e.trim().toLowerCase()));
       if (unique.size > 3) {
         issues.push({ rule: 'consistency/single-language', severity: 'info', message: `${unique.size} different easing curves. Use 1-2 for consistency.`, file: parsed.filePath });
+      }
+    }
+
+    // Library mode: discourage raw interactive elements outside primitive components
+    if (isLibraryMode()) {
+      const isPrimitiveFile = /\/(Button|Input|Link|Select|Checkbox|Switch|Slider|Modal|Dialog|Tooltip|Popover|Tabs|Menu)\.jsx$/i.test(parsed.filePath || '');
+      const nativeInteractive = (parsed.interactiveElements || []).filter(e => e.type !== 'component');
+      if (!isPrimitiveFile && nativeInteractive.length > 0) {
+        issues.push({ rule: 'library/no-raw-interactive', severity: 'info', message: 'Raw interactive element outside a primitive component. Wrap in the library primitive for consistency.', file: parsed.filePath });
       }
     }
   }

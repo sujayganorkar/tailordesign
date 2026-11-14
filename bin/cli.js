@@ -7,7 +7,7 @@ const program = new Command();
 program
   .name('uiq')
   .description('Quality gate for UI code. 22 core rules + 1 experimental across motion, interaction states, accessibility, performance, and consistency. Plus interaction decision engine.')
-  .version('0.3.0')
+  .version('0.4.0')
   .argument('[path]', 'Path to scan', '.')
   .option('-f, --format <format>', 'Output format: text, json, markdown', 'text')
   .option('--fix', 'Auto-fix simple issues (reduced-motion, motion tokens)')

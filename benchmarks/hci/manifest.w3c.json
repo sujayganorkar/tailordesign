@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "dataset": "w3c-aria-practices-pinned-real-examples",
+  "provenance": "Published interactive examples from https://github.com/w3c/aria-practices at commit 0f765e4dc33e966026114ac12a8380db1de3b787; only modal containment is labeled. Reference patterns are not independent user-study ground truth.",
+  "viewports": [
+    {
+      "name": "mobile",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "name": "desktop",
+      "width": 1280,
+      "height": 800
+    }
+  ],
+  "cases": [
+    {
+      "id": "w3c-address-dialog",
+      "url": "/patterns/dialog-modal/examples/dialog.html",
+      "task": {
+        "goal": "Open a delivery address dialog and navigate its controls by keyboard",
+        "readySelector": "#ex1",
+        "modalTriggerSelector": "#ex1 > button",
+        "modalSelector": "#dialog1"
+      },
+      "expected": {
+        "modalFocusEscapes": false
+      }
+    },
+    {
+      "id": "w3c-alert-dialog",
+      "url": "/patterns/alertdialog/examples/alertdialog.html",
+      "task": {
+        "goal": "Open a confirmation alert and navigate its buttons by keyboard",
+        "readySelector": "#notes_discard",
+        "modalTriggerSelector": "#notes_discard",
+        "modalSelector": "#alertdialog"
+      },
+      "expected": {
+        "modalFocusEscapes": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+# Don't publish these
+tests/
+.github/
+.gitignore
+.npmignore
+node_modules/
+*.log
+.DS_Store
+.uiq-state.json
+.uiq-feedback.json
+.uiq-escalations.json
+motion-spec.json
+.env
+.env.local

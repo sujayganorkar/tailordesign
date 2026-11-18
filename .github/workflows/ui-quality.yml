@@ -1,0 +1,33 @@
+# CI smoke test for uiq's own quality gate on a known-good fixture.
+# Consumers should run uiq against their application's UI files.
+name: UI Quality Gate
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'bin/**'
+      - '.github/workflows/ui-quality.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  ui-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Validate local CLI and quality gate behavior
+        run: node bin/cli.js tests/fixtures/GoodComponent.jsx --ci --min-score 80 --format markdown > ui-quality-report.md
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-quality-report
+          path: ui-quality-report.md

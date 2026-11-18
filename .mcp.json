@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "uiq": {
+      "command": "node",
+      "args": ["src/mcp/server.js"],
+      "description": "UI quality gate - scan, decide, scaffold, feedback, escalation"
+    }
+  }
+}

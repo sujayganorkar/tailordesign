@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "studyName": "Agent generated UI control vs source-backed HCI recommendations",
+  "tasks": [
+    {
+      "id": "commerce-product-filter",
+      "prompt": "Build a responsive product catalog with working sorting, filters and keyboard support."
+    },
+    {
+      "id": "operations-dashboard",
+      "prompt": "Build an operational dashboard with keyboard-accessible quick actions and responsive layout."
+    },
+    {
+      "id": "settings-modal",
+      "prompt": "Build a modal settings flow with save/cancel, keyboard navigation and focus return."
+    }
+  ],
+  "runs": [],
+  "protocol": {
+    "agent": "Same pinned model/version, temperature and tool budget for both arms",
+    "control": "Identical task text, no uiq HCI research recommendations",
+    "hci": "Identical task text plus uiq research output from original baseline; capture exact advice",
+    "assign": "Randomize arm execution order per task/seed. Use isolated worktrees and no shared generated artifacts.",
+    "reviewer": "Blind reviewers to arm; rate rendered UX 1-5. Reviewer scores recorded after independent review.",
+    "outcomes": "Record test success, browser runtime errors, task time, tokens, qualitative UI quality",
+    "honesty": "Do not populate runs until actual agent executions exist. A template is not evidence."
+  }
+}

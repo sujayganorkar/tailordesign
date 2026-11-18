@@ -1,0 +1,569 @@
+# uiq — eslint for UI
+
+> **One command. Objective rules. Zero taste debates.**
+> Your code builds the UI. `uiq` makes sure it doesn't ship broken.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](package.json)
+[![Rules](https://img.shields.io/badge/rules-23-orange.svg)](src/config.js)
+[![Sources](https://img.shields.io/badge/sources-23%20verified-green.svg)](SOURCES.md)
+
+```bash
+npx @sujayganorkar/uiq ./src
+```
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  AI UI Quality Gate Report
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Files scanned:  4  |  Issues: 14  |  Score: 27/100 ✗ FAIL
+
+  src/BadComponent.jsx
+    ✗ interaction/hover-state — No hover state on 3 interactive elements
+    ✗ interaction/focus-visible — No focus-visible on 3 interactive elements
+    ✗ a11y/keyboard-nav — onClick on <div>, use <button> instead
+    ⚠ interaction/loading-state — Data fetching but no loading UI
+    ⚠ interaction/empty-state — No empty state for data view
+    ⚠ interaction/error-state — No error state for failed requests
+    ℹ consistency/no-generic-cta — Generic blue CTA detected
+
+  Score: 27/100 ✗ FAIL  (threshold: 80)
+```
+
+---
+
+## The problem
+
+AI agents build UI that is **technically correct but mechanically broken**:
+
+- ❌ Buttons with no hover or focus states
+- ❌ Modals with no focus trapping
+- ❌ Lists with no loading, empty, or error states
+- ❌ Animations on layout properties (causes jank)
+- ❌ No `prefers-reduced-motion` handling
+- ❌ Durations like 800ms (should be 150-300ms)
+- ❌ Generic blue CTAs everywhere
+- ❌ Card grids in hero sections
+
+These aren't taste problems. They're **objective, measurable failures** that agents ship silently because nobody checks.
+
+## Use cases
+
+### 1. Cleaning up existing UI
+You have a codebase with AI-generated or hand-written UI that has issues:
+```bash
+uiq ./src                    # Find all issues
+uiq ./src --platform mobile  # Target mobile (mutes desktop hover/focus on touch widgets)
+uiq ./src --experimental     # Enable experimental rules (e.g. a11y/contrast)
+uiq ./src --decide           # See what interactions each component should have
+uiq ./src --full             # Verify decisions match implementation
+uiq ./src --state            # Track regressions over time
+```
+
+### 2. Creating new UI
+You're starting a new project and want quality built in from day one:
+```bash
+uiq create ./my-app          # Scaffold with quality gates, tokens, templates
+cd my-app
+uiq ./src                    # Verify: 100/100 ✓
+```
+
+### 3. CI/CD pipeline
+Use the official GitHub Action:
+```yaml
+- name: UI Quality Gate
+  uses: sujayganorkar/tailordesign@main
+  with:
+    path: './src'
+    min-score: 80
+```
+Or run directly via CLI:
+```yaml
+- run: npx @sujayganorkar/uiq ./src --ci --min-score 80
+```
+
+### 4. Agent workflow
+Your AI agent writes code, uiq verifies it:
+```
+Agent writes code → runs uiq → fixes issues → re-runs → declares done
+```
+
+### 5. Team onboarding
+New developers learn UI quality standards:
+```bash
+uiq ./src --decide --human   # Plain-English interaction recommendations
+uiq explain all              # Browse all rules with sources
+```
+
+### 6. Design system enforcement
+Ensure components follow your design system:
+```bash
+# .uiqrc.json
+{
+  "rules": {
+    "consistency/motion-tokens": "error",
+    "consistency/no-generic-cta": "off"
+  },
+  "suppressions": {
+    "a11y/keyboard-nav": ["**/legacy/**"]
+  },
+  "componentMappings": {
+    "MyButton": "button",
+    "MyCard": "card-clickable"
+  }
+}
+```
+`rules` values are severity overrides (`"error"`, `"warning"`, `"info"`) or `"off"` to disable a rule. Suppressed findings are counted in every report so nothing disappears silently.
+
+`uiq` is a deterministic quality gate. It runs in seconds, needs no browser, and checks 22 core rules (+1 experimental) across 5 categories. Your agent runs it after writing code, fixes the issues, and re-runs until it passes.
+
+**No taste debates. No rendering. No cost. Just rules.**
+
+---
+
+## Scenarios
+
+### Scenario 1: "I have an existing messy codebase"
+1. Run `uiq ./src` → see 150 issues, score 27/100
+2. Hand report to agent: "Fix all errors, then warnings"
+3. Agent fixes 120 issues automatically
+4. Run `uiq ./src` → score 72/100
+5. Agent fixes remaining 30 issues
+6. Run `uiq ./src` → score 84/100 ✅
+7. Run `uiq ./src --full` → compliance 94% ✅
+8. Human reviews site → adds feedback → agent adjusts
+9. Run `uiq ./src --state` → baseline saved for future regression detection
+
+### Scenario 2: "I'm starting a new project"
+1. Run `uiq create ./my-app` → scaffold with quality built in
+2. Project has: 5 component templates, design tokens, CI workflow, config
+3. Run `uiq ./src` → 100/100 ✅ (zero issues from day one)
+4. As you add features, run `uiq ./src` after each change
+5. Quality never drops below 80 because the foundation is solid
+
+### Scenario 3: "My AI agent just wrote a page"
+1. Agent writes a landing page (hero, features, pricing, CTA)
+2. Agent runs `uiq ./src --format json`
+3. Agent sees: 14 issues (3 errors, 9 warnings, 2 info), score 57/100
+4. Agent fixes all errors: hover states, focus-visible, keyboard nav
+5. Agent fixes warnings: loading/empty/error states, reduced-motion, motion tokens
+6. Agent re-runs: score 84/100 ✅
+7. Agent runs `uiq ./src --decide` to check interaction completeness
+8. Agent implements missing states (loading on buttons, active route in nav)
+9. Agent runs `uiq ./src --full` → compliance 96% ✅
+10. Agent declares "done" — human never saw a single uiq report
+
+### Scenario 4: "I need to check accessibility for compliance"
+1. Run `uiq ./src --rules "a11y/keyboard-nav,a11y/focus-management,a11y/aria-dynamic,a11y/touch-targets,a11y/contrast"`
+2. Get focused accessibility report
+3. Fix all accessibility issues
+4. Run `uiq ./src --full` for compliance score
+5. Export report for legal/audit team
+
+> Note: uiq's accessibility checks are a fast static pre-filter. For real accessibility compliance, also run axe/Lighthouse/pa11y and eslint-plugin-jsx-a11y. uiq complements, not replaces, those tools.
+
+### Scenario 5: "My teammate changed the code"
+1. Teammate adds new components without quality checks
+2. Run `uiq ./src --state`
+3. See: 3 new issues, score dropped 84 → 61
+4. Fix regressions: `uiq ./src --fix` (auto-fix CSS) + manual fixes
+5. Run `uiq ./src` → score back to 84 ✅
+6. Run `uiq ./src --state` → "No changes since last scan" (baseline updated)
+
+## Install
+
+```bash
+npm install -g @sujayganorkar/uiq
+# or use directly
+npx @sujayganorkar/uiq ./src
+```
+
+**As an agent skill** (Claude Code / Codex / Cursor):
+```bash
+git clone https://github.com/sujayganorkar/tailordesign.git ~/.claude/skills/uiq
+```
+
+---
+
+## Quick start
+
+```bash
+# 1. Scan your UI
+npx @sujayganorkar/uiq ./src
+
+# 2. Fix the issues (agent does this automatically)
+
+# 3. Re-run until it passes
+npx @sujayganorkar/uiq ./src --ci --min-score 80
+```
+
+---
+
+## Commands
+
+| Command | What it does |
+|---|---|
+| `uiq ./src` | Quality gate — checks 22 core rules (+1 experimental) |
+| `uiq ./src --decide` | Decision analysis — what interaction each component warrants |
+| `uiq ./src --full` | Full loop — decisions + quality + compliance |
+| `uiq ./src --state` | Save state + detect regressions |
+| `uiq review` | View human feedback |
+| `uiq escalate` | View pending escalations |
+| `uiq state` | View scan history |
+| `uiq init` | Scaffold a .uiqrc.json config |
+| `uiq watch ./src` | Watch for changes and re-scan |
+| `uiq create [path]` | Create a new frontend project with the quality gate wired in |
+| `uiq scaffold [path]` | Scaffold tokens + components into an existing project |
+| `uiq explain [rule]` | Explain a rule in plain English (or `all`) |
+| `uiq dashboard [path]` | Local web dashboard for visual review |
+| `uiq verify [path]` | Verify project passes quality + compliance (CI/agent) |
+| `uiq loop [path]` | Run the refinement loop: each call records one iteration, guards (plateau, score-gaming, max-iterations) evaluate the persisted history; `--reset` starts over |
+| `uiq spec show [path]` | Show motion-spec.json summary + unapproved components |
+| `uiq spec approve <file> <component>` | Approve a spec component (`--by <name>`) |
+| `uiq --render <url>` | Optional browser-based rendered evaluation (requires playwright) |
+
+### Flags
+
+| Flag | Description |
+|---|---|
+| `--format json` | JSON output (for agents) |
+| `--format markdown` | Markdown report |
+| `--ci` | CI mode (exit 1 on failure) |
+| `--min-score <n>` | Pass threshold (default: 80) |
+| `--decide` | Run decision analysis |
+| `--full` | Full workflow |
+| `--state` | Save state for regression detection |
+| `--fix` | Auto-fix simple issues (reduced-motion, motion tokens) |
+| `--rules <ids>` | Run only specific rules (comma-separated) |
+| `--ignore <patterns>` | Ignore glob patterns (comma-separated) |
+| `--strict` | Include heuristic rules in the score and gate (default: advisory only) |
+| `--platform <p>` | Target platform: `auto`, `mobile`, or `web` |
+| `--no-color` | Disable colored output |
+| `--quiet` | Suppress non-essential output |
+
+---
+
+## The concreteness contract
+
+Every finding is either **load-bearing** or **visibly advisory**. Nothing in between.
+
+- **Objective rules** (violations of published standards: WCAG, compositor-only animation, keyboard access, required states) **deduct points and can fail the gate.** Any error-severity finding **always blocks passing**, regardless of score — a single real violation in a large project can never hide inside an average.
+- **Recommendation-kind rules** (heuristics: motion tokens, touch targets, duration ranges, generic CTAs, easing consistency) are **advisory**: they appear in the report tagged `[advisory]`, deduct **zero** points, and can never fail the gate. Enable `--strict` if your team wants heuristics to gate too.
+- **Suppression is first-class and auditable.** False positives are removed by recorded artifacts, not by ignoring the tool:
+  ```jsx
+  {/* uiq-ignore a11y/keyboard-nav */}
+  <div onClick={handleLinkClick}>…</div>   {/* uiq-ignore */}
+  ```
+  Or project-wide in `.uiqrc.json`:
+  ```json
+  { "suppressions": { "a11y/keyboard-nav": ["**/legacy/**"], "*": ["**/generated/**"] } }
+  ```
+- **Config severity overrides are explicit.** In `.uiqrc.json`, `rules` maps a rule ID to `"error" | "warning" | "info" | "off"`. `"off"` disables the rule; escalating to `"error"` makes it gate-blocking (your explicit choice). An empty `rules` object changes nothing — it never acts as an include-filter.
+- **Suppressed and advisory findings are counted in every report** (`Suppressed: N`, `Advisory: N`), so "what did the tool decline to say?" is always visible.
+- **Precision is enforced by test.** The external-repos harness records per-repo error baselines on curated production codebases; a rule that starts producing *new* gate-blocking findings there fails the tool's own test suite.
+
+---
+
+## What it checks (22 core rules + 1 experimental)
+
+`a11y/contrast` is now **experimental** (enable with `--experimental`) because static regex cannot reliably evaluate CSS variables, dark-mode prefixes, or computed styles. For real contrast verification, run axe/Lighthouse.
+
+### Motion (5 rules)
+| Rule | What it catches |
+|---|---|
+| `motion/no-layout-animation` | Animating width/height/top/margin (causes jank) |
+| `motion/duration-range` | Durations outside 100-500ms |
+| `motion/known-easing` | Unknown easing curves |
+| `motion/reduced-motion` | No `prefers-reduced-motion` handling |
+| `motion/stagger-interval` | Multiple animations without stagger pattern |
+
+### Interaction (7 rules)
+| Rule | What it catches |
+|---|---|
+| `interaction/hover-state` | Interactive elements without hover styling |
+| `interaction/focus-visible` | No focus-visible for keyboard nav |
+| `interaction/disabled-state` | No disabled state handling |
+| `interaction/loading-state` | Data views without loading UI |
+| `interaction/empty-state` | Data views without empty state |
+| `interaction/error-state` | Data views without error state |
+| `interaction/active-route` | Navigation without active route indication |
+
+### Accessibility (5 rules)
+| Rule | What it catches |
+|---|---|
+| `a11y/keyboard-nav` | onClick on divs/spans (not keyboard accessible) |
+| `a11y/focus-management` | Modals/drawers without focus trapping |
+| `a11y/aria-dynamic` | Dynamic content without ARIA attributes |
+| `a11y/touch-targets` | No explicit touch target sizing (44×44px) |
+| `a11y/contrast` | Potential contrast issues (WCAG 4.5:1) — experimental, enable with `--experimental` |
+
+### Performance (2 rules)
+| Rule | What it catches |
+|---|---|
+| `perf/compositor-only` | Animations on layout properties (main thread) |
+| `perf/layout-thrash` | Interleaved DOM reads/writes |
+
+### Consistency (4 rules)
+| Rule | What it catches |
+|---|---|
+| `consistency/motion-tokens` | No motion design tokens defined |
+| `consistency/single-language` | More than 3 different easing curves |
+| `consistency/no-generic-cta` | Generic blue CTA buttons |
+| `consistency/no-card-grid-hero` | Card grids in hero section |
+
+---
+
+## The decision engine
+
+`uiq ./src --decide` tells you **what interaction each component should have**:
+
+```
+├─ Component: button-primary (×2)
+│  Consequence: instant-reversible
+│  Required states: hover, focus-visible, active, disabled, loading
+│  Recommended motion:
+│    → color shift on hover (100-150ms)
+│    → scale(0.97) on press
+│    → loading spinner replaces label
+│  Anti-patterns:
+│    ✗ Don't use generic blue — use brand color
+│    ✗ Loading state must disable the button
+```
+
+Covers 16 component types for both web (JSX/TSX/CSS/HTML) and Flutter (Dart).
+
+---
+
+## Creating new projects (scaffold)
+
+Instead of adding quality checks after the fact, start with them built in:
+
+```bash
+uiq create ./my-app
+cd my-app
+uiq ./src  # 100/100 ✅ zero issues from day one
+```
+
+The scaffold creates:
+- **5 component templates** (Button, Card, Modal, DataView, Input) — all with proper states, motion, and accessibility
+- **Design tokens** (colors, motion, spacing, radius) — single source of truth
+- **CI workflow** — GitHub Action that runs uiq on every PR
+- **Config file** (.uiqrc.json) — customizable rules and thresholds
+- **Motion spec** (motion-spec.json) — machine-readable interaction decisions
+
+Every generated component already passes the quality gate. As you add features, run `uiq ./src` after each change to maintain quality.
+
+## The full loop
+
+```
+DECIDE → IMPLEMENT → CHECK → COMPLY → ESCALATE/REVIEW → LEARN → DECIDE
+```
+
+1. **Decide**: `uiq ./src --decide --write-spec` → interaction requirements per component, written to motion-spec.json
+2. **Implement**: Agent builds with required states and motion
+3. **Check**: `uiq ./src` → quality issues
+4. **Comply**: `uiq ./src --full` → cross-reference decisions vs. implementation; if motion-spec.json exists, spec conformance is verified and reported
+5. **Approve**: `uiq spec show` → list unapproved components; `uiq spec approve <file> <component> --by <name>` records human sign-off in the spec
+6. **Escalate**: Agent stuck? → `uiq escalate` → human picks option → `uiq escalate resolve <id> --option N`. Resolved escalations are recorded and never re-raised for the same rule+file (fixing the code or adding a `uiq-ignore` is what clears the gate itself).
+7. **Iterate**: `uiq loop` → each run records one iteration against persisted history; guards stop the loop on plateau, score-gaming, target reached, or `--max-iterations`
+8. **Review**: Human watches site → `uiq review --add` → structured feedback
+9. **Learn**: State saved → next scan detects regressions
+
+---
+
+## Agent workflow (copy-paste into AGENTS.md)
+
+```
+After writing or modifying UI code:
+1. Run: npx @sujayganorkar/uiq ./src
+2. Fix errors first, then warnings
+3. Re-run until score ≥ 80
+4. Run: uiq ./src --full
+5. Verify compliance ≥ 90%
+6. Only declare "done" when both pass
+
+For new components:
+1. Run: npx @sujayganorkar/uiq ./src --decide
+2. Implement all required states and recommended motion
+3. Follow anti-patterns list
+4. Run: uiq ./src
+```
+
+---
+
+## CI integration
+
+```yaml
+# .github/workflows/ui-quality.yml
+name: UI Quality Gate
+on: [pull_request]
+jobs:
+  uiq:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npx @sujayganorkar/uiq ./src --ci --min-score 80
+```
+
+---
+
+## Human feedback
+
+```bash
+# Add feedback
+uiq review --add --file Hero.jsx --component Hero --category too-slow --note "Entrance takes 600ms"
+
+# View feedback
+uiq review
+
+# List unresolved
+uiq review --list
+
+# Resolve
+uiq review --resolve fb-1234567890
+```
+
+**Categories**: `too-slow`, `too-fast`, `janky`, `wrong-easing`, `unnecessary`, `missing`, `too-much`, `too-little`, `wrong-trigger`, `accessibility`
+
+---
+
+## Escalations
+
+When the agent can't auto-fix an issue, it creates an escalation:
+
+```bash
+uiq escalate                    # View pending
+uiq escalate resolve esc-123 --option 2  # Resolve with option 2
+```
+
+---
+
+## Supported frameworks
+
+| Framework | Files | Parser |
+|---|---|---|
+| React / Next.js | `.jsx`, `.tsx`, `.js`, `.ts` | JSX |
+| Vue / Svelte | `.vue`, `.svelte` | JSX (HTML-like) |
+| HTML | `.html`, `.htm` | JSX |
+| CSS / Tailwind | `.css`, `.scss`, `.less` | CSS |
+| Flutter | `.dart` | Dart |
+
+---
+
+## Architecture
+
+```
+src/
+├── config.js              — Rule definitions (22 core + 1 experimental), kinds, severity overrides
+├── index.js               — Quality gate runner (scan, scoring, gating, suppressions)
+├── reporter.js            — Output formatting (text, JSON, markdown)
+├── parsers/               — JSX, CSS, Dart parsers
+├── rules/                 — Rule implementations
+├── decisions/             — Component classifier + requirements + engine
+├── workflow/              — Full workflow (decisions + quality + compliance)
+├── spec/                  — Machine-readable motion spec (generate, approve, verify)
+├── state/                 — State persistence + regression detection
+├── feedback/              — Human feedback capture (log, not auto-adjust)
+├── escalation/            — Escalation protocol (de-duplicated, resolution-aware)
+├── control/               — Process control report (persisted across runs)
+├── loop/                  — Refinement loop with guards (persisted across runs)
+├── platform/              — Target platform (auto, mobile, web)
+├── primitives/            — Headless primitive registry (Radix, Headless UI, React Aria)
+├── mcp/                   — MCP server (uiq_scan, uiq_full_scan, uiq_library_audit)
+└── utils/                 — Scoring, suppression (inline + config), line mapping
+```
+
+---
+
+## Documentation
+
+| Document | Description |
+|---|---|
+| [README.md](README.md) | This file — overview and usage |
+| [SOURCES.md](SOURCES.md) | All rules with verified source citations |
+| [SKILL.md](SKILL.md) | Agent skill (Claude Code / Codex / Cursor) |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
+| [SECURITY.md](SECURITY.md) | Security policy |
+| [CHANGELOG.md](CHANGELOG.md) | Release history |
+| [LICENSE](LICENSE) | MIT license |
+
+### Tests
+
+| Suite | What it covers |
+|---|---|
+| `tests/basic.test.js` | Core rule detection |
+| `tests/gate-semantics.test.js` | Concreteness contract (objective-only gate, suppressions, severity overrides) |
+| `tests/wired-features.test.js` | Loop, escalation, control, spec, platform wire-ups |
+| `tests/cli-e2e.test.js` | User-perspective CLI tests (exit codes, formats, side effects, determinism) |
+| `tests/fuzz.test.js` | Property-based fuzzing of parser and runner |
+| `tests/adversarial-rules.test.js` | Per-rule precision/recall pairs |
+| `tests/adversarial-inputs.test.js` | Edge-case inputs (unicode, CRLF, BOM, huge files) |
+| `tests/chaos.test.js` | Fault injection (bad config, permissions, paths) |
+| `tests/contract.test.js` | JSON schema validation (ajv) |
+| `tests/perf.test.js` | Performance budget (1000 files) |
+| `tests/golden.test.js` | Stable error-rule sets on real repos |
+| `tests/external-repos.test.js` | Precision baselines on 5 production codebases |
+
+## Sources
+
+Every rule in uiq cites a real, published, verifiable source. No AI-generated sources. No broken links.
+
+See [SOURCES.md](SOURCES.md) for the full list of 20 citations with URLs and summaries.
+
+All sources are from: W3C/WCAG, Material Design, NN/g, MDN, web.dev, Apple HIG, CSS Triggers, W3C Design Tokens, ARIA APG.
+
+**Q: Does this replace human design review?**
+No. It automates the objective layer (motion mechanics, states, accessibility). The experiential layer (does it feel right?) still needs human judgment. The tool makes human review faster by catching mechanical issues first.
+
+**Q: Can the agent game the score?**
+The agent could add `hover:` to every element to silence the linter. That's why the decision engine exists — it specifies *which* components need *which* states. The compliance check verifies decisions match implementation.
+
+**Q: Does this work without a browser?**
+Yes. All checks are static (AST/regex on source code). No rendering, no Playwright, no screenshots. Runs in < 2 seconds.
+
+**Q: What about taste/beauty?**
+Out of scope. The tool checks mechanical correctness, not aesthetics. For taste, use visual references + human review.
+
+**Q: Is this only for AI-generated UI?**
+No. It works on any UI code. But it's designed for the agentic workflow where an agent writes code and needs automated verification.
+
+---
+
+## How it avoids false positives
+
+- **AST-based, element-level checks** (not file-wide regex): a file with 10 buttons where only one has `hover:` now flags the 9 missing ones instead of silently passing.
+- **Headless primitive registry**: components from Radix UI, Headless UI, and React Aria are recognized as accessible primitives, so their consumers are not re-flagged. Extend via `.uiqrc.json` → `primitives`.
+- **Two-pass component graph**: a file importing a local interactive component is only muted when that component actually contains interactive elements — utility-only imports no longer silence real errors.
+- **Project-wide reduced-motion**: a global `prefers-reduced-motion` media query in one CSS file covers animated components elsewhere.
+- **Scope-aware layout-thrash**: only flags when a DOM read and write occur in the *same function*, not merely the same file.
+- **CSS module resolution**: `className={styles.btn}` is resolved against the imported `.module.css` to check for `:hover`/`:focus`.
+- **Experimental contrast rule**: `a11y/contrast` is disabled by default; enable with `--experimental`.
+
+## Limitations and honesty
+
+- Static analysis only by default. Rendered layout, responsive behavior, and visual quality require the optional `--render` flag (Playwright). Without it, uiq cannot detect overflow, z-index issues, or visual regressions.
+- Component classification is ~70-80% accurate on real codebases; custom components may be missed or misclassified.
+- The `a11y/contrast` rule is experimental and only checks Tailwind color classes within a single `className` string; it cannot evaluate CSS variables or computed styles. Enable with `--experimental`.
+- `perf/layout-thrash` is a heuristic (DOM read + write in same function), not a runtime measurement.
+- Recommendation-kind rules (motion tokens, touch targets, duration ranges, generic CTAs, easing) are advisory by default — they never affect the score or exit code. Use `--strict` to gate on them.
+- Scores are a proxy for code-level quality, not a guarantee of good UX. A project can score 100 and still feel wrong; human "feel" review remains necessary (see `uiq review` and the FEEL_CHECK control point).
+- Benchmark comparisons against agent-only implementations are not yet measured; the benchmark harness is provided for reproducible evaluation.
+- Motion recommendations are design guidance, not requirements; `shouldAnimate: false` means "no animation needed," not "animation forbidden."
+- Determinism: scan output (issues, score, passed, JSON) is byte-identical across runs on the same input. State and escalation files contain timestamps and are expected to vary.
+
+## License
+
+MIT
+
+## Contributing
+
+1. Fork the repo
+2. Add a rule in `src/config.js` and implement in `src/rules/index.js`
+3. Add parser support in `src/parsers/`
+4. Add tests in `tests/`
+5. Submit PR
+
+Rules should be: deterministic, objective, checkable via static analysis, and map to an established standard (Material Design, Apple HIG, WCAG, etc.).

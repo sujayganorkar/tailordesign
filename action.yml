@@ -1,0 +1,52 @@
+name: 'uiq - UI Quality Gate'
+description: 'Automated quality gate for UI code: motion, accessibility, interaction states, and performance.'
+author: 'Sujay Ganorkar'
+branding:
+  icon: 'check-circle'
+  color: 'blue'
+
+inputs:
+  path:
+    description: 'Path to scan (file or directory)'
+    required: false
+    default: './src'
+  min-score:
+    description: 'Minimum score to pass (0-100)'
+    required: false
+    default: '80'
+  format:
+    description: 'Output format (text, json, markdown, summary)'
+    required: false
+    default: 'text'
+  rules:
+    description: 'Comma-separated rule IDs to run'
+    required: false
+    default: ''
+  experimental:
+    description: 'Enable experimental rules (e.g. a11y/contrast)'
+    required: false
+    default: 'false'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Run uiq Quality Gate
+      shell: bash
+      run: |
+        ARGS="${{ inputs.path }} --ci --min-score ${{ inputs.min-score }}"
+        if [ -n "${{ inputs.format }}" ]; then
+          ARGS="$ARGS --format ${{ inputs.format }}"
+        fi
+        if [ -n "${{ inputs.rules }}" ]; then
+          ARGS="$ARGS --rules ${{ inputs.rules }}"
+        fi
+        if [ "${{ inputs.experimental }}" = "true" ]; then
+          ARGS="$ARGS --experimental"
+        fi
+        
+        # If running from inside the tailoredesign repo, use local cli; otherwise npx
+        if [ -f "$GITHUB_ACTION_PATH/bin/cli.js" ]; then
+          node "$GITHUB_ACTION_PATH/bin/cli.js" $ARGS
+        else
+          npx @sujayganorkar/uiq $ARGS
+        fi

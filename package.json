@@ -62,7 +62,7 @@
   },
   "dependencies": {
     "@babel/parser": "^8.0.8",
-    "@babel/traverse": "^8.0.7",
+    "@babel/traverse": "^8.1.2",
     "@modelcontextprotocol/sdk": "^1.32.2",
     "chalk": "^5.3.0",
     "commander": "^12.1.0",

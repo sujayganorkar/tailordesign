@@ -70,6 +70,6 @@
   },
   "devDependencies": {
     "ajv": "^8.20.0",
-    "fast-check": "^4.10.2"
+    "fast-check": "^4.11.0"
   }
 }
